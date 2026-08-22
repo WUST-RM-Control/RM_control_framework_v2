@@ -383,6 +383,22 @@ float OLS_Smooth(Ordinary_Least_Squares_t *OLS, float deltax, float y)
 }
 
 
+//uint转float
+float uint_to_float(int x_int, float x_min, float x_max, int bits)
+{
+        float span   = x_max - x_min;
+        float offset = x_min;
+        return ((float) x_int) * span / ((float) ((1 << bits) - 1)) + offset;
+}
+
+//float转uint
+int float_to_uint(float x, float x_min, float x_max, int bits)
+{
+        float span   = x_max - x_min;
+        float offset = x_min;
+        return (int) ((x - offset) * ((float) ((1 << bits) - 1)) / span);
+}
+
 /**
   * @brief          float  填充int16
   * @param[in]      float  值

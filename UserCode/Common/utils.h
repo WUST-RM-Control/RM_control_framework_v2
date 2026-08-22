@@ -156,6 +156,8 @@ float OLS_Smooth(Ordinary_Least_Squares_t *OLS, float deltax, float y);
 float Get_OLS_Derivative(Ordinary_Least_Squares_t *OLS);
 float Get_OLS_Smooth(Ordinary_Least_Squares_t *OLS);
 
+int float_to_uint(float x, float x_min, float x_max, int bits);
+float uint_to_float(int x_int, float x_min, float x_max, int bits);
 int16_t float_to_int16(float fValue, float min, float max);
 float int16_to_float(int16_t iValue, float min, float max);
 int16_t float_to_int16_Angle(float fAngle);

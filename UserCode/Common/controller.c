@@ -200,8 +200,6 @@ float PID_Calculate(PID_t *pid, float measure, float ref)
 
     pid->dt = DWT_GetDeltaT((void *)&pid->DWT_CNT);
 
-    pid->Measure = measure;
-    pid->Ref = ref;
     pid->Err = pid->Ref - pid->Measure;
 
     if (pid->User_Func1_f != NULL)
