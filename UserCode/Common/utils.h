@@ -18,6 +18,7 @@
  ******************************************************************************
  */
 
+#include "cmsis_gcc.h"
 #include "stdint.h"
 
 
@@ -162,5 +163,10 @@ int16_t float_to_int16(float fValue, float min, float max);
 float int16_to_float(int16_t iValue, float min, float max);
 int16_t float_to_int16_Angle(float fAngle);
 float int16_to_float_Angle(int16_t iAngle);
+
+__STATIC_INLINE void null_function()
+{
+
+}
 
 #endif //G4MINI_V3_UTILS_H

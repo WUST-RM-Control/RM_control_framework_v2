@@ -9,6 +9,8 @@
 #include "drv_motor.h"
 void Motor_DJI_SendCurrent(FDCAN_HandleTypeDef *hfdcan, uint16_t CAN_ID, int16_t ID1_Current, int16_t ID2_Current, int16_t ID3_Current, int16_t ID4_Current);
 
-void Motor_DJI_Storage_Data(const uint8_t *Data, Motor_HandleTypeDef *DJI_Motor_Data_Struct);
+void Motor_DJI_Storage_Data(Motor_HandleTypeDef *DJI_Motor_Data_Struct, const uint8_t *Data);
+
+
 
 #endif //G4MINI_V3_DRV_MOTOR_DJI_H

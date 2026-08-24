@@ -7,6 +7,8 @@
 
 #include "stm32g4xx_hal.h"
 
+#define CHASSIS_MOTOR_CAN &hfdcan1
+
 void CAN_Send_Data_STD(FDCAN_HandleTypeDef *hfdcan, uint16_t ID, const uint8_t *TX_Data);
 
 void CAN_Send_Data_EXD(FDCAN_HandleTypeDef *hfdcan, uint32_t ID, uint8_t *TX_Data, uint8_t Length);
