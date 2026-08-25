@@ -12,15 +12,15 @@
 #include "hal_dwt.h"
 
 
-Motor_HandleTypeDef hmotor_chassis1 = {};
-Motor_HandleTypeDef hmotor_chassis2 = {};
-Motor_HandleTypeDef hmotor_chassis3 = {};
-Motor_HandleTypeDef hmotor_chassis4 = {};
-Motor_HandleTypeDef hmotor_yaw      = {};
-Motor_HandleTypeDef hmotor_pitch    = {};
-Motor_HandleTypeDef hmotor_shoot0   = {};
-Motor_HandleTypeDef hmotor_shoot1   = {};
-Motor_HandleTypeDef hmotor_trigger  = {};
+Motor_HandleTypeDef hmotor_chassis1    = {};
+Motor_HandleTypeDef hmotor_chassis2    = {};
+Motor_HandleTypeDef hmotor_chassis3    = {};
+Motor_HandleTypeDef hmotor_chassis4    = {};
+Motor_HandleTypeDef hmotor_yaw         = {};
+Motor_HandleTypeDef hmotor_pitch       = {};
+Motor_HandleTypeDef hmotor_fric_right  = {};
+Motor_HandleTypeDef hmotor_fric_left = {};
+Motor_HandleTypeDef hmotor_trigger     = {};
 
 Motor_HandleTypeDef *hmotor[MOTOR_COUNT] = {
         &hmotor_chassis1,
@@ -29,8 +29,8 @@ Motor_HandleTypeDef *hmotor[MOTOR_COUNT] = {
         &hmotor_chassis4,
         &hmotor_yaw,
         &hmotor_pitch,
-        &hmotor_shoot0,
-        &hmotor_shoot1,
+        &hmotor_fric_right,
+        &hmotor_fric_left,
         &hmotor_trigger
 };
 
@@ -221,17 +221,13 @@ static void Motor_Init()
         }
 }
 
-
-
-
-
-
 void Motor_Control_Task(void *pvParameters)
 {
         Motor_Init();
 
         for (;;)
         {
+                //计算所有电机的pid
                 for (int i = 0; i < MOTOR_COUNT; i++)
                 {
                         //位置环
@@ -246,7 +242,7 @@ void Motor_Control_Task(void *pvParameters)
                         }
                 }
 
-
+                //底盘电机发电流 can1
                 Motor_DJI_SendCurrent(&CHASSIS_MOTOR_CAN, CHASSIS_MOTOR_SEND_CAN_ID,
                                       (int16_t) Motor_Get_Target_Torque(&hmotor_chassis1),
                                       (int16_t) Motor_Get_Target_Torque(&hmotor_chassis2),
@@ -254,22 +250,34 @@ void Motor_Control_Task(void *pvParameters)
                                       (int16_t) Motor_Get_Target_Torque(&hmotor_chassis4)
                                      );
 
+                //yaw电机发电流 can2
                 Motor_DM_Set_Torque(&hmotor_yaw, Motor_Get_Target_Torque(&hmotor_yaw));
 
-                Motor_DJI_SendCurrent(&SHOOT, CHASSIS_MOTOR_SEND_CAN_ID,
-                                      (int16_t) Motor_Get_Target_Torque(&hmotor_chassis1),
-                                      (int16_t) Motor_Get_Target_Torque(&hmotor_chassis2),
-                                      (int16_t) Motor_Get_Target_Torque(&hmotor_chassis3),
-                                      (int16_t) Motor_Get_Target_Torque(&hmotor_chassis4)
+                //拨弹盘 can2
+                Motor_DJI_SendCurrent(&SHOOT_TRIGGER_CAN, SHOOT_TRIGGER_SEND_CAN_ID,
+                                      0,
+                                      0,
+                                      0,
+                                      (int16_t) Motor_Get_Target_Torque(&hmotor_trigger)
                                      );
 
-                Motor_DJI_SendCurrent(&CHASSIS_MOTOR_CAN, CHASSIS_MOTOR_SEND_CAN_ID,
-                                      (int16_t) Motor_Get_Target_Torque(&hmotor_chassis1),
-                                      (int16_t) Motor_Get_Target_Torque(&hmotor_chassis2),
-                                      (int16_t) Motor_Get_Target_Torque(&hmotor_chassis3),
-                                      (int16_t) Motor_Get_Target_Torque(&hmotor_chassis4)
+                //pitch电机发电流 can3
+                Motor_DJI_SendCurrent(&GIMBAL_PITCH_CAN, GIMBAL_PITCH_SEND_CAN_ID,
+                                                      0,
+                                                      (int16_t) Motor_Get_Target_Torque(&hmotor_pitch),
+                                                      0,
+                                                      0
+                                                     );
+
+                //摩擦轮 can3
+                Motor_DJI_SendCurrent(&SHOOT_FRIC_CAN, SHOOT_FRIC_SEND_CAN_ID,
+                                      (int16_t) Motor_Get_Target_Torque(&hmotor_fric_right),
+                                      (int16_t) Motor_Get_Target_Torque(&hmotor_fric_left),
+                                      0,
+                                      0
                                      );
 
+                //ps：g4的每个can控制器都只有3个邮箱，所以不可以一次塞入3个以上个包
                 vTaskDelay(1);
         }
 }

@@ -76,6 +76,22 @@ struct Motor_HandleTypeDef
         uint8_t  If_Online; //是否在线
 };
 
+
+
+
+
+extern Motor_HandleTypeDef hmotor_chassis1;
+extern Motor_HandleTypeDef hmotor_chassis2;
+extern Motor_HandleTypeDef hmotor_chassis3;
+extern Motor_HandleTypeDef hmotor_chassis4;
+extern Motor_HandleTypeDef hmotor_yaw;
+extern Motor_HandleTypeDef hmotor_pitch;
+extern Motor_HandleTypeDef hmotor_fric_left;
+extern Motor_HandleTypeDef hmotor_fric_right;
+extern Motor_HandleTypeDef hmotor_trigger;
+
+extern Motor_HandleTypeDef *hmotor[MOTOR_COUNT];
+
 void Motor_Control_Task(void *pvParameters);
 
 void Motor_Get_TotalAngle_Speed(Motor_HandleTypeDef *hmotor, float K);

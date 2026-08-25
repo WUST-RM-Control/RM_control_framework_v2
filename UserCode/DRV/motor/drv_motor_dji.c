@@ -3,6 +3,8 @@
 //
 
 #include "drv_motor_dji.h"
+
+#include "fdcan.h"
 #include "hal_can.h"
 #include "utils.h"
 
@@ -23,10 +25,7 @@ void Motor_DJI_SendCurrent(FDCAN_HandleTypeDef *hfdcan, uint16_t CAN_ID, int16_t
         CAN_Send_Data_STD(hfdcan, CAN_ID, Motor_Tx_Data);
 }
 
-void Motor_DJI_Set_Zero(Motor_HandleTypeDef *hmotor)
-{
-        hmotor->Total_Angle_Offset = hmotor->Total_Angle;
-}
+
 
 //电机-大疆-存储电机反馈数据（电机反馈数组，电机数据结构体）
 void Motor_DJI_Storage_Data(Motor_HandleTypeDef *Motor_Data_Struct, const uint8_t *Data)
@@ -53,15 +52,11 @@ void Motor_DJI_Storage_Data(Motor_HandleTypeDef *Motor_Data_Struct, const uint8_
 }
 
 
-
-
 /*=============|OOPC|================*/
-
-
 static Motor_VTable Motor_DJI_VTable_Default = {
-        .enable = (void(*)(Motor_HandleTypeDef *hmotor))null_function,
-        .disable = (void(*)(Motor_HandleTypeDef *hmotor))null_function,
-        .set_zero = Motor_DJI_Set_Zero,
+        .enable       = (void(*)(Motor_HandleTypeDef *hmotor))null_function,
+        .disable      = (void(*)(Motor_HandleTypeDef *hmotor))null_function,
+        .set_zero     = Motor_DJI_Set_Zero,
         .storage_data = Motor_DJI_Storage_Data
 };
 
