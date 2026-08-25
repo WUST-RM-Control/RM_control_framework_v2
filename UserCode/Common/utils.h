@@ -18,8 +18,8 @@
  ******************************************************************************
  */
 
-#include "cmsis_gcc.h"
 #include "stdint.h"
+#include "cmsis_gcc.h"
 
 
 #define Delay_ms(ms)      delay_cycles((ms) * (CPUCLK_FREQ / 1e3))
@@ -119,6 +119,19 @@ typedef struct
 
     float t[4];
 } Ordinary_Least_Squares_t;
+
+// typedef struct
+// {
+//         float x;
+//         float y;
+// } Vector2D_t;
+//
+// typedef struct
+// {
+//         float x;
+//         float y;
+//         float z;
+// } Vector3D_t;
 
 //快速开方
 float Sqrt(float x);

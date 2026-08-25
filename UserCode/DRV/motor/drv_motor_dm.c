@@ -86,7 +86,7 @@ void Motor_DM_Storage_Data(Motor_HandleTypeDef *hmotor, const uint8_t *Data)
 
         /*===| 转移数据 |===*/
         hmotor->Angle       = uint_to_float(p_int, P_MIN, P_MAX, 16) / 2.0f / PI * 360.0f; // (-12.5,12.5)
-        hmotor->Speed   = uint_to_float(v_int, V_MIN, V_MAX, 12) / 2.0f / PI * 360.0f; // (-45.0,45.0)
+        hmotor->Speed       = uint_to_float(v_int, V_MIN, V_MAX, 12) / 2.0f / PI * 360.0f; // (-45.0,45.0)
         hmotor->Torque      = uint_to_float(t_int, T_MIN, T_MAX, 12);                      //(-18.0,18.0)
         hmotor->Temperature = (int8_t)temperature;
 

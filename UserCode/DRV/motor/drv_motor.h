@@ -21,10 +21,10 @@ typedef enum
 
 
 typedef struct Motor_HandleTypeDef Motor_HandleTypeDef;
-typedef struct Motor_VTable Motor_VTable;
+typedef struct Motor_VTable        Motor_VTable;
 
-struct Motor_VTable {
-
+struct Motor_VTable
+{
         void (*enable)(Motor_HandleTypeDef *hmotor);
 
         void (*disable)(Motor_HandleTypeDef *hmotor);
@@ -40,8 +40,8 @@ struct Motor_HandleTypeDef
         Motor_VTable *vptr;
 
         FDCAN_HandleTypeDef *hfdcan;
-        uint16_t CAN_Send_ID;
-        uint16_t CAN_Feedback_ID;
+        uint16_t             CAN_Send_ID;
+        uint16_t             CAN_Feedback_ID;
 
         Motor_Status_TypeDef Status_Enum;
 
@@ -54,21 +54,21 @@ struct Motor_HandleTypeDef
         volatile float Target_Speed;  //目标速度
         volatile float Target_Angle;  //目标角度
 
-        float    Torque;                //实际力矩[电流]
-        int16_t  Encoder;               //编码器值
-        float    Angle;                 //绝对角度
-        float    Total_Angle;           //总角度值
-        float    Total_Angle_Speed;     //总角度值速度
-        float    Speed;                 //转速[RPM]
-        int8_t   Temperature;           //电机温度
+        float   Torque;            //实际力矩[电流]
+        int16_t Encoder;           //编码器值
+        float   Angle;             //绝对角度
+        float   Total_Angle;       //总角度值
+        float   Total_Angle_Speed; //总角度值速度
+        float   Speed;             //转速[RPM]
+        int8_t  Temperature;       //电机温度
 
-        float    Total_Angle_Offset;    //总角度值零点
-        int32_t  Round;                 //圈数
+        float   Total_Angle_Offset; //总角度值零点
+        int32_t Round;              //圈数
 
-        int16_t  Encoder_Last;               //上一个编码器值
-        float    Angle_Last;                 //上一个绝对角度
-        float    Total_Angle_Last;           //上一个总角度值
-        float    Total_Angle_Speed_RPM_Last; //上一个总角度值速度
+        int16_t Encoder_Last;               //上一个编码器值
+        float   Angle_Last;                 //上一个绝对角度
+        float   Total_Angle_Last;           //上一个总角度值
+        float   Total_Angle_Speed_RPM_Last; //上一个总角度值速度
 
         uint32_t Total_Angle_DWT_Count;
 
@@ -77,30 +77,12 @@ struct Motor_HandleTypeDef
 };
 
 
-
-
-
-extern Motor_HandleTypeDef hmotor_chassis1;
-extern Motor_HandleTypeDef hmotor_chassis2;
-extern Motor_HandleTypeDef hmotor_chassis3;
-extern Motor_HandleTypeDef hmotor_chassis4;
-extern Motor_HandleTypeDef hmotor_yaw;
-extern Motor_HandleTypeDef hmotor_pitch;
-extern Motor_HandleTypeDef hmotor_fric_left;
-extern Motor_HandleTypeDef hmotor_fric_right;
-extern Motor_HandleTypeDef hmotor_trigger;
-
 extern Motor_HandleTypeDef *hmotor[MOTOR_COUNT];
 
 void Motor_Control_Task(void *pvParameters);
 
+//通过角度改变计算速度
 void Motor_Get_TotalAngle_Speed(Motor_HandleTypeDef *hmotor, float K);
-
-
-
-
-
-
 
 
 __STATIC_INLINE void Motor_Enable(Motor_HandleTypeDef *hmotor)
@@ -130,19 +112,19 @@ __STATIC_INLINE void Motor_Storage_Data(Motor_HandleTypeDef *hmotor, const uint8
 
 __STATIC_INLINE void Motor_Set_Torque(Motor_HandleTypeDef *hmotor, float torque)
 {
-        hmotor->Status_Enum = MOTOR_TORQUE;
+        hmotor->Status_Enum   = MOTOR_TORQUE;
         hmotor->Target_Torque = torque;
 }
 
 __STATIC_INLINE void Motor_Set_Speed(Motor_HandleTypeDef *hmotor, float speed)
 {
-        hmotor->Status_Enum = MOTOR_SPEED;
+        hmotor->Status_Enum  = MOTOR_SPEED;
         hmotor->Target_Speed = speed;
 }
 
 __STATIC_INLINE void Motor_Set_Angle(Motor_HandleTypeDef *hmotor, float angle)
 {
-        hmotor->Status_Enum = MOTOR_ANGLE;
+        hmotor->Status_Enum  = MOTOR_ANGLE;
         hmotor->Target_Angle = angle;
 }
 

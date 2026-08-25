@@ -1,0 +1,6 @@
+/home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/imu/drv_qmi8658a.c:23:9:QMI8658A_Read_Reg	32	static
+/home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/imu/drv_qmi8658a.c:36:6:QMI8658A_Read_RegList	56	static
+/home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/imu/drv_qmi8658a.c:49:6:QMI8658A_Write_Reg	32	static
+/home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/imu/drv_qmi8658a.c:72:6:QMI8658A_Init	16	static
+/home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/imu/drv_qmi8658a.c:89:6:QMI8658A_Read_Data	24	static
+/home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/imu/drv_qmi8658a.c:115:6:QMI8658A_Calibration	32	static

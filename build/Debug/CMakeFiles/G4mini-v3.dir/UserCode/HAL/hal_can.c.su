@@ -1,0 +1,5 @@
+/home/ye/Projects/embedded/G4mini-v3/UserCode/HAL/hal_can.c:17:6:HAL_FDCAN_RxFifo0Callback	64	static
+/home/ye/Projects/embedded/G4mini-v3/UserCode/HAL/hal_can.c:42:6:CAN_Send_Data_STD	64	static
+/home/ye/Projects/embedded/G4mini-v3/UserCode/HAL/hal_can.c:65:6:CAN_Send_Data_EXD	64	static
+/home/ye/Projects/embedded/G4mini-v3/UserCode/HAL/hal_can.c:90:6:CAN_Init	8	static
+/home/ye/Projects/embedded/G4mini-v3/UserCode/HAL/hal_can.c:101:6:CAN_Filter_Init	48	static

@@ -1,0 +1,5 @@
+/home/ye/Projects/embedded/G4mini-v3/./UserCode/Common/utils.h:180:22:null_function	4	static
+/home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/motor/drv_motor_dji.h:18:22:Motor_DJI_Set_Zero	16	static
+/home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/motor/drv_motor_dji.c:13:6:Motor_DJI_SendCurrent	32	static
+/home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/motor/drv_motor_dji.c:31:6:Motor_DJI_Storage_Data	16	static
+/home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/motor/drv_motor_dji.c:64:6:Motor_DJI_Ctor	24	static

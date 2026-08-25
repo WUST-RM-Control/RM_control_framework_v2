@@ -24,7 +24,7 @@ void Motor_DM_CMD_MIT(Motor_HandleTypeDef *hmotor, float _pos, float _vel, float
 
 void Motor_DM_Ctor(Motor_HandleTypeDef *hmotor,FDCAN_HandleTypeDef *hfdcan, uint16_t CAN_Send_ID, uint16_t CAN_Feedback_ID);
 
-__STATIC_INLINE void Motor_DM_Set_Torque(Motor_HandleTypeDef *hmotor, float torque)
+__STATIC_INLINE void Motor_DM_Send_Torque(Motor_HandleTypeDef *hmotor, float torque)
 {
         Motor_DM_CMD_MIT(hmotor, 0, 0, 0, 0, torque);
 }
