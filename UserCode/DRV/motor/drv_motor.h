@@ -10,6 +10,8 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+#define MOTOR_COUNT 9
+
 typedef enum
 {
         MOTOR_TORQUE = 0,
@@ -27,6 +29,8 @@ struct Motor_VTable {
 
         void (*disable)(Motor_HandleTypeDef *hmotor);
 
+        void (*set_zero)(Motor_HandleTypeDef *hmotor);
+
         void (*storage_data)(Motor_HandleTypeDef *hmotor, const uint8_t *Data);
 };
 
@@ -36,19 +40,21 @@ struct Motor_HandleTypeDef
         Motor_VTable *vptr;
 
         FDCAN_HandleTypeDef *hfdcan;
-        uint16_t CAN_ID;
+        uint16_t CAN_Send_ID;
+        uint16_t CAN_Feedback_ID;
 
         Motor_Status_TypeDef Status_Enum;
 
-        Feedforward_t FFC_angle_Struct;
-        PID_t         PID_angle_Struct;
-        Feedforward_t FFC_speed_Struct;
-        PID_t         PID_speed_Struct;
+        Feedforward_t FFC_Angle_Struct;
+        PID_t         PID_Angle_Struct;
+        Feedforward_t FFC_Speed_Struct;
+        PID_t         PID_Speed_Struct;
 
         volatile float Target_Torque; //目标力矩[电流]
         volatile float Target_Speed;  //目标速度
         volatile float Target_Angle;  //目标角度
 
+        float    Torque;                //实际力矩[电流]
         int16_t  Encoder;               //编码器值
         float    Angle;                 //绝对角度
         float    Total_Angle;           //总角度值
@@ -74,6 +80,13 @@ void Motor_Control_Task(void *pvParameters);
 
 void Motor_Get_TotalAngle_Speed(Motor_HandleTypeDef *hmotor, float K);
 
+
+
+
+
+
+
+
 __STATIC_INLINE void Motor_Enable(Motor_HandleTypeDef *hmotor)
 {
         hmotor->vptr->enable(hmotor);
@@ -84,6 +97,16 @@ __STATIC_INLINE void Motor_Disable(Motor_HandleTypeDef *hmotor)
         hmotor->vptr->disable(hmotor);
 }
 
+__STATIC_INLINE void Motor_Set_Status(Motor_HandleTypeDef *hmotor, Motor_Status_TypeDef Status)
+{
+        hmotor->Status_Enum = Status;
+}
+
+__STATIC_INLINE void Motor_Set_Zero(Motor_HandleTypeDef *hmotor, const uint8_t *data)
+{
+        hmotor->vptr->set_zero(hmotor);
+}
+
 __STATIC_INLINE void Motor_Storage_Data(Motor_HandleTypeDef *hmotor, const uint8_t *data)
 {
         hmotor->vptr->storage_data(hmotor, data);
@@ -91,16 +114,19 @@ __STATIC_INLINE void Motor_Storage_Data(Motor_HandleTypeDef *hmotor, const uint8
 
 __STATIC_INLINE void Motor_Set_Torque(Motor_HandleTypeDef *hmotor, float torque)
 {
+        hmotor->Status_Enum = MOTOR_TORQUE;
         hmotor->Target_Torque = torque;
 }
 
 __STATIC_INLINE void Motor_Set_Speed(Motor_HandleTypeDef *hmotor, float speed)
 {
+        hmotor->Status_Enum = MOTOR_SPEED;
         hmotor->Target_Speed = speed;
 }
 
 __STATIC_INLINE void Motor_Set_Angle(Motor_HandleTypeDef *hmotor, float angle)
 {
+        hmotor->Status_Enum = MOTOR_ANGLE;
         hmotor->Target_Angle = angle;
 }
 
@@ -118,8 +144,5 @@ __STATIC_INLINE float Motor_Get_Total_Angle(Motor_HandleTypeDef *hmotor)
 {
         return hmotor->Total_Angle;
 }
-
-
-
 
 #endif //G4MINI_V3_DRV_MOTOR_H

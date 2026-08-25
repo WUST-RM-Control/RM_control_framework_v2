@@ -23,16 +23,21 @@ void Motor_DJI_SendCurrent(FDCAN_HandleTypeDef *hfdcan, uint16_t CAN_ID, int16_t
         CAN_Send_Data_STD(hfdcan, CAN_ID, Motor_Tx_Data);
 }
 
+void Motor_DJI_Set_Zero(Motor_HandleTypeDef *hmotor)
+{
+        hmotor->Total_Angle_Offset = hmotor->Total_Angle;
+}
+
 //电机-大疆-存储电机反馈数据（电机反馈数组，电机数据结构体）
 void Motor_DJI_Storage_Data(Motor_HandleTypeDef *Motor_Data_Struct, const uint8_t *Data)
 {
         /*===| 协议解包 |===*/
-        Motor_Data_Struct->Encoder     = (int16_t) (Data[0] << 8 | Data[1]);
-        Motor_Data_Struct->Speed   = (int16_t) (Data[2] << 8 | Data[3]);
-        Motor_Data_Struct->Target_Torque      = (int16_t) (Data[4] << 8 | Data[5]);
-        Motor_Data_Struct->Temperature = (int8_t) (Data[6]);
+        Motor_Data_Struct->Encoder       = (int16_t) (Data[0] << 8 | Data[1]);
+        Motor_Data_Struct->Speed         = (int16_t) (Data[2] << 8 | Data[3]);
+        Motor_Data_Struct->Torque = (int16_t) (Data[4] << 8 | Data[5]);
+        Motor_Data_Struct->Temperature   = (int8_t) (Data[6]);
 
-        Motor_Data_Struct->Angle = ((float) Motor_Data_Struct->Encoder - 4096.0f) * 180.0f / 4096.0f;
+        Motor_Data_Struct->Angle         = ((float) Motor_Data_Struct->Encoder - 4096.0f) * 180.0f / 4096.0f;
 
         /*===| 得到总角度值 |===*/
         if (Motor_Data_Struct->Encoder - Motor_Data_Struct->Encoder_Last > 4096) Motor_Data_Struct->Round--;
@@ -49,17 +54,23 @@ void Motor_DJI_Storage_Data(Motor_HandleTypeDef *Motor_Data_Struct, const uint8_
 
 
 
+
+/*=============|OOPC|================*/
+
+
 static Motor_VTable Motor_DJI_VTable_Default = {
         .enable = (void(*)(Motor_HandleTypeDef *hmotor))null_function,
         .disable = (void(*)(Motor_HandleTypeDef *hmotor))null_function,
+        .set_zero = Motor_DJI_Set_Zero,
         .storage_data = Motor_DJI_Storage_Data
 };
 
 //创建DJI电机对象
-void Motor_DJI_Ctor(Motor_HandleTypeDef *self,FDCAN_HandleTypeDef *hfdcan, uint16_t CAN_ID)
+void Motor_DJI_Ctor(Motor_HandleTypeDef *hmotor,FDCAN_HandleTypeDef *hfdcan, uint16_t CAN_Send_ID, uint16_t CAN_Feedback_ID)
 {
-        memset(self, 0, sizeof(Motor_HandleTypeDef));
-        self->vptr = &Motor_DJI_VTable_Default;
-        self->CAN_ID = CAN_ID;
-        self->hfdcan = hfdcan;
+        memset(hmotor, 0, sizeof(Motor_HandleTypeDef));
+        hmotor->vptr = &Motor_DJI_VTable_Default;
+        hmotor->CAN_Send_ID = CAN_Send_ID;
+        hmotor->CAN_Feedback_ID = CAN_Feedback_ID;
+        hmotor->hfdcan = hfdcan;
 }
