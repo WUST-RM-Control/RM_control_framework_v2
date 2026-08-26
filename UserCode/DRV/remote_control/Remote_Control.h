@@ -1,0 +1,8 @@
+//
+// Created by ye on 2026/8/26.
+//
+
+#ifndef G4MINI_V3_REMOTE_CONTROL_H
+#define G4MINI_V3_REMOTE_CONTROL_H
+
+#endif //G4MINI_V3_REMOTE_CONTROL_H

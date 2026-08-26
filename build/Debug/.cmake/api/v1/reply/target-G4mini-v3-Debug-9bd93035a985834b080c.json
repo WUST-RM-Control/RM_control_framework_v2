@@ -144,6 +144,10 @@
 				},
 				{
 					"backtrace" : 7,
+					"path" : "/home/ye/Projects/embedded/G4mini-v3/./UserCode/DRV/buzzer"
+				},
+				{
+					"backtrace" : 7,
 					"path" : "/home/ye/Projects/embedded/G4mini-v3/./UserCode/DRV/imu"
 				},
 				{
@@ -153,6 +157,10 @@
 				{
 					"backtrace" : 7,
 					"path" : "/home/ye/Projects/embedded/G4mini-v3/./UserCode/DRV/motor"
+				},
+				{
+					"backtrace" : 7,
+					"path" : "/home/ye/Projects/embedded/G4mini-v3/./UserCode/DRV/remote_control"
 				},
 				{
 					"backtrace" : 7,
@@ -254,7 +262,10 @@
 				26,
 				27,
 				28,
-				29
+				29,
+				30,
+				31,
+				32
 			]
 		},
 		{
@@ -295,6 +306,10 @@
 				},
 				{
 					"backtrace" : 7,
+					"path" : "/home/ye/Projects/embedded/G4mini-v3/./UserCode/DRV/buzzer"
+				},
+				{
+					"backtrace" : 7,
 					"path" : "/home/ye/Projects/embedded/G4mini-v3/./UserCode/DRV/imu"
 				},
 				{
@@ -304,6 +319,10 @@
 				{
 					"backtrace" : 7,
 					"path" : "/home/ye/Projects/embedded/G4mini-v3/./UserCode/DRV/motor"
+				},
+				{
+					"backtrace" : 7,
+					"path" : "/home/ye/Projects/embedded/G4mini-v3/./UserCode/DRV/remote_control"
 				},
 				{
 					"backtrace" : 7,
@@ -514,7 +533,10 @@
 				26,
 				27,
 				28,
-				29
+				29,
+				30,
+				31,
+				32
 			]
 		},
 		{
@@ -528,9 +550,6 @@
 			"name" : "Object Libraries",
 			"sourceIndexes" : 
 			[
-				30,
-				31,
-				32,
 				33,
 				34,
 				35,
@@ -568,7 +587,10 @@
 				67,
 				68,
 				69,
-				70
+				70,
+				71,
+				72,
+				73
 			]
 		}
 	],
@@ -781,6 +803,16 @@
 				9
 			],
 			"compileGroupIndex" : 0,
+			"path" : "UserCode/Common/crc8_crc16.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 9,
+			"backtraces" : 
+			[
+				9
+			],
+			"compileGroupIndex" : 0,
 			"path" : "UserCode/Common/kalman_filter.c",
 			"sourceGroupIndex" : 0
 		},
@@ -792,6 +824,16 @@
 			],
 			"compileGroupIndex" : 0,
 			"path" : "UserCode/Common/utils.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 9,
+			"backtraces" : 
+			[
+				9
+			],
+			"compileGroupIndex" : 0,
+			"path" : "UserCode/DRV/buzzer/drv_buzzer.c",
 			"sourceGroupIndex" : 0
 		},
 		{
@@ -842,6 +884,16 @@
 			],
 			"compileGroupIndex" : 0,
 			"path" : "UserCode/DRV/motor/drv_motor_dm.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 9,
+			"backtraces" : 
+			[
+				9
+			],
+			"compileGroupIndex" : 0,
+			"path" : "UserCode/DRV/remote_control/Remote_Control.c",
 			"sourceGroupIndex" : 0
 		},
 		{

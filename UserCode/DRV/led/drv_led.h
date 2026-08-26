@@ -10,31 +10,25 @@
 
 typedef struct
 {
-        uint8_t R;
-        uint8_t G;
-        uint8_t B;
+        TIM_HandleTypeDef *htim;
+
+        uint8_t R_channel;
+        uint8_t R_value;
+
+        uint8_t G_channel;
+        uint8_t G_value;
+
+        uint8_t B_channel;
+        uint8_t B_value;
 } LED_HandleTypeDef;
 
 extern LED_HandleTypeDef hled1;
 
-//改
+void LED_Ctor(LED_HandleTypeDef* hled, TIM_HandleTypeDef *htim);
 
-__STATIC_INLINE void LED_Init(LED_HandleTypeDef* hled)
-{
-        if (hled == &hled1)
-        {
-                HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
-                HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
-                HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
-        }
-}
+void LED_Init(LED_HandleTypeDef* hled);
 
-__STATIC_INLINE void LED_Set(LED_HandleTypeDef *hled, uint8_t R, uint8_t G, uint8_t B)
-{
-        hled->R = R;
-        hled->G = G;
-        hled->B = B;
-
-}
+//需要设置reload为255
+void LED_Set(LED_HandleTypeDef *hled, uint8_t R, uint8_t G, uint8_t B);
 
 #endif //G4MINI_V3_LED_H
