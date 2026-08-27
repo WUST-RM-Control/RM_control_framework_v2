@@ -85,30 +85,15 @@ void Motor_Control_Task(void *pvParameters);
 void Motor_Get_TotalAngle_Speed(Motor_HandleTypeDef *hmotor, float K);
 
 
-__STATIC_INLINE void Motor_Enable(Motor_HandleTypeDef *hmotor)
-{
-        hmotor->vptr->enable(hmotor);
-}
+__STATIC_INLINE void Motor_Enable(Motor_HandleTypeDef *hmotor) { hmotor->vptr->enable(hmotor); }
 
-__STATIC_INLINE void Motor_Disable(Motor_HandleTypeDef *hmotor)
-{
-        hmotor->vptr->disable(hmotor);
-}
+__STATIC_INLINE void Motor_Disable(Motor_HandleTypeDef *hmotor) { hmotor->vptr->disable(hmotor); }
 
-__STATIC_INLINE void Motor_Set_Status(Motor_HandleTypeDef *hmotor, Motor_Status_TypeDef Status)
-{
-        hmotor->Status_Enum = Status;
-}
+__STATIC_INLINE void Motor_Set_Status(Motor_HandleTypeDef *hmotor, Motor_Status_TypeDef Status) { hmotor->Status_Enum = Status; }
 
-__STATIC_INLINE void Motor_Set_Zero(Motor_HandleTypeDef *hmotor, const uint8_t *data)
-{
-        hmotor->vptr->set_zero(hmotor);
-}
+__STATIC_INLINE void Motor_Set_Zero(Motor_HandleTypeDef *hmotor, const uint8_t *data) { hmotor->vptr->set_zero(hmotor); }
 
-__STATIC_INLINE void Motor_Storage_Data(Motor_HandleTypeDef *hmotor, const uint8_t *data)
-{
-        hmotor->vptr->storage_data(hmotor, data);
-}
+__STATIC_INLINE void Motor_Storage_Data(Motor_HandleTypeDef *hmotor, const uint8_t *data) { hmotor->vptr->storage_data(hmotor, data); }
 
 __STATIC_INLINE void Motor_Set_Torque(Motor_HandleTypeDef *hmotor, float torque)
 {
@@ -128,19 +113,10 @@ __STATIC_INLINE void Motor_Set_Angle(Motor_HandleTypeDef *hmotor, float angle)
         hmotor->Target_Angle = angle;
 }
 
-__STATIC_INLINE float Motor_Get_Target_Torque(Motor_HandleTypeDef *hmotor)
-{
-        return hmotor->Target_Torque;
-}
+__STATIC_INLINE float Motor_Get_Target_Torque(Motor_HandleTypeDef *hmotor) { return hmotor->Target_Torque; }
 
-__STATIC_INLINE float Motor_Get_Speed(Motor_HandleTypeDef *hmotor)
-{
-        return hmotor->Speed;
-}
+__STATIC_INLINE float Motor_Get_Speed(Motor_HandleTypeDef *hmotor) { return hmotor->Speed; }
 
-__STATIC_INLINE float Motor_Get_Total_Angle(Motor_HandleTypeDef *hmotor)
-{
-        return hmotor->Total_Angle;
-}
+__STATIC_INLINE float Motor_Get_Total_Angle(Motor_HandleTypeDef *hmotor) { return hmotor->Total_Angle; }
 
 #endif //G4MINI_V3_DRV_MOTOR_H

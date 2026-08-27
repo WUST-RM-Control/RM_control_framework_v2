@@ -29,8 +29,6 @@ typedef enum
         Buzzer_SoundEffect_Shoot8,
 } Buzzer_SoundEffect_EnumTypedef;
 
-extern Buzzer_SoundEffect_EnumTypedef Buzzer_SoundEffect;
-
 /*===| 蜂鸣器音调枚举定义 |===*/
 typedef enum
 {
@@ -46,9 +44,14 @@ typedef struct
         TIM_HandleTypeDef* htim;
         uint8_t channel;
 
+        /*===| 当前待播放音效（对象状态，替代全局变量） |===*/
+        Buzzer_SoundEffect_EnumTypedef sound_effect;
+
         //蜂鸣器音效任务间隔，10ms。建议不要高于30。
         TickType_t buzzer_task_tick;
 } Buzzer_HandleTypeDef;
+
+extern Buzzer_HandleTypeDef hbuzzer1;
 
 
 void Buzzer_Init(Buzzer_HandleTypeDef *hbuzzer);
@@ -60,6 +63,8 @@ void Buzzer_Set_Tone(Buzzer_HandleTypeDef *hbuzzer, Buzzer_Tone_EnumTypedef Tone
 void Buzzer_Start(Buzzer_HandleTypeDef *hbuzzer);
 
 void Buzzer_Stop(Buzzer_HandleTypeDef *hbuzzer);
+
+void Buzzer_Task(void *argument);
 
 __STATIC_INLINE TickType_t Buzzer_Get_Task_Tick(Buzzer_HandleTypeDef *hbuzzer)
 {

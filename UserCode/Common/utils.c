@@ -220,6 +220,68 @@ int float_rounding(float raw)
     return integer;
 }
 
+//uint转float
+float uint_to_float(int x_int, float x_min, float x_max, int bits)
+{
+        float span   = x_max - x_min;
+        float offset = x_min;
+        return ((float) x_int) * span / ((float) ((1 << bits) - 1)) + offset;
+}
+
+//float转uint
+int float_to_uint(float x, float x_min, float x_max, int bits)
+{
+        float span   = x_max - x_min;
+        float offset = x_min;
+        return (int) ((x - offset) * ((float) ((1 << bits) - 1)) / span);
+}
+
+/**
+  * @brief          float  填充int16
+  * @param[in]      float  值
+  * @param[in]      fValue 最小值
+  * @param[in]      fValue 最大值
+  * @retval         填充int16_t结果
+  */
+int16_t float_to_int16(float fValue, float min, float max)
+{
+        return (int16_t)(((fValue - (max + min) / 2) / ((max - min) / 2)) * INT16_MAX);
+}
+
+/**
+  * @brief          int16   填充float
+  * @param[in]      int16_t 值
+  * @param[in]      fValue  最小值
+  * @param[in]      fValue  最大值
+  * @retval         填充float结果
+  */
+float int16_to_float(int16_t iValue, float min, float max)
+{
+        return (((float)iValue / (float)INT16_MAX) * ((max - min) / 2)) + ((min + max) / 2);
+}
+
+/**
+  * @brief          float角度(°)  填充int16
+  * @param[in]      float角度  值
+  * @retval         int16_t结果
+  */
+int16_t float_to_int16_Angle(float fAngle)
+{
+        return float_to_int16(fAngle, -180.0f, 180.0f);
+}
+
+
+/**
+  * @brief          int16_t角度(°)  填充int16
+  * @param[in]      int16_t角度  值
+  * @retval         float结果
+  */
+float int16_to_float_Angle(int16_t iAngle)
+{
+        return int16_to_float(iAngle, -180.0f, 180.0f);
+}
+
+
 /**
   * @brief          最小二乘法初始化
   * @param[in]      最小二乘法结构体
@@ -380,66 +442,4 @@ float OLS_Smooth(Ordinary_Least_Squares_t *OLS, float deltax, float y)
     OLS->StandardDeviation /= (float)OLS->Order;
 
     return OLS->k * OLS->x[OLS->Order - 1] + OLS->b;
-}
-
-
-//uint转float
-float uint_to_float(int x_int, float x_min, float x_max, int bits)
-{
-        float span   = x_max - x_min;
-        float offset = x_min;
-        return ((float) x_int) * span / ((float) ((1 << bits) - 1)) + offset;
-}
-
-//float转uint
-int float_to_uint(float x, float x_min, float x_max, int bits)
-{
-        float span   = x_max - x_min;
-        float offset = x_min;
-        return (int) ((x - offset) * ((float) ((1 << bits) - 1)) / span);
-}
-
-/**
-  * @brief          float  填充int16
-  * @param[in]      float  值
-  * @param[in]      fValue 最小值
-  * @param[in]      fValue 最大值
-  * @retval         填充int16_t结果
-  */
-int16_t float_to_int16(float fValue, float min, float max)
-{
-    return (int16_t)(((fValue - (max + min) / 2) / ((max - min) / 2)) * INT16_MAX);
-}
-
-/**
-  * @brief          int16   填充float
-  * @param[in]      int16_t 值
-  * @param[in]      fValue  最小值
-  * @param[in]      fValue  最大值
-  * @retval         填充float结果
-  */
-float int16_to_float(int16_t iValue, float min, float max)
-{
-    return (((float)iValue / (float)INT16_MAX) * ((max - min) / 2)) + ((min + max) / 2);
-}
-
-/**
-  * @brief          float角度(°)  填充int16
-  * @param[in]      float角度  值
-  * @retval         int16_t结果
-  */
-int16_t float_to_int16_Angle(float fAngle)
-{
-    return float_to_int16(fAngle, -180.0f, 180.0f);
-}
-
-
-/**
-  * @brief          int16_t角度(°)  填充int16
-  * @param[in]      int16_t角度  值
-  * @retval         float结果
-  */
-float int16_to_float_Angle(int16_t iAngle)
-{
-    return int16_to_float(iAngle, -180.0f, 180.0f);
 }

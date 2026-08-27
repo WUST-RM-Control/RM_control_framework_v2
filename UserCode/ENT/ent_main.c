@@ -3,11 +3,14 @@
 //
 
 #include "ent_main.h"
+
+#include "drv_buzzer.h"
 #include "drv_motor.h"
 
 
 
 void main_init()
 {
-        xTaskCreate(Motor_Control_Task, "Motor", 512, NULL, 10, NULL );
+        xTaskCreate(Buzzer_Task, "Buzzer", 256, &hbuzzer1, 5, NULL);
+        xTaskCreate(Motor_Control_Task, "Motor", 512, NULL, 30, NULL );
 }

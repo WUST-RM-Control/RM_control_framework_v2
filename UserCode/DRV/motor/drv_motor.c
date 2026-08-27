@@ -68,7 +68,7 @@ Motor_HandleTypeDef hmotor_chassis4    = {};
 Motor_HandleTypeDef hmotor_yaw         = {};
 Motor_HandleTypeDef hmotor_pitch       = {};
 Motor_HandleTypeDef hmotor_fric_right  = {};
-Motor_HandleTypeDef hmotor_fric_left = {};
+Motor_HandleTypeDef hmotor_fric_left   = {};
 Motor_HandleTypeDef hmotor_trigger     = {};
 
 Motor_HandleTypeDef *hmotor[MOTOR_COUNT] = {

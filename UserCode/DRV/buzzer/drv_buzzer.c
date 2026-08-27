@@ -4,7 +4,7 @@
 #include "task.h"
 #include "drv_buzzer.h"
 
-Buzzer_SoundEffect_EnumTypedef Buzzer_SoundEffect;
+#include "tim.h"
 
 Buzzer_HandleTypeDef hbuzzer1 = {};
 
@@ -33,218 +33,222 @@ void Buzzer_Stop(Buzzer_HandleTypeDef *hbuzzer)
         HAL_TIM_PWM_Stop(hbuzzer->htim, hbuzzer->channel);
 }
 
-void Buzzer_Task(void const *argument)
+void Buzzer_Task(void *argument)
 {
-        Buzzer_Init(&hbuzzer1);
+        /*===| 从任务参数取蜂鸣器对象，替代直接操作全局实例 |===*/
+        Buzzer_HandleTypeDef *hbuzzer = (Buzzer_HandleTypeDef *)argument;
+
+        Buzzer_Ctor(hbuzzer, &htim16, TIM_CHANNEL_1, 10);
+        Buzzer_Init(hbuzzer);
         for (;;)
         {
                 /*===| 根据需要播放的声音来分别播放音符 |===*/
-                switch ((uint8_t) Buzzer_SoundEffect)
+                switch ((uint8_t) hbuzzer->sound_effect)
                 {
                 case Buzzer_SoundEffect_OFF :
                 {
-                        Buzzer_Set_Tone(&hbuzzer1, P);
-                        Buzzer_SoundEffect = Buzzer_SoundEffect_OFF;
-                        Buzzer_Stop(&hbuzzer1);
+                        Buzzer_Set_Tone(hbuzzer, P);
+                        hbuzzer->sound_effect = Buzzer_SoundEffect_OFF;
+                        Buzzer_Stop(hbuzzer);
                         break;
                 }
                 case Buzzer_SoundEffect_SystemStart :
                 {
-                        Buzzer_Start(&hbuzzer1);
-                        Buzzer_Set_Tone(&hbuzzer1, M1);
+                        Buzzer_Start(hbuzzer);
+                        Buzzer_Set_Tone(hbuzzer, M1);
                         vTaskDelay(200);
-                        Buzzer_Set_Tone(&hbuzzer1, P);
+                        Buzzer_Set_Tone(hbuzzer, P);
                         vTaskDelay(50);
-                        Buzzer_Set_Tone(&hbuzzer1, M2);
+                        Buzzer_Set_Tone(hbuzzer, M2);
                         vTaskDelay(200);
-                        Buzzer_Set_Tone(&hbuzzer1, P);
+                        Buzzer_Set_Tone(hbuzzer, P);
                         vTaskDelay(50);
-                        Buzzer_Set_Tone(&hbuzzer1, M3);
+                        Buzzer_Set_Tone(hbuzzer, M3);
                         vTaskDelay(200);
-                        Buzzer_Set_Tone(&hbuzzer1, P);
+                        Buzzer_Set_Tone(hbuzzer, P);
                         vTaskDelay(50);
-                        Buzzer_Set_Tone(&hbuzzer1, M2);
+                        Buzzer_Set_Tone(hbuzzer, M2);
                         vTaskDelay(200);
-                        Buzzer_Set_Tone(&hbuzzer1, P);
+                        Buzzer_Set_Tone(hbuzzer, P);
                         vTaskDelay(50);
-                        Buzzer_Set_Tone(&hbuzzer1, M5);
+                        Buzzer_Set_Tone(hbuzzer, M5);
                         vTaskDelay(200);
-                        Buzzer_Set_Tone(&hbuzzer1, P);
+                        Buzzer_Set_Tone(hbuzzer, P);
                         vTaskDelay(50);
-                        Buzzer_Set_Tone(&hbuzzer1, M7);
+                        Buzzer_Set_Tone(hbuzzer, M7);
                         vTaskDelay(200);
-                        Buzzer_Set_Tone(&hbuzzer1, P);
+                        Buzzer_Set_Tone(hbuzzer, P);
                         vTaskDelay(50);
-                        Buzzer_Set_Tone(&hbuzzer1, M6);
+                        Buzzer_Set_Tone(hbuzzer, M6);
                         vTaskDelay(500);
-                        Buzzer_Set_Tone(&hbuzzer1, M5);
+                        Buzzer_Set_Tone(hbuzzer, M5);
                         vTaskDelay(250);
-                        Buzzer_Set_Tone(&hbuzzer1, M6);
+                        Buzzer_Set_Tone(hbuzzer, M6);
                         vTaskDelay(750);
-                        Buzzer_SoundEffect = Buzzer_SoundEffect_OFF;
+                        hbuzzer->sound_effect = Buzzer_SoundEffect_OFF;
                         break;
                 }
                 case Buzzer_SoundEffect_SuperCap_ON :
                 {
-                        Buzzer_Start(&hbuzzer1);
-                        Buzzer_Set_Tone(&hbuzzer1, M1);
+                        Buzzer_Start(hbuzzer);
+                        Buzzer_Set_Tone(hbuzzer, M1);
                         vTaskDelay(200);
-                        Buzzer_Set_Tone(&hbuzzer1, M3);
+                        Buzzer_Set_Tone(hbuzzer, M3);
                         vTaskDelay(200);
-                        Buzzer_Set_Tone(&hbuzzer1, M5);
+                        Buzzer_Set_Tone(hbuzzer, M5);
                         vTaskDelay(200);
-                        Buzzer_SoundEffect = Buzzer_SoundEffect_OFF;
+                        hbuzzer->sound_effect = Buzzer_SoundEffect_OFF;
                         break;
                 }
                 case Buzzer_SoundEffect_SuperCap_OFF :
                 {
-                        Buzzer_Start(&hbuzzer1);
-                        Buzzer_Set_Tone(&hbuzzer1, M5);
+                        Buzzer_Start(hbuzzer);
+                        Buzzer_Set_Tone(hbuzzer, M5);
                         vTaskDelay(200);
-                        Buzzer_Set_Tone(&hbuzzer1, M3);
+                        Buzzer_Set_Tone(hbuzzer, M3);
                         vTaskDelay(200);
-                        Buzzer_Set_Tone(&hbuzzer1, M1);
+                        Buzzer_Set_Tone(hbuzzer, M1);
                         vTaskDelay(200);
-                        Buzzer_SoundEffect = Buzzer_SoundEffect_OFF;
+                        hbuzzer->sound_effect = Buzzer_SoundEffect_OFF;
                         break;
                 }
                 case Buzzer_SoundEffect_Aim_ON :
                 {
-                        Buzzer_Start(&hbuzzer1);
-                        Buzzer_Set_Tone(&hbuzzer1, M7);
+                        Buzzer_Start(hbuzzer);
+                        Buzzer_Set_Tone(hbuzzer, M7);
                         vTaskDelay(50);
-                        Buzzer_Set_Tone(&hbuzzer1, P);
+                        Buzzer_Set_Tone(hbuzzer, P);
                         vTaskDelay(150);
-                        Buzzer_Set_Tone(&hbuzzer1, M7);
+                        Buzzer_Set_Tone(hbuzzer, M7);
                         vTaskDelay(50);
-                        Buzzer_Set_Tone(&hbuzzer1, P);
+                        Buzzer_Set_Tone(hbuzzer, P);
                         vTaskDelay(150);
-                        Buzzer_Set_Tone(&hbuzzer1, M7);
+                        Buzzer_Set_Tone(hbuzzer, M7);
                         vTaskDelay(50);
-                        Buzzer_Set_Tone(&hbuzzer1, P);
+                        Buzzer_Set_Tone(hbuzzer, P);
                         vTaskDelay(150);
-                        Buzzer_SoundEffect = Buzzer_SoundEffect_OFF;
+                        hbuzzer->sound_effect = Buzzer_SoundEffect_OFF;
                         break;
                 }
                 case Buzzer_SoundEffect_Aim_OFF :
                 {
-                        Buzzer_Start(&hbuzzer1);
-                        Buzzer_Set_Tone(&hbuzzer1, M7);
+                        Buzzer_Start(hbuzzer);
+                        Buzzer_Set_Tone(hbuzzer, M7);
                         vTaskDelay(200);
-                        Buzzer_Set_Tone(&hbuzzer1, M5);
+                        Buzzer_Set_Tone(hbuzzer, M5);
                         vTaskDelay(200);
-                        Buzzer_Set_Tone(&hbuzzer1, M3);
+                        Buzzer_Set_Tone(hbuzzer, M3);
                         vTaskDelay(200);
-                        Buzzer_SoundEffect = Buzzer_SoundEffect_OFF;
+                        hbuzzer->sound_effect = Buzzer_SoundEffect_OFF;
                         break;
                 }
                 case Buzzer_SoundEffect_Shoot1 :
                 {
-                        Buzzer_Start(&hbuzzer1);
+                        Buzzer_Start(hbuzzer);
                         for (uint8_t i = 0; i < 1; i++)
                         {
-                                Buzzer_Set_Tone(&hbuzzer1, M5);
+                                Buzzer_Set_Tone(hbuzzer, M5);
                                 vTaskDelay(100);
-                                Buzzer_Set_Tone(&hbuzzer1, P);
+                                Buzzer_Set_Tone(hbuzzer, P);
                                 vTaskDelay(100);
                         }
-                        Buzzer_SoundEffect = Buzzer_SoundEffect_OFF;
+                        hbuzzer->sound_effect = Buzzer_SoundEffect_OFF;
                         break;
                 }
                 case Buzzer_SoundEffect_Shoot2 :
                 {
-                        Buzzer_Start(&hbuzzer1);
+                        Buzzer_Start(hbuzzer);
                         for (uint8_t i = 0; i < 2; i++)
                         {
-                                Buzzer_Set_Tone(&hbuzzer1, M5);
+                                Buzzer_Set_Tone(hbuzzer, M5);
                                 vTaskDelay(100);
-                                Buzzer_Set_Tone(&hbuzzer1, P);
+                                Buzzer_Set_Tone(hbuzzer, P);
                                 vTaskDelay(100);
                         }
-                        Buzzer_SoundEffect = Buzzer_SoundEffect_OFF;
+                        hbuzzer->sound_effect = Buzzer_SoundEffect_OFF;
                         break;
                 }
                 case Buzzer_SoundEffect_Shoot3 :
                 {
-                        Buzzer_Start(&hbuzzer1);
+                        Buzzer_Start(hbuzzer);
                         for (uint8_t i = 0; i < 3; i++)
                         {
-                                Buzzer_Set_Tone(&hbuzzer1, M5);
+                                Buzzer_Set_Tone(hbuzzer, M5);
                                 vTaskDelay(100);
-                                Buzzer_Set_Tone(&hbuzzer1, P);
+                                Buzzer_Set_Tone(hbuzzer, P);
                                 vTaskDelay(100);
                         }
-                        Buzzer_SoundEffect = Buzzer_SoundEffect_OFF;
+                        hbuzzer->sound_effect = Buzzer_SoundEffect_OFF;
                         break;
                 }
                 case Buzzer_SoundEffect_Shoot4 :
                 {
-                        Buzzer_Start(&hbuzzer1);
+                        Buzzer_Start(hbuzzer);
                         for (uint8_t i = 0; i < 4; i++)
                         {
-                                Buzzer_Set_Tone(&hbuzzer1, M5);
+                                Buzzer_Set_Tone(hbuzzer, M5);
                                 vTaskDelay(100);
-                                Buzzer_Set_Tone(&hbuzzer1, P);
+                                Buzzer_Set_Tone(hbuzzer, P);
                                 vTaskDelay(100);
                         }
-                        Buzzer_SoundEffect = Buzzer_SoundEffect_OFF;
+                        hbuzzer->sound_effect = Buzzer_SoundEffect_OFF;
                         break;
                 }
                 case Buzzer_SoundEffect_Shoot5 :
                 {
-                        Buzzer_Start(&hbuzzer1);
+                        Buzzer_Start(hbuzzer);
                         for (uint8_t i = 0; i < 5; i++)
                         {
-                                Buzzer_Set_Tone(&hbuzzer1, M5);
+                                Buzzer_Set_Tone(hbuzzer, M5);
                                 vTaskDelay(100);
-                                Buzzer_Set_Tone(&hbuzzer1, P);
+                                Buzzer_Set_Tone(hbuzzer, P);
                                 vTaskDelay(100);
                         }
-                        Buzzer_SoundEffect = Buzzer_SoundEffect_OFF;
+                        hbuzzer->sound_effect = Buzzer_SoundEffect_OFF;
                         break;
                 }
                 case Buzzer_SoundEffect_Shoot6 :
                 {
-                        Buzzer_Start(&hbuzzer1);
+                        Buzzer_Start(hbuzzer);
                         for (uint8_t i = 0; i < 6; i++)
                         {
-                                Buzzer_Set_Tone(&hbuzzer1, M5);
+                                Buzzer_Set_Tone(hbuzzer, M5);
                                 vTaskDelay(100);
-                                Buzzer_Set_Tone(&hbuzzer1, P);
+                                Buzzer_Set_Tone(hbuzzer, P);
                                 vTaskDelay(100);
                         }
-                        Buzzer_SoundEffect = Buzzer_SoundEffect_OFF;
+                        hbuzzer->sound_effect = Buzzer_SoundEffect_OFF;
                         break;
                 }
                 case Buzzer_SoundEffect_Shoot7 :
                 {
-                        Buzzer_Start(&hbuzzer1);
+                        Buzzer_Start(hbuzzer);
                         for (uint8_t i = 0; i < 7; i++)
                         {
-                                Buzzer_Set_Tone(&hbuzzer1, M5);
+                                Buzzer_Set_Tone(hbuzzer, M5);
                                 vTaskDelay(100);
-                                Buzzer_Set_Tone(&hbuzzer1, P);
+                                Buzzer_Set_Tone(hbuzzer, P);
                                 vTaskDelay(100);
                         }
-                        Buzzer_SoundEffect = Buzzer_SoundEffect_OFF;
+                        hbuzzer->sound_effect = Buzzer_SoundEffect_OFF;
                         break;
                 }
                 case Buzzer_SoundEffect_Shoot8 :
                 {
-                        Buzzer_Start(&hbuzzer1);
+                        Buzzer_Start(hbuzzer);
                         for (uint8_t i = 0; i < 8; i++)
                         {
-                                Buzzer_Set_Tone(&hbuzzer1, M5);
+                                Buzzer_Set_Tone(hbuzzer, M5);
                                 vTaskDelay(100);
-                                Buzzer_Set_Tone(&hbuzzer1, P);
+                                Buzzer_Set_Tone(hbuzzer, P);
                                 vTaskDelay(100);
                         }
-                        Buzzer_SoundEffect = Buzzer_SoundEffect_OFF;
+                        hbuzzer->sound_effect = Buzzer_SoundEffect_OFF;
                         break;
                 }
                 }
 
-                vTaskDelay(Buzzer_Get_Task_Tick(&hbuzzer1));
+                vTaskDelay(Buzzer_Get_Task_Tick(hbuzzer));
         }
 }
 
@@ -253,7 +257,7 @@ void Buzzer_Task(void const *argument)
  */
 void Buzzer_Set_SoundEffect(Buzzer_HandleTypeDef *hbuzzer, Buzzer_SoundEffect_EnumTypedef SoundEffect)
 {
-        Buzzer_SoundEffect = SoundEffect;
+        hbuzzer->sound_effect = SoundEffect;
 }
 
 /**
@@ -366,3 +370,5 @@ void Buzzer_Set_Tone(Buzzer_HandleTypeDef *hbuzzer, Buzzer_Tone_EnumTypedef Tone
         __HAL_TIM_SET_AUTORELOAD(hbuzzer->htim, ARL - 1);
         __HAL_TIM_SetCompare(hbuzzer->htim, hbuzzer->channel, ARL / 2);
 }
+
+

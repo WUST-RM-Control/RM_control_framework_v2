@@ -1,4 +1,4 @@
-# 武汉科技大学崇实战队主控G4mini-v3整车控制框架
+# 武汉科技大学崇实战队主控 G4mini-v3 整车控制框架
 
 > 施工中...
 
@@ -19,9 +19,7 @@ cmake --build --preset Release
 
 ## G4mini Pin Assignment
 
-G4mini主控板:
-
-QMI8658A:
+### QMI8658A:
 
 |Hardware|Pin|Peripheral|
 |---|---|---|
@@ -32,7 +30,7 @@ QMI8658A:
 |INT1|PB1|GPIO|
 |INT2|PB2|GPIO|
 
-LED:
+### LED:
 
 |Hardware|Pin|Peripheral|
 |---|---|---|
@@ -40,55 +38,55 @@ LED:
 |G|TIM1_CH3N/PB15|TIM1|
 |B|TIM1_CH1/PA8|TIM1|
 
-Buzzer:
+### Buzzer:
 
 |Hardware|Pin|Peripheral|
 |---|---|---|
 |BUZZER|TIM16_CH1/PB4|TIM16|
 
-USB:
+### USB:
 
 |Hardware|Pin|Peripheral|
 |---|---|---|
 |DM|USB_DM/PA11|USB|
 |DP|USB_DP/PA12|USB|
 
-CAN1:
+### CAN1:
 
 |Hardware|Pin|Peripheral|
 |---|---|---|
 |TX|FDCAN1_TX/PB9|FDCAN1|
 |RX|FDCAN1_RX/PB8|FDCAN1|
 
-CAN2:
+### CAN2:
 
 |Hardware|Pin|Peripheral|
 |---|---|---|
 |TX|FDCAN2_TX/PB6|FDCAN2|
 |RX|FDCAN2_RX/PB5|FDCAN2|
 
-CAN3:
+### CAN3:
 
 |Hardware|Pin|Peripheral|
 |---|---|---|
 |TX|FDCAN3_TX/PA15|FDCAN3|
 |RX|FDCAN3_RX/PB3|FDCAN3|
 
-USART1:
+### USART1:
 
 |Hardware|Pin|Peripheral|
 |---|---|---|
 |TX|USART1_TX/PA9|USART1|
 |RX|USART1_RX/PA10|USART1|
 
-USART2:
+### USART2:
 
 |Hardware|Pin|Peripheral|
 |---|---|---|
 |TX|USART2_TX/PA2|USART2|
 |RX|USART2_RX/PA3|USART2|
 
-USART3:
+### USART3:
 
 |Hardware|Pin|Peripheral|
 |---|---|---|

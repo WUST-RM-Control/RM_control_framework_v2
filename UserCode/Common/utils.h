@@ -26,13 +26,13 @@
 
 enum
 {
-    CHASSIS_DEBUG = 1,
-    GIMBAL_DEBUG,
-    INS_DEBUG,
-    RC_DEBUG,
-    IMU_HEAT_DEBUG,
-    SHOOT_DEBUG,
-    AIMASSIST_DEBUG,
+        CHASSIS_DEBUG = 1,
+        GIMBAL_DEBUG,
+        INS_DEBUG,
+        RC_DEBUG,
+        IMU_HEAT_DEBUG,
+        SHOOT_DEBUG,
+        AIMASSIST_DEBUG,
 };
 
 extern uint8_t GlobalDebugMode;
@@ -97,27 +97,27 @@ extern uint8_t GlobalDebugMode;
 
 typedef struct
 {
-    float input;        //输入数据
-    float out;          //输出数据
-    float min_value;    //限幅最小值
-    float max_value;    //限幅最大值
-    float frame_period; //时间间隔
+        float input;        //输入数据
+        float out;          //输出数据
+        float min_value;    //限幅最小值
+        float max_value;    //限幅最大值
+        float frame_period; //时间间隔
 } ramp_function_source_t;
 
 typedef struct
 {
-    uint16_t Order;
-    uint32_t Count;
+        uint16_t Order;
+        uint32_t Count;
 
-    float *x;
-    float *y;
+        float *x;
+        float *y;
 
-    float k;
-    float b;
+        float k;
+        float b;
 
-    float StandardDeviation;
+        float StandardDeviation;
 
-    float t[4];
+        float t[4];
 } Ordinary_Least_Squares_t;
 
 // typedef struct
@@ -138,48 +138,65 @@ float Sqrt(float x);
 
 //斜波函数初始化
 void ramp_init(ramp_function_source_t *ramp_source_type, float frame_period, float max, float min);
+
 //斜波函数计算
 float ramp_calc(ramp_function_source_t *ramp_source_type, float input);
 
 //绝对限制
 float abs_limit(float num, float Limit);
+
 //判断符号位
 float sign(float value);
+
 //浮点死区
 float float_deadband(float Value, float minValue, float maxValue);
+
 // int26死区
 int16_t int16_deadline(int16_t Value, int16_t minValue, int16_t maxValue);
+
 //限幅函数
 float float_constrain(float Value, float minValue, float maxValue);
+
 //限幅函数
 int16_t int16_constrain(int16_t Value, int16_t minValue, int16_t maxValue);
+
 //循环限幅函数
 float loop_float_constrain(float Input, float minValue, float maxValue);
+
 //角度 °限幅 180 ~ -180
 float theta_format(float Ang);
 
 int float_rounding(float raw);
 
+int float_to_uint(float x, float x_min, float x_max, int bits);
+
+float uint_to_float(int x_int, float x_min, float x_max, int bits);
+
+int16_t float_to_int16(float fValue, float min, float max);
+
+float int16_to_float(int16_t iValue, float min, float max);
+
+int16_t float_to_int16_Angle(float fAngle);
+
+float int16_to_float_Angle(int16_t iAngle);
+
 //弧度格式化为-PI~PI
 #define rad_format(Ang) loop_float_constrain((Ang), -PI, PI)
 
 void OLS_Init(Ordinary_Least_Squares_t *OLS, uint16_t order);
+
 void OLS_Update(Ordinary_Least_Squares_t *OLS, float deltax, float y);
+
 float OLS_Derivative(Ordinary_Least_Squares_t *OLS, float deltax, float y);
+
 float OLS_Smooth(Ordinary_Least_Squares_t *OLS, float deltax, float y);
+
 float Get_OLS_Derivative(Ordinary_Least_Squares_t *OLS);
+
 float Get_OLS_Smooth(Ordinary_Least_Squares_t *OLS);
 
-int float_to_uint(float x, float x_min, float x_max, int bits);
-float uint_to_float(int x_int, float x_min, float x_max, int bits);
-int16_t float_to_int16(float fValue, float min, float max);
-float int16_to_float(int16_t iValue, float min, float max);
-int16_t float_to_int16_Angle(float fAngle);
-float int16_to_float_Angle(int16_t iAngle);
 
 __STATIC_INLINE void null_function()
-{
-
-}
+{}
 
 #endif //G4MINI_V3_UTILS_H

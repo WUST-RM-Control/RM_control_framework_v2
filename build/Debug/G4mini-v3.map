@@ -8419,13 +8419,12 @@ Discarded input sections
  .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/buzzer/drv_buzzer.c.obj
  .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/buzzer/drv_buzzer.c.obj
  .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/buzzer/drv_buzzer.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/buzzer/drv_buzzer.c.obj
  .text          0x00000000        0x0 CMakeFiles/G4mini-v3.dir/UserCode/DRV/buzzer/drv_buzzer.c.obj
  .data          0x00000000        0x0 CMakeFiles/G4mini-v3.dir/UserCode/DRV/buzzer/drv_buzzer.c.obj
  .bss           0x00000000        0x0 CMakeFiles/G4mini-v3.dir/UserCode/DRV/buzzer/drv_buzzer.c.obj
  .text.Buzzer_Get_Task_Tick
                 0x00000000       0x16 CMakeFiles/G4mini-v3.dir/UserCode/DRV/buzzer/drv_buzzer.c.obj
- .bss.Buzzer_SoundEffect
-                0x00000000        0x1 CMakeFiles/G4mini-v3.dir/UserCode/DRV/buzzer/drv_buzzer.c.obj
  .bss.hbuzzer1  0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/buzzer/drv_buzzer.c.obj
  .text.Buzzer_Ctor
                 0x00000000       0x2c CMakeFiles/G4mini-v3.dir/UserCode/DRV/buzzer/drv_buzzer.c.obj
@@ -8436,18 +8435,18 @@ Discarded input sections
  .text.Buzzer_Stop
                 0x00000000       0x20 CMakeFiles/G4mini-v3.dir/UserCode/DRV/buzzer/drv_buzzer.c.obj
  .text.Buzzer_Task
-                0x00000000      0x4b0 CMakeFiles/G4mini-v3.dir/UserCode/DRV/buzzer/drv_buzzer.c.obj
+                0x00000000      0x4b4 CMakeFiles/G4mini-v3.dir/UserCode/DRV/buzzer/drv_buzzer.c.obj
  .text.Buzzer_Set_SoundEffect
-                0x00000000       0x20 CMakeFiles/G4mini-v3.dir/UserCode/DRV/buzzer/drv_buzzer.c.obj
+                0x00000000       0x1c CMakeFiles/G4mini-v3.dir/UserCode/DRV/buzzer/drv_buzzer.c.obj
  .text.Buzzer_Set_Tone
                 0x00000000      0x3fc CMakeFiles/G4mini-v3.dir/UserCode/DRV/buzzer/drv_buzzer.c.obj
- .debug_info    0x00000000      0xc71 CMakeFiles/G4mini-v3.dir/UserCode/DRV/buzzer/drv_buzzer.c.obj
- .debug_abbrev  0x00000000      0x2bb CMakeFiles/G4mini-v3.dir/UserCode/DRV/buzzer/drv_buzzer.c.obj
+ .debug_info    0x00000000      0xc8a CMakeFiles/G4mini-v3.dir/UserCode/DRV/buzzer/drv_buzzer.c.obj
+ .debug_abbrev  0x00000000      0x2cb CMakeFiles/G4mini-v3.dir/UserCode/DRV/buzzer/drv_buzzer.c.obj
  .debug_aranges
                 0x00000000       0x58 CMakeFiles/G4mini-v3.dir/UserCode/DRV/buzzer/drv_buzzer.c.obj
  .debug_rnglists
                 0x00000000       0x3f CMakeFiles/G4mini-v3.dir/UserCode/DRV/buzzer/drv_buzzer.c.obj
- .debug_macro   0x00000000      0x2a6 CMakeFiles/G4mini-v3.dir/UserCode/DRV/buzzer/drv_buzzer.c.obj
+ .debug_macro   0x00000000      0x2b9 CMakeFiles/G4mini-v3.dir/UserCode/DRV/buzzer/drv_buzzer.c.obj
  .debug_macro   0x00000000      0xaf6 CMakeFiles/G4mini-v3.dir/UserCode/DRV/buzzer/drv_buzzer.c.obj
  .debug_macro   0x00000000       0x22 CMakeFiles/G4mini-v3.dir/UserCode/DRV/buzzer/drv_buzzer.c.obj
  .debug_macro   0x00000000       0x8e CMakeFiles/G4mini-v3.dir/UserCode/DRV/buzzer/drv_buzzer.c.obj
@@ -8501,8 +8500,9 @@ Discarded input sections
  .debug_macro   0x00000000      0x4c5 CMakeFiles/G4mini-v3.dir/UserCode/DRV/buzzer/drv_buzzer.c.obj
  .debug_macro   0x00000000       0xb5 CMakeFiles/G4mini-v3.dir/UserCode/DRV/buzzer/drv_buzzer.c.obj
  .debug_macro   0x00000000       0xaa CMakeFiles/G4mini-v3.dir/UserCode/DRV/buzzer/drv_buzzer.c.obj
- .debug_line    0x00000000      0xbe2 CMakeFiles/G4mini-v3.dir/UserCode/DRV/buzzer/drv_buzzer.c.obj
- .debug_str     0x00000000   0x114f80 CMakeFiles/G4mini-v3.dir/UserCode/DRV/buzzer/drv_buzzer.c.obj
+ .debug_macro   0x00000000       0x16 CMakeFiles/G4mini-v3.dir/UserCode/DRV/buzzer/drv_buzzer.c.obj
+ .debug_line    0x00000000      0xbe9 CMakeFiles/G4mini-v3.dir/UserCode/DRV/buzzer/drv_buzzer.c.obj
+ .debug_str     0x00000000   0x114fc5 CMakeFiles/G4mini-v3.dir/UserCode/DRV/buzzer/drv_buzzer.c.obj
  .comment       0x00000000       0x1f CMakeFiles/G4mini-v3.dir/UserCode/DRV/buzzer/drv_buzzer.c.obj
  .debug_frame   0x00000000      0x13c CMakeFiles/G4mini-v3.dir/UserCode/DRV/buzzer/drv_buzzer.c.obj
  .ARM.attributes
@@ -9350,21 +9350,406 @@ Discarded input sections
  .debug_frame   0x00000000      0x1e8 CMakeFiles/G4mini-v3.dir/UserCode/DRV/motor/drv_motor_dm.c.obj
  .ARM.attributes
                 0x00000000       0x34 CMakeFiles/G4mini-v3.dir/UserCode/DRV/motor/drv_motor_dm.c.obj
- .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/Remote_Control.c.obj
- .text          0x00000000        0x0 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/Remote_Control.c.obj
- .data          0x00000000        0x0 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/Remote_Control.c.obj
- .bss           0x00000000        0x0 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/Remote_Control.c.obj
- .debug_info    0x00000000       0x22 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/Remote_Control.c.obj
- .debug_abbrev  0x00000000       0x12 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/Remote_Control.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .text          0x00000000        0x0 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .data          0x00000000        0x0 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .bss           0x00000000        0x0 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .bss.hremote_dt7
+                0x00000000       0x74 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .bss.hremote_vt03
+                0x00000000       0x74 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .text.Remote_Init
+                0x00000000       0x28 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_info    0x00000000      0xa37 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_abbrev  0x00000000      0x1c7 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
  .debug_aranges
-                0x00000000       0x18 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/Remote_Control.c.obj
- .debug_macro   0x00000000       0x1b CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/Remote_Control.c.obj
- .debug_macro   0x00000000      0xaf6 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/Remote_Control.c.obj
- .debug_line    0x00000000       0x86 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/Remote_Control.c.obj
- .debug_str     0x00000000     0x2f0d CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/Remote_Control.c.obj
- .comment       0x00000000       0x1f CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/Remote_Control.c.obj
+                0x00000000       0x20 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_rnglists
+                0x00000000       0x13 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000      0x266 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000      0xaf6 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000      0x173 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000       0x2e CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000       0x28 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000       0x22 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000       0x8e CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000       0x51 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000      0x103 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000       0x6a CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000      0x1df CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000       0x1c CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000       0x22 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000       0xfb CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000     0x1011 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000      0x11f CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000    0x18b8c CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000       0x6d CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000     0x3558 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000      0x190 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000       0x5c CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000     0x171f CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000      0x600 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000      0x1b6 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000      0x34a CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000      0x53c CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000      0x18b CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000       0x43 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000      0x23d CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000     0x1111 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000      0x72e CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000      0x391 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000      0x211 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000      0x6bd CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000      0x45c CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000      0x11c CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000       0x73 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000      0x234 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000      0x122 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000      0x3d1 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000      0x2fe CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000      0xc0b CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000      0x718 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000      0x693 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000       0xa6 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000      0x358 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000       0x10 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_macro   0x00000000      0x142 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_line    0x00000000      0x6f3 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_str     0x00000000   0x111f9b CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .comment       0x00000000       0x1f CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .debug_frame   0x00000000       0x34 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
  .ARM.attributes
-                0x00000000       0x34 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/Remote_Control.c.obj
+                0x00000000       0x34 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .text          0x00000000        0x0 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .data          0x00000000        0x0 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .bss           0x00000000        0x0 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .text.Remote_DT7_GetData
+                0x00000000      0x54c CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .data.Remote_DT7_VTable_Default
+                0x00000000        0x4 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .text.Remote_DT7_Ctor
+                0x00000000       0x2c CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_info    0x00000000      0xac2 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_abbrev  0x00000000      0x1d6 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_aranges
+                0x00000000       0x28 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_rnglists
+                0x00000000       0x1a CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000      0x316 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000      0xaf6 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000      0x173 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000       0x2e CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000       0x28 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000       0x22 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000       0x8e CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000       0x51 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000      0x103 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000       0x6a CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000      0x1df CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000       0x1c CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000       0x22 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000       0xfb CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000     0x1011 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000      0x11f CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000    0x18b8c CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000       0x6d CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000     0x3558 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000      0x190 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000       0x5c CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000     0x171f CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000      0x600 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000      0x1b6 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000      0x34a CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000      0x53c CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000      0x18b CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000       0x43 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000      0x23d CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000     0x1111 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000      0x72e CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000      0x391 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000      0x211 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000      0x6bd CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000      0x45c CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000      0x11c CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000       0x73 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000      0x234 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000      0x122 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000      0x3d1 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000      0x2fe CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000      0xc0b CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000      0x718 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000      0x693 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000       0xa6 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000      0x358 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000       0x10 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000      0x142 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000       0x74 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000       0x2a CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000       0x3c CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000       0x34 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000      0x364 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000       0x16 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000       0x4a CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000       0x34 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000       0x10 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000       0x58 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000      0x1de CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000       0x10 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_macro   0x00000000       0x3c CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_line    0x00000000      0xa69 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_str     0x00000000   0x114ab8 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .comment       0x00000000       0x1f CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .debug_frame   0x00000000       0x5c CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .ARM.attributes
+                0x00000000       0x34 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .text          0x00000000        0x0 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .data          0x00000000        0x0 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .bss           0x00000000        0x0 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .text.Remote_VT03_GetData
+                0x00000000      0x220 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .data.Remote_VT03_VTable_Default
+                0x00000000        0x4 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .text.Remote_VT03_Ctor
+                0x00000000       0x24 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_info    0x00000000      0xb0a CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_abbrev  0x00000000      0x1d5 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_aranges
+                0x00000000       0x28 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_rnglists
+                0x00000000       0x1a CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000      0x316 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000      0xaf6 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000      0x173 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000       0x2e CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000       0x28 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000       0x22 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000       0x8e CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000       0x51 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000      0x103 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000       0x6a CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000      0x1df CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000       0x1c CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000       0x22 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000       0xfb CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000     0x1011 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000      0x11f CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000    0x18b8c CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000       0x6d CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000     0x3558 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000      0x190 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000       0x5c CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000     0x171f CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000      0x600 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000      0x1b6 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000      0x34a CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000      0x53c CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000      0x18b CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000       0x43 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000      0x23d CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000     0x1111 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000      0x72e CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000      0x391 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000      0x211 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000      0x6bd CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000      0x45c CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000      0x11c CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000       0x73 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000      0x234 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000      0x122 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000      0x3d1 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000      0x2fe CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000      0xc0b CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000      0x718 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000      0x693 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000       0xa6 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000      0x358 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000       0x10 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000      0x142 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000       0x74 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000       0x2a CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000       0x3c CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000       0x34 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000      0x364 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000       0x16 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000       0x4a CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000       0x34 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000       0x10 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000       0x58 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000      0x1de CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000       0x10 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_macro   0x00000000       0x3c CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_line    0x00000000      0x889 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_str     0x00000000   0x114af0 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .comment       0x00000000       0x1f CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .debug_frame   0x00000000       0x5c CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
+ .ARM.attributes
+                0x00000000       0x34 CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
  .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/ENT/ent_main.c.obj
  .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/ENT/ent_main.c.obj
  .group         0x00000000        0xc CMakeFiles/G4mini-v3.dir/UserCode/ENT/ent_main.c.obj
@@ -9443,16 +9828,16 @@ Discarded input sections
  .text          0x00000000        0x0 CMakeFiles/G4mini-v3.dir/UserCode/ENT/ent_main.c.obj
  .data          0x00000000        0x0 CMakeFiles/G4mini-v3.dir/UserCode/ENT/ent_main.c.obj
  .bss           0x00000000        0x0 CMakeFiles/G4mini-v3.dir/UserCode/ENT/ent_main.c.obj
- .rodata        0x00000000        0x6 CMakeFiles/G4mini-v3.dir/UserCode/ENT/ent_main.c.obj
+ .rodata        0x00000000        0xe CMakeFiles/G4mini-v3.dir/UserCode/ENT/ent_main.c.obj
  .text.main_init
-                0x00000000       0x2c CMakeFiles/G4mini-v3.dir/UserCode/ENT/ent_main.c.obj
- .debug_info    0x00000000      0x168 CMakeFiles/G4mini-v3.dir/UserCode/ENT/ent_main.c.obj
- .debug_abbrev  0x00000000       0xaf CMakeFiles/G4mini-v3.dir/UserCode/ENT/ent_main.c.obj
+                0x00000000       0x4c CMakeFiles/G4mini-v3.dir/UserCode/ENT/ent_main.c.obj
+ .debug_info    0x00000000      0x9b3 CMakeFiles/G4mini-v3.dir/UserCode/ENT/ent_main.c.obj
+ .debug_abbrev  0x00000000      0x1b7 CMakeFiles/G4mini-v3.dir/UserCode/ENT/ent_main.c.obj
  .debug_aranges
                 0x00000000       0x20 CMakeFiles/G4mini-v3.dir/UserCode/ENT/ent_main.c.obj
  .debug_rnglists
                 0x00000000       0x13 CMakeFiles/G4mini-v3.dir/UserCode/ENT/ent_main.c.obj
- .debug_macro   0x00000000      0x415 CMakeFiles/G4mini-v3.dir/UserCode/ENT/ent_main.c.obj
+ .debug_macro   0x00000000      0x41f CMakeFiles/G4mini-v3.dir/UserCode/ENT/ent_main.c.obj
  .debug_macro   0x00000000      0xaf6 CMakeFiles/G4mini-v3.dir/UserCode/ENT/ent_main.c.obj
  .debug_macro   0x00000000      0x190 CMakeFiles/G4mini-v3.dir/UserCode/ENT/ent_main.c.obj
  .debug_macro   0x00000000       0x22 CMakeFiles/G4mini-v3.dir/UserCode/ENT/ent_main.c.obj
@@ -9528,8 +9913,8 @@ Discarded input sections
  .debug_macro   0x00000000      0x118 CMakeFiles/G4mini-v3.dir/UserCode/ENT/ent_main.c.obj
  .debug_macro   0x00000000      0x162 CMakeFiles/G4mini-v3.dir/UserCode/ENT/ent_main.c.obj
  .debug_macro   0x00000000       0x34 CMakeFiles/G4mini-v3.dir/UserCode/ENT/ent_main.c.obj
- .debug_line    0x00000000      0xa53 CMakeFiles/G4mini-v3.dir/UserCode/ENT/ent_main.c.obj
- .debug_str     0x00000000   0x118e7b CMakeFiles/G4mini-v3.dir/UserCode/ENT/ent_main.c.obj
+ .debug_line    0x00000000      0xa9f CMakeFiles/G4mini-v3.dir/UserCode/ENT/ent_main.c.obj
+ .debug_str     0x00000000   0x11973e CMakeFiles/G4mini-v3.dir/UserCode/ENT/ent_main.c.obj
  .comment       0x00000000       0x1f CMakeFiles/G4mini-v3.dir/UserCode/ENT/ent_main.c.obj
  .debug_frame   0x00000000       0x34 CMakeFiles/G4mini-v3.dir/UserCode/ENT/ent_main.c.obj
  .ARM.attributes
@@ -10750,7 +11135,9 @@ LOAD CMakeFiles/G4mini-v3.dir/UserCode/DRV/led/drv_led.c.obj
 LOAD CMakeFiles/G4mini-v3.dir/UserCode/DRV/motor/drv_motor.c.obj
 LOAD CMakeFiles/G4mini-v3.dir/UserCode/DRV/motor/drv_motor_dji.c.obj
 LOAD CMakeFiles/G4mini-v3.dir/UserCode/DRV/motor/drv_motor_dm.c.obj
-LOAD CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/Remote_Control.c.obj
+LOAD CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote.c.obj
+LOAD CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_dt7.c.obj
+LOAD CMakeFiles/G4mini-v3.dir/UserCode/DRV/remote_control/drv_remote_vt03.c.obj
 LOAD CMakeFiles/G4mini-v3.dir/UserCode/ENT/ent_main.c.obj
 LOAD CMakeFiles/G4mini-v3.dir/UserCode/HAL/hal_can.c.obj
 LOAD CMakeFiles/G4mini-v3.dir/UserCode/HAL/hal_dwt.c.obj
