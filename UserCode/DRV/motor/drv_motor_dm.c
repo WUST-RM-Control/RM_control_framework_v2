@@ -11,28 +11,28 @@
 void Motor_DM_CMD_Enable(Motor_HandleTypeDef *hmotor)
 {
         uint8_t DM_Enable_Data[8] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFC};
-        CAN_Send_Data_STD(hmotor->hfdcan, hmotor->CAN_Send_ID, DM_Enable_Data);
+        CAN_Send_Data_STD(hmotor->Node.hfdcan, hmotor->Node.CAN_Send_ID, DM_Enable_Data);
 }
 
 //电机-达妙-指令-失能（FDCAN，电机MasterID）
 void Motor_DM_CMD_Disable(Motor_HandleTypeDef *hmotor)
 {
         uint8_t DM_Disable_Data[8] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFD};
-        CAN_Send_Data_STD(hmotor->hfdcan, hmotor->CAN_Send_ID, DM_Disable_Data);
+        CAN_Send_Data_STD(hmotor->Node.hfdcan, hmotor->Node.CAN_Send_ID, DM_Disable_Data);
 }
 
 //电机-达妙-指令-设置零点（FDCAN，电机Master_ID）
 void Motor_DM_CMD_SetZero(Motor_HandleTypeDef *hmotor)
 {
         uint8_t DM_SetZero_Data[8] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE};
-        CAN_Send_Data_STD(hmotor->hfdcan, hmotor->CAN_Send_ID, DM_SetZero_Data);
+        CAN_Send_Data_STD(hmotor->Node.hfdcan, hmotor->Node.CAN_Send_ID, DM_SetZero_Data);
 }
 
 //电机-达妙-指令-清除错误（FDCAN，电机Master_ID）
 void Motor_DM_CMD_ClearErr(Motor_HandleTypeDef *hmotor)
 {
         uint8_t DM_ClearErr_Data[8] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFB};
-        CAN_Send_Data_STD(hmotor->hfdcan, hmotor->CAN_Send_ID, DM_ClearErr_Data);
+        CAN_Send_Data_STD(hmotor->Node.hfdcan, hmotor->Node.CAN_Send_ID, DM_ClearErr_Data);
 }
 
 //电机-达妙-指令-MID控制（FDCAN，电机Master_ID，位置，速度，Kp，Kd，力矩）
@@ -55,7 +55,7 @@ void Motor_DM_CMD_MIT(Motor_HandleTypeDef *hmotor, float _pos, float _vel, float
         DM_Send_Data[6] = ((kd_tmp & 0xF) << 4) | (tor_tmp >> 8);
         DM_Send_Data[7] = tor_tmp;
 
-        CAN_Send_Data_STD(hmotor->hfdcan, hmotor->CAN_Send_ID, DM_Send_Data);
+        CAN_Send_Data_STD(hmotor->Node.hfdcan, hmotor->Node.CAN_Send_ID, DM_Send_Data);
 }
 
 //电机-达妙-指令-位置控制（FDCAN，电机Master_ID，位置，速度）
@@ -63,7 +63,7 @@ void Motor_DM_CMD_Position(Motor_HandleTypeDef *hmotor, float Position, float Sp
 {
         float Position_Speed_Buf[2] = {Position, Speed};
 
-        CAN_Send_Data_STD(hmotor->hfdcan, hmotor->CAN_Send_ID, (uint8_t *) Position_Speed_Buf);
+        CAN_Send_Data_STD(hmotor->Node.hfdcan, hmotor->Node.CAN_Send_ID, (uint8_t *) Position_Speed_Buf);
 }
 
 //电机-达妙-指令-速度控制（FDCAN，电机Master_ID，速度）
@@ -71,18 +71,20 @@ void Motor_DM_CMD_Speed(Motor_HandleTypeDef *hmotor, float Speed)
 {
         float Speed_Buf[1] = {Speed};
 
-        CAN_Send_Data_STD(hmotor->hfdcan, hmotor->CAN_Send_ID, (uint8_t *) Speed_Buf);
+        CAN_Send_Data_STD(hmotor->Node.hfdcan, hmotor->Node.CAN_Send_ID, (uint8_t *) Speed_Buf);
 }
 
 //电机-达妙-存储反馈数据（CAN收到的反馈数组地址，电机数据结构体）
 void Motor_DM_Storage_Data(Motor_HandleTypeDef *hmotor, const uint8_t *Data)
 {
         /*===| 协议解包 |===*/
-        uint8_t Error_ID = Data[0] >> 4;
-        int     p_int    = (Data[1] << 8) | Data[2];
-        int     v_int    = (Data[3] << 4) | (Data[4] >> 4);
-        int     t_int    = ((Data[4] & 0xF) << 8) | Data[5];
+        uint8_t Error_ID    = Data[0] >> 4;
+        int     p_int       = (Data[1] << 8) | Data[2];
+        int     v_int       = (Data[3] << 4) | (Data[4] >> 4);
+        int     t_int       = ((Data[4] & 0xF) << 8) | Data[5];
         int     temperature = Data[7];
+
+        hmotor->Error_Code = Error_ID; //1=正常, 0=失能, 3~E=故障
 
         /*===| 转移数据 |===*/
         hmotor->Angle       = uint_to_float(p_int, P_MIN, P_MAX, 16) / 2.0f / PI * 360.0f; // (-12.5,12.5)
@@ -142,7 +144,7 @@ void Motor_DM1to4_SendCurrent(Motor_HandleTypeDef *hmotor, int16_t ID1_Currnet, 
         Motor_Tx_Data[7] = ID4_Currnet >> 8;
         Motor_Tx_Data[6] = ID4_Currnet & 0xFF;
 
-        CAN_Send_Data_STD(hmotor->hfdcan, hmotor->CAN_Send_ID, Motor_Tx_Data);
+        CAN_Send_Data_STD(hmotor->Node.hfdcan, hmotor->Node.CAN_Send_ID, Motor_Tx_Data);
 }
 
 //电机-达妙1拖4-清除错误
@@ -187,8 +189,8 @@ static Motor_VTable Motor_DM_VTable_Default = {
 void Motor_DM_Ctor(Motor_HandleTypeDef *hmotor,FDCAN_HandleTypeDef *hfdcan, uint16_t CAN_Send_ID, uint16_t CAN_Feedback_ID)
 {
         memset(hmotor, 0, sizeof(Motor_HandleTypeDef));
+
+        CAN_Node_Ctor(&hmotor->Node, hfdcan, CAN_Send_ID, CAN_Feedback_ID);
         hmotor->vptr = &Motor_DM_VTable_Default;
-        hmotor->CAN_Send_ID = CAN_Send_ID;
-        hmotor->CAN_Feedback_ID = CAN_Feedback_ID;
-        hmotor->hfdcan = hfdcan;
 }
+

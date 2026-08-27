@@ -39,13 +39,13 @@
 			{
 				"command" : 1,
 				"file" : 1,
-				"line" : 142,
+				"line" : 143,
 				"parent" : 2
 			},
 			{
 				"command" : 2,
 				"file" : 1,
-				"line" : 145,
+				"line" : 146,
 				"parent" : 2
 			},
 			{
@@ -69,7 +69,7 @@
 			{
 				"command" : 5,
 				"file" : 1,
-				"line" : 139,
+				"line" : 140,
 				"parent" : 2
 			},
 			{
@@ -160,7 +160,7 @@
 				},
 				{
 					"backtrace" : 7,
-					"path" : "/home/ye/Projects/embedded/G4mini-v3/./UserCode/DRV/remote_control"
+					"path" : "/home/ye/Projects/embedded/G4mini-v3/./UserCode/DRV/remote"
 				},
 				{
 					"backtrace" : 7,
@@ -169,6 +169,14 @@
 				{
 					"backtrace" : 7,
 					"path" : "/home/ye/Projects/embedded/G4mini-v3/./UserCode/HAL"
+				},
+				{
+					"backtrace" : 7,
+					"path" : "/home/ye/Projects/embedded/G4mini-v3/./UserCode/SRV/error_monitor"
+				},
+				{
+					"backtrace" : 7,
+					"path" : "/home/ye/Projects/embedded/G4mini-v3/./UserCode/SRV/motor_control"
 				},
 				{
 					"backtrace" : 4,
@@ -251,7 +259,7 @@
 				14,
 				15,
 				16,
-				18,
+				17,
 				19,
 				20,
 				21,
@@ -267,7 +275,11 @@
 				31,
 				32,
 				33,
-				34
+				34,
+				35,
+				36,
+				37,
+				38
 			]
 		},
 		{
@@ -324,7 +336,7 @@
 				},
 				{
 					"backtrace" : 7,
-					"path" : "/home/ye/Projects/embedded/G4mini-v3/./UserCode/DRV/remote_control"
+					"path" : "/home/ye/Projects/embedded/G4mini-v3/./UserCode/DRV/remote"
 				},
 				{
 					"backtrace" : 7,
@@ -333,6 +345,14 @@
 				{
 					"backtrace" : 7,
 					"path" : "/home/ye/Projects/embedded/G4mini-v3/./UserCode/HAL"
+				},
+				{
+					"backtrace" : 7,
+					"path" : "/home/ye/Projects/embedded/G4mini-v3/./UserCode/SRV/error_monitor"
+				},
+				{
+					"backtrace" : 7,
+					"path" : "/home/ye/Projects/embedded/G4mini-v3/./UserCode/SRV/motor_control"
 				},
 				{
 					"backtrace" : 4,
@@ -390,7 +410,7 @@
 			"language" : "ASM",
 			"sourceIndexes" : 
 			[
-				17
+				18
 			]
 		}
 	],
@@ -524,7 +544,7 @@
 				14,
 				15,
 				16,
-				18,
+				17,
 				19,
 				20,
 				21,
@@ -540,24 +560,24 @@
 				31,
 				32,
 				33,
-				34
+				34,
+				35,
+				36,
+				37,
+				38
 			]
 		},
 		{
 			"name" : "",
 			"sourceIndexes" : 
 			[
-				17
+				18
 			]
 		},
 		{
 			"name" : "Object Libraries",
 			"sourceIndexes" : 
 			[
-				35,
-				36,
-				37,
-				38,
 				39,
 				40,
 				41,
@@ -594,7 +614,11 @@
 				72,
 				73,
 				74,
-				75
+				75,
+				76,
+				77,
+				78,
+				79
 			]
 		}
 	],
@@ -678,6 +702,16 @@
 			],
 			"compileGroupIndex" : 0,
 			"path" : "Core/Src/adc.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 8,
+			"backtraces" : 
+			[
+				8
+			],
+			"compileGroupIndex" : 0,
+			"path" : "Core/Src/dma.c",
 			"sourceGroupIndex" : 0
 		},
 		{
@@ -897,7 +931,7 @@
 				9
 			],
 			"compileGroupIndex" : 0,
-			"path" : "UserCode/DRV/remote_control/drv_remote.c",
+			"path" : "UserCode/DRV/remote/drv_remote.c",
 			"sourceGroupIndex" : 0
 		},
 		{
@@ -907,7 +941,7 @@
 				9
 			],
 			"compileGroupIndex" : 0,
-			"path" : "UserCode/DRV/remote_control/drv_remote_dt7.c",
+			"path" : "UserCode/DRV/remote/drv_remote_dt7.c",
 			"sourceGroupIndex" : 0
 		},
 		{
@@ -917,7 +951,7 @@
 				9
 			],
 			"compileGroupIndex" : 0,
-			"path" : "UserCode/DRV/remote_control/drv_remote_vt03.c",
+			"path" : "UserCode/DRV/remote/drv_remote_vt03.c",
 			"sourceGroupIndex" : 0
 		},
 		{
@@ -947,7 +981,37 @@
 				9
 			],
 			"compileGroupIndex" : 0,
+			"path" : "UserCode/HAL/hal_debug.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 9,
+			"backtraces" : 
+			[
+				9
+			],
+			"compileGroupIndex" : 0,
 			"path" : "UserCode/HAL/hal_dwt.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 9,
+			"backtraces" : 
+			[
+				9
+			],
+			"compileGroupIndex" : 0,
+			"path" : "UserCode/SRV/error_monitor/srv_error_monitor.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 9,
+			"backtraces" : 
+			[
+				9
+			],
+			"compileGroupIndex" : 0,
+			"path" : "UserCode/SRV/motor_control/srv_motor_control.c",
 			"sourceGroupIndex" : 0
 		},
 		{

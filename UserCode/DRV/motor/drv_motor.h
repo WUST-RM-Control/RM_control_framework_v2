@@ -9,6 +9,7 @@
 #include "main.h"
 #include "FreeRTOS.h"
 #include "task.h"
+#include "hal_can.h"
 
 #define MOTOR_COUNT 9
 
@@ -37,13 +38,12 @@ struct Motor_VTable
 /*===| 电机数据结构体定义 |===*/
 struct Motor_HandleTypeDef
 {
+        CAN_Node_HandleTypeDef Node;   //CAN节点基类(第一个成员, 可向上转型为基类指针)
+
         Motor_VTable *vptr;
-
-        FDCAN_HandleTypeDef *hfdcan;
-        uint16_t             CAN_Send_ID;
-        uint16_t             CAN_Feedback_ID;
-
         Motor_Status_TypeDef Status_Enum;
+
+        uint8_t Error_Code;     //DM反馈错误码(1=正常, 0=失能, 3~E=故障; DJI不更新恒为0)
 
         Feedforward_t FFC_Angle_Struct;
         PID_t         PID_Angle_Struct;
@@ -77,9 +77,32 @@ struct Motor_HandleTypeDef
 };
 
 
+/*===| 电机对象实例 |===*/
+extern Motor_HandleTypeDef hmotor_chassis1;
+extern Motor_HandleTypeDef hmotor_chassis2;
+extern Motor_HandleTypeDef hmotor_chassis3;
+extern Motor_HandleTypeDef hmotor_chassis4;
+extern Motor_HandleTypeDef hmotor_yaw;
+extern Motor_HandleTypeDef hmotor_pitch;
+extern Motor_HandleTypeDef hmotor_fric_right;
+extern Motor_HandleTypeDef hmotor_fric_left;
+extern Motor_HandleTypeDef hmotor_trigger;
+
 extern Motor_HandleTypeDef *hmotor[MOTOR_COUNT];
 
-void Motor_Control_Task(void *pvParameters);
+//电机在线检查(由监控任务周期调用): 超过 timeout_tick 周期未收到反馈则离线
+__STATIC_INLINE void Motor_Online_Check(Motor_HandleTypeDef *hmotor, uint16_t timeout_tick)
+{
+        if (hmotor->If_Online)
+        {
+                hmotor->Ticker++;
+                if (hmotor->Ticker > timeout_tick)
+                        hmotor->If_Online = 0;
+        }
+}
+
+//电机CAN节点数据回调(供SRV层注册到CAN分发框架)
+void Motor_CAN_Node_Handler(CAN_Node_HandleTypeDef *node, const uint8_t *Data);
 
 //通过角度改变计算速度
 void Motor_Get_TotalAngle_Speed(Motor_HandleTypeDef *hmotor, float K);

@@ -1,6 +1,2 @@
-/home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/motor/drv_motor.h:98:22:Motor_Set_Status	16	static
-/home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/motor/drv_motor.h:131:23:Motor_Get_Target_Torque	16	static
-/home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/motor/drv_motor_dm.h:27:22:Motor_DM_Send_Torque	16	static
-/home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/motor/drv_motor.c:87:6:Motor_Get_TotalAngle_Speed	24	static
-/home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/motor/drv_motor.c:98:13:Motor_Init	16	static
-/home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/motor/drv_motor.c:273:6:Motor_Control_Task	48	static
+/home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/motor/drv_motor.c:35:6:Motor_Get_TotalAngle_Speed	24	static
+/home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/motor/drv_motor.c:46:6:Motor_CAN_Node_Handler	24	static

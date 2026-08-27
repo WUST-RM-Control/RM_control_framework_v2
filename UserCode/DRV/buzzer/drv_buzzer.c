@@ -88,6 +88,19 @@ void Buzzer_Task(void *argument)
                         hbuzzer->sound_effect = Buzzer_SoundEffect_OFF;
                         break;
                 }
+                case Buzzer_SoundEffect_Error :
+                {
+                        Buzzer_Start(hbuzzer);
+                        for (uint8_t i = 0; i < 3; i++)
+                        {
+                                Buzzer_Set_Tone(hbuzzer, M7);
+                                vTaskDelay(100);
+                                Buzzer_Set_Tone(hbuzzer, P);
+                                vTaskDelay(100);
+                        }
+                        hbuzzer->sound_effect = Buzzer_SoundEffect_OFF;
+                        break;
+                }
                 case Buzzer_SoundEffect_SuperCap_ON :
                 {
                         Buzzer_Start(hbuzzer);

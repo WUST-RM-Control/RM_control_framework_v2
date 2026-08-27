@@ -5,11 +5,14 @@
 #ifndef G4MINI_V3_BUZZER_H
 #define G4MINI_V3_BUZZER_H
 
+#include "FreeRTOS.h"
+
 /*===| 预设音效枚举定义 |===*/
 typedef enum
 {
         Buzzer_SoundEffect_OFF = 0,
         Buzzer_SoundEffect_SystemStart,
+        Buzzer_SoundEffect_Error,
         Buzzer_SoundEffect_SuperCap_ON,
         Buzzer_SoundEffect_SuperCap_OFF,
         Buzzer_SoundEffect_Aim_ON,

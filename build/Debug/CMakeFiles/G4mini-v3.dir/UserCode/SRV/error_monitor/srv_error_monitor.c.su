@@ -1,0 +1,5 @@
+/home/ye/Projects/embedded/G4mini-v3/./UserCode/DRV/motor/drv_motor.h:92:22:Motor_Online_Check	16	static
+/home/ye/Projects/embedded/G4mini-v3/./UserCode/DRV/remote/drv_remote.h:109:22:Remote_Online_Check	16	static
+/home/ye/Projects/embedded/G4mini-v3/UserCode/SRV/error_monitor/srv_error_monitor.c:34:6:Error_Monitor_Task	24	static
+/home/ye/Projects/embedded/G4mini-v3/UserCode/SRV/error_monitor/srv_error_monitor.c:76:13:Error_Indicate	8	static
+/home/ye/Projects/embedded/G4mini-v3/UserCode/SRV/error_monitor/srv_error_monitor.c:92:13:Error_Print	32	static

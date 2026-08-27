@@ -1,0 +1,3 @@
+/home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/remote/drv_remote.h:125:22:Remote_Rx_Handle	16	static
+/home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/remote/drv_remote.c:17:13:Remote_RxEvent_CallBack	16	static
+/home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/remote/drv_remote.c:30:6:Remote_Init	16	static

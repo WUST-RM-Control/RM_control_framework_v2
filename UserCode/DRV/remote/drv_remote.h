@@ -101,27 +101,25 @@ struct Remote_HandleTypeDef
         Remote_Data_StructTypeDef Data_Last; //上一次数据(按键边沿检测)
 };
 
-/*===| 两个"遥控器"实例: DT7遥控器 / VT03图传键鼠 |===*/
+/*===| 两个"遥控器"实例: DT7遥控器 / VT03图传 |===*/
 extern Remote_HandleTypeDef hremote_dt7;
 extern Remote_HandleTypeDef hremote_vt03;
 
+//遥控器在线检查(由监控任务周期调用): 超过 timeout_tick 周期未收到数据则断开
+__STATIC_INLINE void Remote_Online_Check(Remote_HandleTypeDef *hremote, uint16_t timeout_tick)
+{
+        if (hremote->If_Connect)
+        {
+                hremote->GetData_Ticker++;
+                if (hremote->GetData_Ticker > timeout_tick)
+                        hremote->If_Connect = 0;
+        }
+}
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-void Remote_Init(UART_HandleTypeDef *huart_dt7);
+void Remote_Init(UART_HandleTypeDef *huart);
 
 //统一接收入口: 通过 vptr 分发到对应协议解包并更新连接状态
 __STATIC_INLINE void Remote_Rx_Handle(Remote_HandleTypeDef *hremote, const uint8_t *DataBuff)
@@ -147,7 +145,6 @@ __STATIC_INLINE uint8_t Remote_Get_S1(Remote_HandleTypeDef *hremote)    { return
 __STATIC_INLINE uint8_t Remote_Get_S2(Remote_HandleTypeDef *hremote)    { return hremote->Data.S2; }
 __STATIC_INLINE uint8_t Remote_Get_Connect(Remote_HandleTypeDef *hremote) { return hremote->If_Connect; }
 
-/*===| 按键/鼠标状态宏(传句柄, 例: Remote_Key_Q_Single_Press(&hremote_dt7)) |===*/
 #define Remote_Key_Shift_Single_Press(hremote)    ((hremote)->Data.Keyboard_Shift == 1 && (hremote)->Data_Last.Keyboard_Shift == 0)
 #define Remote_Key_Ctrl_Single_Press(hremote)     ((hremote)->Data.Keyboard_Ctrl  == 1 && (hremote)->Data_Last.Keyboard_Ctrl  == 0)
 #define Remote_Key_Q_Single_Press(hremote)        ((hremote)->Data.Keyboard_Q     == 1 && (hremote)->Data_Last.Keyboard_Q     == 0)

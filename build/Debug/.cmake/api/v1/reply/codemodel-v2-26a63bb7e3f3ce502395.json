@@ -7,7 +7,7 @@
 				{
 					"directoryIndex" : 1,
 					"id" : "stm32cubemx::@768a070a0fe75716b479",
-					"jsonFile" : "target-stm32cubemx-Debug-0163f0653f3536814055.json",
+					"jsonFile" : "target-stm32cubemx-Debug-96f3e9b56eabb6d28d2a.json",
 					"name" : "stm32cubemx",
 					"projectIndex" : 0
 				}
@@ -82,28 +82,28 @@
 				{
 					"directoryIndex" : 1,
 					"id" : "FreeRTOS::@768a070a0fe75716b479",
-					"jsonFile" : "target-FreeRTOS-Debug-18b84fa9c57b442032fc.json",
+					"jsonFile" : "target-FreeRTOS-Debug-26dade92c1901f2765c2.json",
 					"name" : "FreeRTOS",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 0,
 					"id" : "G4mini-v3::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-G4mini-v3-Debug-86e6d2dcf999ce9e16a9.json",
+					"jsonFile" : "target-G4mini-v3-Debug-be45d85ce08125d3f0e8.json",
 					"name" : "G4mini-v3",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 1,
 					"id" : "STM32_Drivers::@768a070a0fe75716b479",
-					"jsonFile" : "target-STM32_Drivers-Debug-a35938e4896066668886.json",
+					"jsonFile" : "target-STM32_Drivers-Debug-a52848e660f0ab7906df.json",
 					"name" : "STM32_Drivers",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 1,
 					"id" : "USB_Device_Library::@768a070a0fe75716b479",
-					"jsonFile" : "target-USB_Device_Library-Debug-35d3d55523bead7f573e.json",
+					"jsonFile" : "target-USB_Device_Library-Debug-0e2835f7002b6a87976a.json",
 					"name" : "USB_Device_Library",
 					"projectIndex" : 0
 				}

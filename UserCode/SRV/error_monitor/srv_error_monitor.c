@@ -1,0 +1,188 @@
+//
+// Created by ye on 2026/8/26.
+//
+
+#include "srv_error_monitor.h"
+
+#include "drv_buzzer.h"
+#include "drv_led.h"
+#include "drv_motor.h"
+#include "drv_remote.h"
+#include "hal_can.h"
+#include "fdcan.h"
+
+#include <stdio.h>
+
+/*===| 监控参数 |===*/
+#define MONITOR_PERIOD_MS  10                      //监控周期
+#define CAN_OFFLINE_MS     100                     //CAN总线超时
+#define MOTOR_OFFLINE_MS   100                     //电机超时
+#define REMOTE_OFFLINE_MS  100                     //遥控超时
+#define VT03_OFFLINE_MS    200                     //图传超时
+#define MOTOR_OVERTEMP_C   80                      //电机过温阈值(仅指示)
+
+#define TICK_OF(ms)        (((ms) + MONITOR_PERIOD_MS - 1) / MONITOR_PERIOD_MS)
+
+//堵转判定: PID_ErrorHandler 计数阈值(与 controller.c 中一致)
+#define MOTOR_BLOCKED_COUNT 500
+
+/*===| 恢复参数 |===*/
+#define CAN_RESTART_THRESHOLD   5    //CAN错误计数重启阈值
+#define MOTOR_RECOVER_MS        100  //电机恢复重试间隔
+
+//DM故障码描述(达妙协议: 0=失能, 1=正常, 3~E=故障)
+static const char *DM_Error_Desc(uint8_t code)
+{
+        switch (code)
+        {
+        case 0x3 : return "OutputAxisCalibErr";
+        case 0x4 : return "SensorOutputErr";
+        case 0x5 : return "EncoderCalibErr";
+        case 0x8 : return "OverVoltage";
+        case 0x9 : return "UnderVoltage";
+        case 0xA : return "OverCurrent";
+        case 0xB : return "MOSOverTemp";
+        case 0xC : return "CoilOverTemp";
+        case 0xD : return "CommLost";
+        case 0xE : return "Overload";
+        default : return "Unknown";
+        }
+}
+
+Fault_Status_TypeDef hfault;
+
+static void Error_Recover(void);
+
+static void Error_Indicate(void);
+
+static void Error_Print(void);
+
+void Error_Monitor_Task(void *pvParameters)
+{
+        for (;;)
+        {
+                //1. CAN在线计时
+                CAN_Bus_Tick();
+
+                for (uint8_t i = 0; i < MOTOR_COUNT; i++)
+                        Motor_Online_Check(hmotor[i], TICK_OF(MOTOR_OFFLINE_MS));
+
+                Remote_Online_Check(&hremote_dt7, TICK_OF(REMOTE_OFFLINE_MS));
+                Remote_Online_Check(&hremote_vt03, TICK_OF(VT03_OFFLINE_MS));
+
+                //2. 故障聚合
+                hfault.Fault_Bitmap_Last = hfault.Fault_Bitmap;
+                hfault.Fault_Bitmap      = FAULT_NONE;
+
+                if (!CAN_Get_Bus_Online(&hfdcan1)) hfault.Fault_Bitmap |= FAULT_CAN1_OFFLINE;
+                if (!CAN_Get_Bus_Online(&hfdcan2)) hfault.Fault_Bitmap |= FAULT_CAN2_OFFLINE;
+                if (!CAN_Get_Bus_Online(&hfdcan3)) hfault.Fault_Bitmap |= FAULT_CAN3_OFFLINE;
+
+                for (uint8_t i = 0; i < MOTOR_COUNT; i++)
+                {
+                        if (!hmotor[i]->If_Online) hfault.Fault_Bitmap |= FAULT_MOTOR_OFFLINE;
+                        if (hmotor[i]->Temperature >= MOTOR_OVERTEMP_C) hfault.Fault_Bitmap |= FAULT_MOTOR_OVERTEMP;
+                        if (hmotor[i]->PID_Angle_Struct.ERRORHandler.ERRORCount > MOTOR_BLOCKED_COUNT ||
+                            hmotor[i]->PID_Speed_Struct.ERRORHandler.ERRORCount > MOTOR_BLOCKED_COUNT)
+                                hfault.Fault_Bitmap |= FAULT_MOTOR_BLOCKED;
+                        if (hmotor[i]->Error_Code >= 3) //DM故障码3~E(仅DM会更新, 只上报不重启)
+                                hfault.Fault_Bitmap |= FAULT_MOTOR_DM_ERROR;
+                }
+
+                if (!hremote_dt7.If_Connect) hfault.Fault_Bitmap |= FAULT_REMOTE_DISCONNECT;
+                if (!hremote_vt03.If_Connect) hfault.Fault_Bitmap |= FAULT_VT03_DISCONNECT;
+
+                //2.5 恢复动作(CAN重启 + 电机重新使能)
+                Error_Recover();
+
+                //3. 指示与上报
+                Error_Indicate();
+                Error_Print();
+
+                vTaskDelay(MONITOR_PERIOD_MS);
+        }
+}
+
+/*===| 恢复动作: CAN总线错误重启 + 电机重新使能 |===*/
+static void Error_Recover(void)
+{
+        //1. CAN总线错误重启: 检测到错误(计数≥阈值)直接重启
+        //   CAN_Bus_Restart 内部会清零错误计数, 天然限频(需重新累计到阈值才会再次重启)
+        for (uint8_t bus = 0; bus < 3; bus++)
+        {
+                FDCAN_HandleTypeDef *hfdcan = (bus == 0) ? &hfdcan1 : (bus == 1) ? &hfdcan2 : &hfdcan3;
+
+                if (CAN_Get_Bus_ErrorCount(hfdcan) >= CAN_RESTART_THRESHOLD)
+                {
+                        printf("[Recover] CAN%d restart (Err=%d)\r\n", bus + 1, CAN_Get_Bus_ErrorCount(hfdcan));
+                        CAN_Bus_Restart(hfdcan);
+                }
+        }
+
+        //2. 电机恢复: 离线超时重启(所有电机) + DM失能重新使能(Error_Code==0), 每100ms一次, 无限重试
+        static uint8_t Recover_Counter = 0;
+        if (++Recover_Counter >= TICK_OF(MOTOR_RECOVER_MS))
+        {
+                Recover_Counter = 0;
+
+                for (uint8_t i = 0; i < MOTOR_COUNT; i++)
+                {
+                        //统一处理: 离线 或 失能(Error_Code==0) 时调用 enable(vtable)
+                        //DM: ClearErr+Enable; DJI: 空操作(无害)
+                        if (!hmotor[i]->If_Online || hmotor[i]->Error_Code == 0)
+                                Motor_Enable(hmotor[i]);
+                }
+        }
+}
+
+/*===| 故障指示: LED常亮(绿=正常/红=故障) + 蜂鸣器(故障发生瞬间响一次) |===*/
+static void Error_Indicate(void)
+{
+        if (hfault.Fault_Bitmap == FAULT_NONE)
+        {
+                LED_Set(&hled1, 0, 255, 0); //正常: 绿
+        }
+        else
+        {
+                LED_Set(&hled1, 255, 0, 0); //故障: 红
+
+                if (hfault.Fault_Bitmap_Last == FAULT_NONE) //由正常进入故障的瞬间
+                        Buzzer_Set_SoundEffect(&hbuzzer1, Buzzer_SoundEffect_Error);
+        }
+}
+
+/*===| 故障printf上报(仅在故障位图变化时打印) |===*/
+static void Error_Print(void)
+{
+        uint32_t Change = hfault.Fault_Bitmap ^ hfault.Fault_Bitmap_Last;
+        if (Change == 0) return;
+
+        printf("[Fault] Bitmap=0x%X\r\n", (unsigned int) hfault.Fault_Bitmap);
+
+        if (hfault.Fault_Bitmap & FAULT_MOTOR_OFFLINE)
+        {
+                printf("[Fault] MotorOffline:");
+                for (uint8_t i = 0; i < MOTOR_COUNT; i++)
+                        if (!hmotor[i]->If_Online) printf(" %d", i);
+                printf("\r\n");
+        }
+        if (hfault.Fault_Bitmap & FAULT_MOTOR_BLOCKED) printf("[Fault] MotorBlocked\r\n");
+        if (hfault.Fault_Bitmap & FAULT_MOTOR_OVERTEMP) printf("[Fault] MotorOverTemp\r\n");
+        if (hfault.Fault_Bitmap & FAULT_MOTOR_DM_ERROR)
+        {
+                for (uint8_t i = 0; i < MOTOR_COUNT; i++)
+                        if (hmotor[i]->Error_Code >= 3)
+                                printf("[Fault] Motor%d DM_Err=0x%X (%s)\r\n", i,
+                                       (unsigned int) hmotor[i]->Error_Code,
+                                       DM_Error_Desc(hmotor[i]->Error_Code));
+        }
+        if (hfault.Fault_Bitmap & FAULT_REMOTE_DISCONNECT) printf("[Fault] RemoteDisconnect\r\n");
+        if (hfault.Fault_Bitmap & FAULT_VT03_DISCONNECT) printf("[Fault] VT03Disconnect\r\n");
+
+        for (uint8_t bus = 1; bus <= 3; bus++)
+        {
+                FDCAN_HandleTypeDef *hfdcan = (bus == 1) ? &hfdcan1 : (bus == 2) ? &hfdcan2 : &hfdcan3;
+                if (!CAN_Get_Bus_Online(hfdcan))
+                        printf("[Fault] CAN%d Offline (ErrCount=%d)\r\n", bus, CAN_Get_Bus_ErrorCount(hfdcan));
+        }
+}

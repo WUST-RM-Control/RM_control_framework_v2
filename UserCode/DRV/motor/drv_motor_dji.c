@@ -65,8 +65,6 @@ void Motor_DJI_Ctor(Motor_HandleTypeDef *hmotor,FDCAN_HandleTypeDef *hfdcan, uin
 {
         memset(hmotor, 0, sizeof(Motor_HandleTypeDef));
 
-        hmotor->vptr            = &Motor_DJI_VTable_Default;
-        hmotor->CAN_Send_ID     = CAN_Send_ID;
-        hmotor->CAN_Feedback_ID = CAN_Feedback_ID;
-        hmotor->hfdcan          = hfdcan;
+        CAN_Node_Ctor(&hmotor->Node, hfdcan, CAN_Send_ID, CAN_Feedback_ID);
+        hmotor->vptr = &Motor_DJI_VTable_Default;
 }

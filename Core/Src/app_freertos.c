@@ -27,7 +27,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "ent_main.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -118,6 +118,9 @@ void StartDefaultTask(void *argument)
   /* init code for USB_Device */
   MX_USB_Device_Init();
   /* USER CODE BEGIN StartDefaultTask */
+        //用户入口: 初始化所有外设驱动并创建应用任务
+        main_init();
+
         /* Infinite loop */
         for (;;)
         {

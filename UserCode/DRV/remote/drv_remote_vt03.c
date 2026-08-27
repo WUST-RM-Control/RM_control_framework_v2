@@ -13,12 +13,12 @@ void Remote_VT03_GetData(Remote_HandleTypeDef *hremote, const uint8_t *DataBuff)
 
         memcpy(&hremote->Data_Last, &hremote->Data, sizeof(Remote_Data_StructTypeDef));
 
-        hremote->Data.Mouse_Speed_X = (float) kb->Mouse_Speed_X / 32.0f;
-        hremote->Data.Mouse_Speed_Y = (float) kb->Mouse_Speed_Y / 32.0f;
-        hremote->Data.Mouse_Speed_Z = (float) kb->Mouse_Speed_Z / 32.0f;
+        hremote->Data.Mouse_Speed_X  = (float) kb->Mouse_Speed_X / 32.0f;
+        hremote->Data.Mouse_Speed_Y  = (float) kb->Mouse_Speed_Y / 32.0f;
+        hremote->Data.Mouse_Speed_Z  = (float) kb->Mouse_Speed_Z / 32.0f;
 
-        hremote->Data.Mouse_Press_L = kb->Mouse_Left;
-        hremote->Data.Mouse_Press_R = kb->Mouse_Right;
+        hremote->Data.Mouse_Press_L  = kb->Mouse_Left;
+        hremote->Data.Mouse_Press_R  = kb->Mouse_Right;
 
         hremote->Data.Keyboard_W     = !!(kb->KeyBoard & 0x0001);
         hremote->Data.Keyboard_S     = !!(kb->KeyBoard & 0x0002);
@@ -43,9 +43,10 @@ static Remote_VTable Remote_VT03_VTable_Default = {
         .get_data = Remote_VT03_GetData
 };
 
-void Remote_VT03_Ctor(Remote_HandleTypeDef *hremote)
+void Remote_VT03_Ctor(Remote_HandleTypeDef *hremote, UART_HandleTypeDef *huart)
 {
         memset(hremote, 0, sizeof(Remote_HandleTypeDef));
 
+        hremote->huart = huart;
         hremote->vptr = &Remote_VT03_VTable_Default;
 }
