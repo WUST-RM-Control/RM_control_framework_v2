@@ -3,6 +3,8 @@
     <words>
       <w>CYCCNT</w>
       <w>OOPC</w>
+      <w>RXDATA</w>
+      <w>TXDATA</w>
       <w>Timelinef</w>
       <w>fric</w>
       <w>hbuzzer</w>

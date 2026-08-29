@@ -198,6 +198,32 @@ void PID_Init(
         pid->Output = 0;
 }
 
+/**
+ * @brief          PID复位
+ * @param[in]      PID结构体
+ * @retval         返回空
+ * @note           清零积分/微分/输出历史与堵转计数, 用于电机恢复后防止积分饱和
+ */
+void PID_Reset(PID_t *pid)
+{
+        pid->ITerm        = 0;
+        pid->Last_ITerm   = 0;
+        pid->Iout         = 0;
+
+        pid->Pout         = 0;
+        pid->Dout         = 0;
+        pid->Last_Dout    = 0;
+        pid->Output       = 0;
+        pid->Last_Output  = 0;
+
+        pid->Err          = 0;
+        pid->Last_Err     = 0;
+        pid->Last_Measure = 0;
+
+        pid->ERRORHandler.ERRORCount = 0;
+        pid->ERRORHandler.ERRORType  = PID_ERROR_NONE;
+}
+
 
 /**
  * @brief          PID计算
@@ -219,7 +245,7 @@ float PID_Calculate(PID_t *pid, float measure, float ref)
         if (pid->User_Func1_f != NULL)
                 pid->User_Func1_f(pid);
 
-        if (abs(pid->Err) > pid->DeadBand)
+        if (fabsf(pid->Err) > pid->DeadBand)
         {
                 if (pid->FuzzyRule == NULL)
                 {
@@ -297,10 +323,10 @@ static void f_Changing_Integration_Rate(PID_t *pid)
         {
                 // 积分呈累积趋势
                 // Integral still increasing
-                if (abs(pid->Err) <= pid->CoefB)
+                if (fabsf(pid->Err) <= pid->CoefB)
                         return; // Full integral
-                if (abs(pid->Err) <= (pid->CoefA + pid->CoefB))
-                        pid->ITerm *= (pid->CoefA - abs(pid->Err) + pid->CoefB) / pid->CoefA;
+                if (fabsf(pid->Err) <= (pid->CoefA + pid->CoefB))
+                        pid->ITerm *= (pid->CoefA - fabsf(pid->Err) + pid->CoefB) / pid->CoefA;
                 else
                         pid->ITerm = 0;
         }
@@ -311,7 +337,7 @@ static void f_Integral_Limit(PID_t *pid)
         static float temp_Output, temp_Iout;
         temp_Iout   = pid->Iout + pid->ITerm;
         temp_Output = pid->Pout + pid->Iout + pid->Dout;
-        if (abs(temp_Output) > pid->MaxOut)
+        if (fabsf(temp_Output) > pid->MaxOut)
         {
                 if (pid->Err * pid->Iout > 0)
                 {
@@ -579,7 +605,7 @@ float LDOB_Calculate(LDOB_t *ldob, float measure, float u)
 
         // 扰动输出死区
         // deadband of disturbance output
-        if (abs(ldob->Disturbance) > ldob->DeadBand * ldob->Max_Disturbance)
+        if (fabsf(ldob->Disturbance) > ldob->DeadBand * ldob->Max_Disturbance)
                 ldob->Output = ldob->Disturbance;
         else
                 ldob->Output = 0;
@@ -618,7 +644,7 @@ float TD_Calculate(TD_t *td, float input)
         d    = td->r * td->h0 * td->h0;
         a0   = td->dx * td->h0;
         y    = td->x - td->Input + a0;
-        a1   = sqrt(d * (d + 8 * abs(y)));
+        a1   = sqrt(d * (d + 8 * fabsf(y)));
         a2   = a0 + sign(y) * (a1 - d) / 2;
         a    = (a0 + y) * (sign(y + d) - sign(y - d)) / 2 + a2 * (1 - (sign(y + d) - sign(y - d)) / 2);
         fhan = -td->r * a / d * (sign(a + d) - sign(a - d)) / 2 -

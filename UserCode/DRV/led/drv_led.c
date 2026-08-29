@@ -16,8 +16,13 @@ void LED_Ctor(LED_HandleTypeDef* hled, TIM_HandleTypeDef *htim)
 
 void LED_Init(LED_HandleTypeDef* hled)
 {
-        HAL_TIM_PWM_Start(hled->htim, hled->R_channel);
-        HAL_TIM_PWM_Start(hled->htim, hled->G_channel);
+        //G4mini的R，G通道使用的是反向通道（为了好走线（））
+        HAL_TIMEx_PWMN_Start(hled->htim, hled->R_channel);
+        HAL_TIMEx_PWMN_Start(hled->htim, hled->G_channel);
+        // HAL_TIMEx_PWMN_Start(hled->htim, hled->B_channel);
+
+        // HAL_TIM_PWM_Start(hled->htim, hled->R_channel);
+        // HAL_TIM_PWM_Start(hled->htim, hled->G_channel);
         HAL_TIM_PWM_Start(hled->htim, hled->B_channel);
 }
 

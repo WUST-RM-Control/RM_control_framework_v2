@@ -6,8 +6,8 @@
 /home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/motor/drv_motor_dm.c:62:6:Motor_DM_CMD_Position	32	static
 /home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/motor/drv_motor_dm.c:70:6:Motor_DM_CMD_Speed	24	static
 /home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/motor/drv_motor_dm.c:78:6:Motor_DM_Storage_Data	40	static
-/home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/motor/drv_motor_dm.c:109:6:Motor_DM1to4_Storage_Data	16	static
-/home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/motor/drv_motor_dm.c:133:6:Motor_DM1to4_SendCurrent	32	static
-/home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/motor/drv_motor_dm.c:149:6:Motor_DM1to4_ClearErr	24	static
-/home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/motor/drv_motor_dm.c:165:6:Motor_DM_Enable	16	static
-/home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/motor/drv_motor_dm.c:187:6:Motor_DM_Ctor	24	static
+/home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/motor/drv_motor_dm.c:111:6:Motor_DM1to4_Storage_Data	16	static
+/home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/motor/drv_motor_dm.c:135:6:Motor_DM1to4_SendCurrent	32	static
+/home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/motor/drv_motor_dm.c:151:6:Motor_DM1to4_ClearErr	24	static
+/home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/motor/drv_motor_dm.c:167:6:Motor_DM_Enable	16	static
+/home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/motor/drv_motor_dm.c:189:6:Motor_DM_Ctor	24	static

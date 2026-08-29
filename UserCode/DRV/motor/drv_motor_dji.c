@@ -67,4 +67,5 @@ void Motor_DJI_Ctor(Motor_HandleTypeDef *hmotor,FDCAN_HandleTypeDef *hfdcan, uin
 
         CAN_Node_Ctor(&hmotor->Node, hfdcan, CAN_Send_ID, CAN_Feedback_ID);
         hmotor->vptr = &Motor_DJI_VTable_Default;
+        hmotor->Error_Code = 1;//默认使能
 }

@@ -19,7 +19,6 @@ typedef enum
         FAULT_MOTOR_OVERTEMP    = 0x00000020u, //有电机过温(仅指示, 不处理)
         FAULT_REMOTE_DISCONNECT = 0x00000040u, //遥控器断开
         FAULT_VT03_DISCONNECT   = 0x00000080u, //图传断开
-        FAULT_MOTOR_DM_ERROR    = 0x00000100u, //DM电机故障(错误码3~E)
 } Fault_TypeDef;
 
 /*===| 故障状态(全局) |===*/

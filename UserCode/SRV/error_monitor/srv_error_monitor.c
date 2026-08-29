@@ -23,31 +23,11 @@
 
 #define TICK_OF(ms)        (((ms) + MONITOR_PERIOD_MS - 1) / MONITOR_PERIOD_MS)
 
-//堵转判定: PID_ErrorHandler 计数阈值(与 controller.c 中一致)
-#define MOTOR_BLOCKED_COUNT 500
 
 /*===| 恢复参数 |===*/
 #define CAN_RESTART_THRESHOLD   5    //CAN错误计数重启阈值
 #define MOTOR_RECOVER_MS        100  //电机恢复重试间隔
 
-//DM故障码描述(达妙协议: 0=失能, 1=正常, 3~E=故障)
-static const char *DM_Error_Desc(uint8_t code)
-{
-        switch (code)
-        {
-        case 0x3 : return "OutputAxisCalibErr";
-        case 0x4 : return "SensorOutputErr";
-        case 0x5 : return "EncoderCalibErr";
-        case 0x8 : return "OverVoltage";
-        case 0x9 : return "UnderVoltage";
-        case 0xA : return "OverCurrent";
-        case 0xB : return "MOSOverTemp";
-        case 0xC : return "CoilOverTemp";
-        case 0xD : return "CommLost";
-        case 0xE : return "Overload";
-        default : return "Unknown";
-        }
-}
 
 Fault_Status_TypeDef hfault;
 
@@ -82,11 +62,9 @@ void Error_Monitor_Task(void *pvParameters)
                 {
                         if (!hmotor[i]->If_Online) hfault.Fault_Bitmap |= FAULT_MOTOR_OFFLINE;
                         if (hmotor[i]->Temperature >= MOTOR_OVERTEMP_C) hfault.Fault_Bitmap |= FAULT_MOTOR_OVERTEMP;
-                        if (hmotor[i]->PID_Angle_Struct.ERRORHandler.ERRORCount > MOTOR_BLOCKED_COUNT ||
-                            hmotor[i]->PID_Speed_Struct.ERRORHandler.ERRORCount > MOTOR_BLOCKED_COUNT)
+                        if (hmotor[i]->PID_Angle_Struct.ERRORHandler.ERRORType == Motor_Blocked ||
+                            hmotor[i]->PID_Speed_Struct.ERRORHandler.ERRORType == Motor_Blocked)
                                 hfault.Fault_Bitmap |= FAULT_MOTOR_BLOCKED;
-                        if (hmotor[i]->Error_Code >= 3) //DM故障码3~E(仅DM会更新, 只上报不重启)
-                                hfault.Fault_Bitmap |= FAULT_MOTOR_DM_ERROR;
                 }
 
                 if (!hremote_dt7.If_Connect) hfault.Fault_Bitmap |= FAULT_REMOTE_DISCONNECT;
@@ -127,10 +105,10 @@ static void Error_Recover(void)
 
                 for (uint8_t i = 0; i < MOTOR_COUNT; i++)
                 {
-                        //统一处理: 离线 或 失能(Error_Code==0) 时调用 enable(vtable)
-                        //DM: ClearErr+Enable; DJI: 空操作(无害)
+                        //统一处理: 离线 或 失能(Error_Code==0) 时恢复
+                        //DM: ClearErr+Enable; DJI: 空操作(无害); 并清除PID积分防止恢复后饱和
                         if (!hmotor[i]->If_Online || hmotor[i]->Error_Code == 0)
-                                Motor_Enable(hmotor[i]);
+                                Motor_Recover(hmotor[i]);
                 }
         }
 }
@@ -138,7 +116,7 @@ static void Error_Recover(void)
 /*===| 故障指示: LED常亮(绿=正常/红=故障) + 蜂鸣器(故障发生瞬间响一次) |===*/
 static void Error_Indicate(void)
 {
-        if (hfault.Fault_Bitmap == FAULT_NONE)
+        if (hfault.Fault_Bitmap == FAULT_NONE || hfault.Fault_Bitmap == FAULT_VT03_DISCONNECT)
         {
                 LED_Set(&hled1, 0, 255, 0); //正常: 绿
         }
@@ -168,14 +146,6 @@ static void Error_Print(void)
         }
         if (hfault.Fault_Bitmap & FAULT_MOTOR_BLOCKED) printf("[Fault] MotorBlocked\r\n");
         if (hfault.Fault_Bitmap & FAULT_MOTOR_OVERTEMP) printf("[Fault] MotorOverTemp\r\n");
-        if (hfault.Fault_Bitmap & FAULT_MOTOR_DM_ERROR)
-        {
-                for (uint8_t i = 0; i < MOTOR_COUNT; i++)
-                        if (hmotor[i]->Error_Code >= 3)
-                                printf("[Fault] Motor%d DM_Err=0x%X (%s)\r\n", i,
-                                       (unsigned int) hmotor[i]->Error_Code,
-                                       DM_Error_Desc(hmotor[i]->Error_Code));
-        }
         if (hfault.Fault_Bitmap & FAULT_REMOTE_DISCONNECT) printf("[Fault] RemoteDisconnect\r\n");
         if (hfault.Fault_Bitmap & FAULT_VT03_DISCONNECT) printf("[Fault] VT03Disconnect\r\n");
 

@@ -8,7 +8,7 @@
 
 void Debug_Init(void)
 {
-        //USART3 已由 MX_USART3_UART_Init 配置(115200), 此处留作调试串口初始化扩展
+
 }
 
 //printf 重定向到 USART3(覆盖 syscalls.c 中的弱符号)

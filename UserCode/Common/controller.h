@@ -24,10 +24,6 @@
 #include "arm_math.h"
 #include <math.h>
 
-#ifndef abs
-#define abs(x) ((x > 0) ? x : -x)
-#endif
-
 #ifndef user_malloc
 #ifdef _CMSIS_OS_H
 #define user_malloc pvPortMalloc
@@ -168,6 +164,9 @@ void PID_Init(
 
     uint8_t improve);
 float PID_Calculate(PID_t *pid, float measure, float ref);
+
+//PID复位: 清零积分/微分/输出历史与堵转计数(电机恢复后调用, 防止积分饱和)
+void PID_Reset(PID_t *pid);
 
 /*************************** FEEDFORWARD CONTROL *****************************/
 typedef struct

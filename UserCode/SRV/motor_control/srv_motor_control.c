@@ -26,22 +26,7 @@ void Motor_Init()
         for (int i = 0; i < 4; i++)
         {
                 Motor_DJI_Ctor(hmotor[i], &CHASSIS_MOTOR_CAN, CHASSIS_MOTOR_SEND_CAN_ID, Motor_CAN_Feedback_ID[i]);
-                Motor_Set_Status(hmotor[i], MOTOR_SPEED);
-                PID_Init(
-                         &hmotor[i]->PID_Speed_Struct,
-                         32767,
-                         16384,
-                         0,
-                         1,
-                         0,
-                         0,
-                         0,
-                         0,
-                         0,
-                         0,
-                         0,
-                         (Integral_Limit | ErrorHandle)
-                        );
+                Motor_Set_Status(hmotor[i], MOTOR_TORQUE);
         }
 
         //yaw
@@ -143,7 +128,6 @@ void Motor_Init()
                         );
         }
 
-
         //拨弹盘
         {
                 Motor_DJI_Ctor(&hmotor_trigger, &SHOOT_TRIGGER_CAN, SHOOT_TRIGGER_SEND_CAN_ID, SHOOT_TRIGGER_FEEDBACK_CAN_ID);
@@ -227,8 +211,7 @@ void Motor_Control_Task(void *pvParameters)
                                      );
 
                 //yaw电机发电流 can2
-                if (hmotor_yaw.If_Online)
-                        Motor_DM_Send_Torque(&hmotor_yaw, Motor_Get_Target_Torque(&hmotor_yaw));
+                Motor_DM_Send_Torque(&hmotor_yaw, Motor_Get_Target_Torque(&hmotor_yaw));
 
                 //拨弹盘 can2
                 Motor_DJI_SendCurrent(&SHOOT_TRIGGER_CAN, SHOOT_TRIGGER_SEND_CAN_ID,

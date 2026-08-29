@@ -78,4 +78,6 @@ void QMI8658A_Read_RegList(QMI8658A_Reg_EnumTypedef Reg, uint8_t Num, uint8_t *R
 //QMI8658A写单个寄存器
 void QMI8658A_Write_Reg(QMI8658A_Reg_EnumTypedef Reg, uint8_t Write_Data);
 
+
+
 #endif //G4MINI_V3_QMI8658A_H

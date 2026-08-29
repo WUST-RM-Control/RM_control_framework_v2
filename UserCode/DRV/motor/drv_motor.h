@@ -43,7 +43,7 @@ struct Motor_HandleTypeDef
         Motor_VTable *vptr;
         Motor_Status_TypeDef Status_Enum;
 
-        uint8_t Error_Code;     //DM反馈错误码(1=正常, 0=失能, 3~E=故障; DJI不更新恒为0)
+        uint8_t Error_Code;     //DM反馈错误码(1=正常, 0=失能, 3~E=故障; DJI不更新恒为1)
 
         Feedforward_t FFC_Angle_Struct;
         PID_t         PID_Angle_Struct;
@@ -95,7 +95,7 @@ __STATIC_INLINE void Motor_Online_Check(Motor_HandleTypeDef *hmotor, uint16_t ti
 {
         if (hmotor->If_Online)
         {
-                hmotor->Ticker++;
+                hmotor->Ticker++;//调用Motor_Storage_Data时会将之置0
                 if (hmotor->Ticker > timeout_tick)
                         hmotor->If_Online = 0;
         }
@@ -109,6 +109,14 @@ void Motor_Get_TotalAngle_Speed(Motor_HandleTypeDef *hmotor, float K);
 
 
 __STATIC_INLINE void Motor_Enable(Motor_HandleTypeDef *hmotor) { hmotor->vptr->enable(hmotor); }
+
+//电机恢复: 使能(vtable: DM=ClearErr+Enable, DJI=空操作) + 清除PID积分/输出历史(防止恢复后积分饱和)
+__STATIC_INLINE void Motor_Recover(Motor_HandleTypeDef *hmotor)
+{
+        Motor_Enable(hmotor);
+        PID_Reset(&hmotor->PID_Angle_Struct);
+        PID_Reset(&hmotor->PID_Speed_Struct);
+}
 
 __STATIC_INLINE void Motor_Disable(Motor_HandleTypeDef *hmotor) { hmotor->vptr->disable(hmotor); }
 
