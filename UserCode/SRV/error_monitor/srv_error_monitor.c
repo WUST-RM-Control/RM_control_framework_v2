@@ -13,6 +13,8 @@
 
 #include <stdio.h>
 
+#include "usart.h"
+
 /*===| 监控参数 |===*/
 #define MONITOR_PERIOD_MS  10                      //监控周期
 #define CAN_OFFLINE_MS     100                     //CAN总线超时
@@ -27,6 +29,15 @@
 /*===| 恢复参数 |===*/
 #define CAN_RESTART_THRESHOLD   5    //CAN错误计数重启阈值
 #define MOTOR_RECOVER_MS        100  //电机恢复重试间隔
+
+//若不在错误后重启接收, 遥控器将永久失联(回调再也进不来)
+void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
+{
+        if (huart == &huart1)
+        {
+                Remote_Restart_Receive(huart);
+        }
+}
 
 
 Fault_Status_TypeDef hfault;

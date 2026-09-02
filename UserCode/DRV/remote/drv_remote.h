@@ -121,6 +121,9 @@ __STATIC_INLINE void Remote_Online_Check(Remote_HandleTypeDef *hremote, uint16_t
 
 void Remote_Init(UART_HandleTypeDef *huart);
 
+//UART错误后重启接收(供 HAL_UART_ErrorCallback 调用)
+void Remote_Restart_Receive(UART_HandleTypeDef *huart);
+
 //统一接收入口: 通过 vptr 分发到对应协议解包并更新连接状态
 __STATIC_INLINE void Remote_Rx_Handle(Remote_HandleTypeDef *hremote, const uint8_t *DataBuff)
 {
@@ -132,7 +135,7 @@ __STATIC_INLINE void Remote_Rx_Handle(Remote_HandleTypeDef *hremote, const uint8
         hremote->If_Data_New = 1;
 }
 
-/*===| 数据访问(参考 Motor_Get_Speed) |===*/
+
 __STATIC_INLINE float Remote_Get_Right_X(Remote_HandleTypeDef *hremote) { return hremote->Data.RC_Right_X; }
 __STATIC_INLINE float Remote_Get_Right_Y(Remote_HandleTypeDef *hremote) { return hremote->Data.RC_Right_Y; }
 __STATIC_INLINE float Remote_Get_Left_X(Remote_HandleTypeDef *hremote)  { return hremote->Data.RC_Left_X; }

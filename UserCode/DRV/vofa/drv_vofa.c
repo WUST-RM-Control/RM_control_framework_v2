@@ -6,7 +6,7 @@
 
 
 
-/*===| 调试相关定义 |===*/
+/*===| VOFA相关定义 |===*/
 #define VOFA_TXDATA_SIZE 12      //vofa调试发送的信息量（float）
 #define VOFA_RXDATA_SIZE 12
 #define VOFA_TX_DELAY    30      //ms

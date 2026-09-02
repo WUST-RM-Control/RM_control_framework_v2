@@ -21,14 +21,17 @@
 
 void Debug_Task(void *pvParameters)
 {
-
+        LED_Set(&hled1, 255, 255, 255);
         for (;;)
         {
 
+                VOFA_Send_Data(0, Remote_Get_Left_X(&hremote_dt7));
+                VOFA_Send_Data(1, Remote_Get_Left_Y(&hremote_dt7));
+                VOFA_Send_Data(2, Remote_Get_Right_X(&hremote_dt7));
+                VOFA_Send_Data(3, Remote_Get_Right_Y(&hremote_dt7));
 
-                VOFA_Send_Data(0, INS_Get_Yaw());
-                VOFA_Send_Data(1, INS_Get_Pitch());
-                VOFA_Send_Data(2, INS_Get_Roll());
+
+
 
 
                 vTaskDelay(20);
@@ -53,10 +56,10 @@ void main_init()
         LED_Ctor(&hled1, &htim1);
         LED_Init(&hled1);
 
-        IMU_Init(&himu1);
+        // IMU_Init(&himu1);
 
         //惯导(任务内初始化)
-        xTaskCreate(INS_Task, "INS", 1024, &hbuzzer1, 5, NULL);
+        // xTaskCreate(INS_Task, "INS", 1024, NULL, 5, NULL);
 
         //蜂鸣器(任务内初始化)
         xTaskCreate(Buzzer_Task, "Buzzer", 256, &hbuzzer1, 5, NULL);
@@ -68,7 +71,7 @@ void main_init()
         xTaskCreate(Motor_Control_Task, "Motor", 512, NULL, 6, NULL);
 
         //错误监控(10ms周期: 在线检测 + 故障聚合 + 指示上报)
-        xTaskCreate(Error_Monitor_Task, "ErrorMon", 512, NULL, 4, NULL);
+        // xTaskCreate(Error_Monitor_Task, "ErrorMon", 512, NULL, 4, NULL);
 
         xTaskCreate(Debug_Task, "Debug", 128, NULL, 4, NULL);
 }
