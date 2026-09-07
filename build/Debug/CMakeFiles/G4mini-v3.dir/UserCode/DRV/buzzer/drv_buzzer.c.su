@@ -1,8 +1,8 @@
 /home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/buzzer/drv_buzzer.h:72:28:Buzzer_Get_Task_Tick	16	static
-/home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/buzzer/drv_buzzer.c:13:6:Buzzer_Ctor	24	static
-/home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/buzzer/drv_buzzer.c:21:6:Buzzer_Init	16	static
-/home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/buzzer/drv_buzzer.c:28:6:Buzzer_Start	16	static
-/home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/buzzer/drv_buzzer.c:33:6:Buzzer_Stop	16	static
-/home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/buzzer/drv_buzzer.c:38:6:Buzzer_Task	32	static
-/home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/buzzer/drv_buzzer.c:273:6:Buzzer_Set_SoundEffect	16	static
-/home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/buzzer/drv_buzzer.c:281:6:Buzzer_Set_Tone	24	static
+/home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/buzzer/drv_buzzer.c:11:6:Buzzer_Ctor	24	static
+/home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/buzzer/drv_buzzer.c:19:6:Buzzer_Init	16	static
+/home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/buzzer/drv_buzzer.c:26:6:Buzzer_Start	16	static
+/home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/buzzer/drv_buzzer.c:31:6:Buzzer_Stop	16	static
+/home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/buzzer/drv_buzzer.c:36:6:Buzzer_Task	32	static
+/home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/buzzer/drv_buzzer.c:271:6:Buzzer_Set_SoundEffect	16	static
+/home/ye/Projects/embedded/G4mini-v3/UserCode/DRV/buzzer/drv_buzzer.c:279:6:Buzzer_Set_Tone	32	static

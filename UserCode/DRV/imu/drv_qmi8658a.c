@@ -81,8 +81,8 @@ void QMI8658A_Init(void)
     //从Flash读校准值，如果没有则启动自校准
     //读flash...
 
-    if(himu1.AccelScale < 0.3f)
-        QMI8658A_Calibration();
+    // if(himu1.AccelScale < 0.3f)
+    //     QMI8658A_Calibration();
 }
 
 //QMI8658A读全部数据

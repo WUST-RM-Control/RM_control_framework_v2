@@ -58,6 +58,7 @@ struct Motor_HandleTypeDef
         int16_t Encoder;           //编码器值
         float   Angle;             //绝对角度
         float   Total_Angle;       //总角度值
+        float   Total_Angle_Speed; //总角度值速度
         float   Speed;             //转速[RPM]
         int8_t  Temperature;       //电机温度
 
@@ -67,7 +68,7 @@ struct Motor_HandleTypeDef
         int16_t Encoder_Last;               //上一个编码器值
         float   Angle_Last;                 //上一个绝对角度
         float   Total_Angle_Last;           //上一个总角度值
-        float   Speed_Last;                 //上一个转速[RPM]
+        float   Total_Angle_Speed_RPM_Last; //上一个总角度值速度
 
         uint32_t Total_Angle_DWT_Count;
 
