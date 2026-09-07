@@ -122,7 +122,7 @@ void CAN_Node_UnRegister(CAN_Node_HandleTypeDef *node)
                 if (CAN_Node_Table[i].node == node)
                 {
                         CAN_Node_Count--;
-                        CAN_Node_Table[i] = CAN_Node_Table[CAN_Node_Count];
+                        CAN_Node_Table[i] = CAN_Node_Table[CAN_Node_Count];//?
                         return;
                 }
         }

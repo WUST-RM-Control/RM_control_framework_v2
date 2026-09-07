@@ -26,7 +26,24 @@ void Motor_Init()
         for (int i = 0; i < 4; i++)
         {
                 Motor_DJI_Ctor(hmotor[i], &CHASSIS_MOTOR_CAN, CHASSIS_MOTOR_SEND_CAN_ID, Motor_CAN_Feedback_ID[i]);
-                Motor_Set_Status(hmotor[i], MOTOR_TORQUE);
+                Motor_Set_Status(hmotor[i], MOTOR_TORQUE);//力控底盘
+                // Motor_Set_Status(hmotor[i], MOTOR_SPEED);
+                //
+                // PID_Init(
+                //          &hmotor[i]->PID_Speed_Struct,
+                //          32767,
+                //          16384,
+                //          0,
+                //          10,
+                //          0,
+                //          0,
+                //          0,
+                //          0,
+                //          0,
+                //          0,
+                //          0,
+                //          Integral_Limit
+                //         );
         }
 
         //yaw

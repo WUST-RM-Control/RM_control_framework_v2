@@ -1,6 +1,6 @@
-/home/ye/Projects/embedded/G4mini-v3/./UserCode/DRV/motor/drv_motor.h:94:22:Motor_Online_Check	16	static
-/home/ye/Projects/embedded/G4mini-v3/./UserCode/DRV/motor/drv_motor.h:111:22:Motor_Enable	16	static
-/home/ye/Projects/embedded/G4mini-v3/./UserCode/DRV/motor/drv_motor.h:114:22:Motor_Recover	16	static
+/home/ye/Projects/embedded/G4mini-v3/./UserCode/DRV/motor/drv_motor.h:93:22:Motor_Online_Check	16	static
+/home/ye/Projects/embedded/G4mini-v3/./UserCode/DRV/motor/drv_motor.h:110:22:Motor_Enable	16	static
+/home/ye/Projects/embedded/G4mini-v3/./UserCode/DRV/motor/drv_motor.h:113:22:Motor_Recover	16	static
 /home/ye/Projects/embedded/G4mini-v3/./UserCode/DRV/remote/drv_remote.h:109:22:Remote_Online_Check	16	static
 /home/ye/Projects/embedded/G4mini-v3/UserCode/SRV/error_monitor/srv_error_monitor.c:34:6:HAL_UART_ErrorCallback	16	static
 /home/ye/Projects/embedded/G4mini-v3/UserCode/SRV/error_monitor/srv_error_monitor.c:51:6:Error_Monitor_Task	24	static

@@ -18,31 +18,36 @@
 #include "drv_vofa.h"
 #include "drv_imu.h"
 #include "srv_ins.h"
+#include "usbd_cdc_if.h"
 
-void Debug_Task(void *pvParameters)
-{
-        LED_Set(&hled1, 255, 255, 255);
-        for (;;)
-        {
-
-                VOFA_Send_Data(0, Remote_Get_Left_X(&hremote_dt7));
-                VOFA_Send_Data(1, Remote_Get_Left_Y(&hremote_dt7));
-                VOFA_Send_Data(2, Remote_Get_Right_X(&hremote_dt7));
-                VOFA_Send_Data(3, Remote_Get_Right_Y(&hremote_dt7));
-
-
-
-
-
-                vTaskDelay(20);
-        }
-}
+// void Debug_Task(void *pvParameters)
+// {
+//         uint8_t TX[] = "abc\r\n";
+//         LED_Set(&hled1, 255, 255, 255);
+//         for (;;)
+//         {
+//
+//
+//                 // Motor_Set_Speed(&hmotor_chassis1, 100);
+//
+//
+//
+//                 // VOFA_Send_Data(0, Motor_Get_Speed(&hmotor_chassis1));
+//                 // VOFA_Send_Data(1, Motor_Get_Target_Torque(&hmotor_chassis1));
+//                 VOFA_Send_Data(0, INS_Get_Pitch());
+//                 VOFA_Send_Data(1, INS_Get_Yaw());
+//                 VOFA_Send_Data(2, INS_Get_Roll());
+//                 CDC_Transmit_FS(TX, 5);
+//
+//                 vTaskDelay(1000);
+//         }
+// }
 
 void main_init()
 {
 
-        //DWT周期计时(供冷却计时/电机速度计算使用)
-        DWT_Init(SystemCoreClock / 1000000);
+        //DWT周期计时
+        DWT_Init(170);
 
         //CAN外设启动与过滤器
         CAN_Init();
@@ -56,16 +61,16 @@ void main_init()
         LED_Ctor(&hled1, &htim1);
         LED_Init(&hled1);
 
-        // IMU_Init(&himu1);
+        IMU_Init(&himu1);
 
         //惯导(任务内初始化)
-        // xTaskCreate(INS_Task, "INS", 1024, NULL, 5, NULL);
+        xTaskCreate(INS_Task, "INS", 1024, NULL, 5, NULL);
 
         //蜂鸣器(任务内初始化)
         xTaskCreate(Buzzer_Task, "Buzzer", 256, &hbuzzer1, 5, NULL);
 
         //遥控器(内部完成: 构造 + 注册UART空闲回调 + 启动DMA接收)
-        Remote_Init(&huart1);
+        // Remote_Init(&huart1);
 
         //电机(任务内初始化 + PID控制循环)
         xTaskCreate(Motor_Control_Task, "Motor", 512, NULL, 6, NULL);
@@ -73,7 +78,9 @@ void main_init()
         //错误监控(10ms周期: 在线检测 + 故障聚合 + 指示上报)
         // xTaskCreate(Error_Monitor_Task, "ErrorMon", 512, NULL, 4, NULL);
 
-        xTaskCreate(Debug_Task, "Debug", 128, NULL, 4, NULL);
+        // xTaskCreate(Debug_Task, "Debug", 128, NULL, 4, NULL);
+
+        Buzzer_Set_SoundEffect(&hbuzzer1, Buzzer_SoundEffect_SystemStart);
 }
 
 

@@ -6,6 +6,8 @@
 
 #include "tim.h"
 
+#define BUZZER_TIM_CLK 170000000U
+
 Buzzer_HandleTypeDef hbuzzer1 = {};
 
 void Buzzer_Ctor(Buzzer_HandleTypeDef *hbuzzer, TIM_HandleTypeDef *htim, uint8_t Buzzer_TIM_Channel, TickType_t buzzer_task_control_time)
@@ -282,7 +284,6 @@ void Buzzer_Set_Tone(Buzzer_HandleTypeDef *hbuzzer, Buzzer_Tone_EnumTypedef Tone
 
         uint16_t PSC;
         uint32_t ARL;
-        uint32_t System_Fequency = HAL_RCC_GetSysClockFreq();
 
         switch ((uint8_t) Tone)
         {
@@ -292,87 +293,87 @@ void Buzzer_Set_Tone(Buzzer_HandleTypeDef *hbuzzer, Buzzer_Tone_EnumTypedef Tone
                 break;
         case L1 :
                 PSC = 50;
-                ARL = System_Fequency / PSC / 262;
+                ARL = BUZZER_TIM_CLK / PSC / 262;
                 break;
         case L2 :
                 PSC = 50;
-                ARL = System_Fequency / PSC / 294;
+                ARL = BUZZER_TIM_CLK / PSC / 294;
                 break;
         case L3 :
                 PSC = 50;
-                ARL = System_Fequency / PSC / 330;
+                ARL = BUZZER_TIM_CLK / PSC / 330;
                 break;
         case L4 :
                 PSC = 50;
-                ARL = System_Fequency / PSC / 349;
+                ARL = BUZZER_TIM_CLK / PSC / 349;
                 break;
         case L5 :
                 PSC = 50;
-                ARL = System_Fequency / PSC / 392;
+                ARL = BUZZER_TIM_CLK / PSC / 392;
                 break;
         case L6 :
                 PSC = 50;
-                ARL = System_Fequency / PSC / 440;
+                ARL = BUZZER_TIM_CLK / PSC / 440;
                 break;
         case L7 :
                 PSC = 50;
-                ARL = System_Fequency / PSC / 494;
+                ARL = BUZZER_TIM_CLK / PSC / 494;
                 break;
         case M1 :
                 PSC = 50;
-                ARL = System_Fequency / PSC / 523;
+                ARL = BUZZER_TIM_CLK / PSC / 523;
                 break;
         case M2 :
                 PSC = 50;
-                ARL = System_Fequency / PSC / 587;
+                ARL = BUZZER_TIM_CLK / PSC / 587;
                 break;
         case M3 :
                 PSC = 50;
-                ARL = System_Fequency / PSC / 659;
+                ARL = BUZZER_TIM_CLK / PSC / 659;
                 break;
         case M4 :
                 PSC = 50;
-                ARL = System_Fequency / PSC / 698;
+                ARL = BUZZER_TIM_CLK / PSC / 698;
                 break;
         case M5 :
                 PSC = 50;
-                ARL = System_Fequency / PSC / 784;
+                ARL = BUZZER_TIM_CLK / PSC / 784;
                 break;
         case M6 :
                 PSC = 50;
-                ARL = System_Fequency / PSC / 880;
+                ARL = BUZZER_TIM_CLK / PSC / 880;
                 break;
         case M7 :
                 PSC = 50;
-                ARL = System_Fequency / PSC / 988;
+                ARL = BUZZER_TIM_CLK / PSC / 988;
                 break;
         case H1 :
                 PSC = 50;
-                ARL = System_Fequency / PSC / 1046;
+                ARL = BUZZER_TIM_CLK / PSC / 1046;
                 break;
         case H2 :
                 PSC = 50;
-                ARL = System_Fequency / PSC / 1175;
+                ARL = BUZZER_TIM_CLK / PSC / 1175;
                 break;
         case H3 :
                 PSC = 50;
-                ARL = System_Fequency / PSC / 1318;
+                ARL = BUZZER_TIM_CLK / PSC / 1318;
                 break;
         case H4 :
                 PSC = 50;
-                ARL = System_Fequency / PSC / 1397;
+                ARL = BUZZER_TIM_CLK / PSC / 1397;
                 break;
         case H5 :
                 PSC = 50;
-                ARL = System_Fequency / PSC / 1568;
+                ARL = BUZZER_TIM_CLK / PSC / 1568;
                 break;
         case H6 :
                 PSC = 50;
-                ARL = System_Fequency / PSC / 1760;
+                ARL = BUZZER_TIM_CLK / PSC / 1760;
                 break;
         case H7 :
                 PSC = 50;
-                ARL = System_Fequency / PSC / 1976;
+                ARL = BUZZER_TIM_CLK / PSC / 1976;
                 break;
         default : //P
                 PSC = 50;
