@@ -1,7 +1,0 @@
-/home/ye/Projects/embedded/G4mini-v3/UserCode/Common/QuaternionEKF.c:49:6:IMU_QuaternionEKF_Init	32	static
-/home/ye/Projects/embedded/G4mini-v3/UserCode/Common/QuaternionEKF.c:96:6:IMU_QuaternionEKF_Update	56	static
-/home/ye/Projects/embedded/G4mini-v3/UserCode/Common/QuaternionEKF.c:228:13:IMU_QuaternionEKF_F_Linearization_P_Fading	24	static
-/home/ye/Projects/embedded/G4mini-v3/UserCode/Common/QuaternionEKF.c:285:13:IMU_QuaternionEKF_SetH	16	static
-/home/ye/Projects/embedded/G4mini-v3/UserCode/Common/QuaternionEKF.c:325:13:IMU_QuaternionEKF_xhatUpdate	40	static
-/home/ye/Projects/embedded/G4mini-v3/UserCode/Common/QuaternionEKF.c:470:13:IMU_QuaternionEKF_Observe	16	static
-/home/ye/Projects/embedded/G4mini-v3/UserCode/Common/QuaternionEKF.c:483:14:invSqrt	32	static

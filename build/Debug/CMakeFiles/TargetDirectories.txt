@@ -1,8 +1,0 @@
-/home/ye/Projects/embedded/G4mini-v3/build/Debug/CMakeFiles/G4mini-v3.dir
-/home/ye/Projects/embedded/G4mini-v3/build/Debug/CMakeFiles/edit_cache.dir
-/home/ye/Projects/embedded/G4mini-v3/build/Debug/CMakeFiles/rebuild_cache.dir
-/home/ye/Projects/embedded/G4mini-v3/build/Debug/cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir
-/home/ye/Projects/embedded/G4mini-v3/build/Debug/cmake/stm32cubemx/CMakeFiles/USB_Device_Library.dir
-/home/ye/Projects/embedded/G4mini-v3/build/Debug/cmake/stm32cubemx/CMakeFiles/FreeRTOS.dir
-/home/ye/Projects/embedded/G4mini-v3/build/Debug/cmake/stm32cubemx/CMakeFiles/edit_cache.dir
-/home/ye/Projects/embedded/G4mini-v3/build/Debug/cmake/stm32cubemx/CMakeFiles/rebuild_cache.dir

@@ -1,5 +1,0 @@
-/home/ye/Projects/embedded/G4mini-v3/UserCode/APP/vehicle_control.h:28:22:Vehicle_Set_Vx	16	static
-/home/ye/Projects/embedded/G4mini-v3/UserCode/APP/vehicle_control.h:30:22:Vehicle_Set_Vy	16	static
-/home/ye/Projects/embedded/G4mini-v3/./UserCode/DRV/remote/drv_remote.h:141:23:Remote_Get_Left_X	16	static
-/home/ye/Projects/embedded/G4mini-v3/./UserCode/DRV/remote/drv_remote.h:142:23:Remote_Get_Left_Y	16	static
-/home/ye/Projects/embedded/G4mini-v3/UserCode/APP/vehicle_control.c:12:6:Vehicle_Control_Task	16	static
