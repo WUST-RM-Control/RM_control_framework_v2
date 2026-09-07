@@ -1,0 +1,5 @@
+/home/ye/Projects/embedded/G4mini-v3/./UserCode/DRV/motor/drv_motor.h:123:22:Motor_Set_Status	16	static
+/home/ye/Projects/embedded/G4mini-v3/./UserCode/DRV/motor/drv_motor.h:147:23:Motor_Get_Target_Torque	16	static
+/home/ye/Projects/embedded/G4mini-v3/./UserCode/DRV/motor/drv_motor_dm.h:27:22:Motor_DM_Send_Torque	16	static
+/home/ye/Projects/embedded/G4mini-v3/UserCode/SRV/srv_motor_control.c:12:6:Motor_Init	24	static
+/home/ye/Projects/embedded/G4mini-v3/UserCode/SRV/srv_motor_control.c:177:6:Motor_Control_Task	48	static

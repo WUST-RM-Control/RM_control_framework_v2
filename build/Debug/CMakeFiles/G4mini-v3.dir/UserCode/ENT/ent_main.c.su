@@ -1,6 +1,2 @@
-/home/ye/Projects/embedded/G4mini-v3/./UserCode/DRV/remote/drv_remote.h:139:23:Remote_Get_Right_X	16	static
-/home/ye/Projects/embedded/G4mini-v3/./UserCode/DRV/remote/drv_remote.h:140:23:Remote_Get_Right_Y	16	static
-/home/ye/Projects/embedded/G4mini-v3/./UserCode/DRV/remote/drv_remote.h:141:23:Remote_Get_Left_X	16	static
-/home/ye/Projects/embedded/G4mini-v3/./UserCode/DRV/remote/drv_remote.h:142:23:Remote_Get_Left_Y	16	static
-/home/ye/Projects/embedded/G4mini-v3/UserCode/ENT/ent_main.c:22:6:Debug_Task	16	static
-/home/ye/Projects/embedded/G4mini-v3/UserCode/ENT/ent_main.c:41:6:main_init	16	static
+/home/ye/Projects/embedded/G4mini-v3/./UserCode/DRV/imu/drv_imu.h:13:22:IMU_Init	16	static
+/home/ye/Projects/embedded/G4mini-v3/UserCode/ENT/ent_main.c:45:6:main_init	16	static

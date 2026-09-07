@@ -1,0 +1,11 @@
+/home/ye/Projects/embedded/G4mini-v3/./UserCode/DRV/imu/drv_imu.h:15:22:IMU_Read_Data	16	static
+/home/ye/Projects/embedded/G4mini-v3/./UserCode/DRV/imu/drv_imu.h:19:24:IMU_Get_Gyro	16	static
+/home/ye/Projects/embedded/G4mini-v3/./UserCode/DRV/imu/drv_imu.h:21:24:IMU_Get_Accel	16	static
+/home/ye/Projects/embedded/G4mini-v3/UserCode/SRV/srv_ins.c:34:6:INS_Init	8	static
+/home/ye/Projects/embedded/G4mini-v3/UserCode/SRV/srv_ins.c:49:6:INS_Task	56	static
+/home/ye/Projects/embedded/G4mini-v3/UserCode/SRV/srv_ins.c:131:6:BodyFrameToEarthFrame	24	static
+/home/ye/Projects/embedded/G4mini-v3/UserCode/SRV/srv_ins.c:152:6:EarthFrameToBodyFrame	24	static
+/home/ye/Projects/embedded/G4mini-v3/UserCode/SRV/srv_ins.c:175:13:IMU_Param_Correction	80	static
+/home/ye/Projects/embedded/G4mini-v3/UserCode/SRV/srv_ins.c:245:6:QuaternionUpdate	48	static
+/home/ye/Projects/embedded/G4mini-v3/UserCode/SRV/srv_ins.c:264:6:QuaternionToEularAngle	24	static
+/home/ye/Projects/embedded/G4mini-v3/UserCode/SRV/srv_ins.c:274:6:EularAngleToQuaternion	48	static

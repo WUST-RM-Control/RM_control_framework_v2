@@ -92,7 +92,7 @@ void Error_Monitor_Task(void *pvParameters)
         }
 }
 
-/*===| 恢复动作: CAN总线错误重启 + 电机重新使能 |===*/
+/*===| CAN总线错误重启,电机重新使能 |===*/
 static void Error_Recover(void)
 {
         //1. CAN总线错误重启: 检测到错误(计数≥阈值)直接重启
@@ -135,35 +135,8 @@ static void Error_Indicate(void)
         {
                 LED_Set(&hled1, 255, 0, 0); //故障: 红
 
-                if (hfault.Fault_Bitmap_Last == FAULT_NONE) //由正常进入故障的瞬间
+                if (hfault.Fault_Bitmap_Last == FAULT_NONE)
                         Buzzer_Set_SoundEffect(&hbuzzer1, Buzzer_SoundEffect_Error);
         }
 }
 
-/*===| 故障printf上报(仅在故障位图变化时打印) |===*/
-static void Error_Print(void)
-{
-        uint32_t Change = hfault.Fault_Bitmap ^ hfault.Fault_Bitmap_Last;
-        if (Change == 0) return;
-
-        printf("[Fault] Bitmap=0x%X\r\n", (unsigned int) hfault.Fault_Bitmap);
-
-        if (hfault.Fault_Bitmap & FAULT_MOTOR_OFFLINE)
-        {
-                printf("[Fault] MotorOffline:");
-                for (uint8_t i = 0; i < MOTOR_COUNT; i++)
-                        if (!hmotor[i]->If_Online) printf(" %d", i);
-                printf("\r\n");
-        }
-        if (hfault.Fault_Bitmap & FAULT_MOTOR_BLOCKED) printf("[Fault] MotorBlocked\r\n");
-        if (hfault.Fault_Bitmap & FAULT_MOTOR_OVERTEMP) printf("[Fault] MotorOverTemp\r\n");
-        if (hfault.Fault_Bitmap & FAULT_REMOTE_DISCONNECT) printf("[Fault] RemoteDisconnect\r\n");
-        if (hfault.Fault_Bitmap & FAULT_VT03_DISCONNECT) printf("[Fault] VT03Disconnect\r\n");
-
-        for (uint8_t bus = 1; bus <= 3; bus++)
-        {
-                FDCAN_HandleTypeDef *hfdcan = (bus == 1) ? &hfdcan1 : (bus == 2) ? &hfdcan2 : &hfdcan3;
-                if (!CAN_Get_Bus_Online(hfdcan))
-                        printf("[Fault] CAN%d Offline (ErrCount=%d)\r\n", bus, CAN_Get_Bus_ErrorCount(hfdcan));
-        }
-}

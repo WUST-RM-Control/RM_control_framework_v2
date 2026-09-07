@@ -140,7 +140,7 @@
 				},
 				{
 					"backtrace" : 7,
-					"path" : "/home/ye/Projects/embedded/G4mini-v3/./UserCode/APP/vehicle_control"
+					"path" : "/home/ye/Projects/embedded/G4mini-v3/./UserCode/APP"
 				},
 				{
 					"backtrace" : 7,
@@ -180,19 +180,7 @@
 				},
 				{
 					"backtrace" : 7,
-					"path" : "/home/ye/Projects/embedded/G4mini-v3/./UserCode/SRV/error_monitor"
-				},
-				{
-					"backtrace" : 7,
-					"path" : "/home/ye/Projects/embedded/G4mini-v3/./UserCode/SRV/ins"
-				},
-				{
-					"backtrace" : 7,
-					"path" : "/home/ye/Projects/embedded/G4mini-v3/./UserCode/SRV/motion"
-				},
-				{
-					"backtrace" : 7,
-					"path" : "/home/ye/Projects/embedded/G4mini-v3/./UserCode/SRV/motor_control"
+					"path" : "/home/ye/Projects/embedded/G4mini-v3/./UserCode/SRV"
 				},
 				{
 					"backtrace" : 4,
@@ -299,7 +287,8 @@
 				39,
 				40,
 				41,
-				42
+				42,
+				43
 			]
 		},
 		{
@@ -336,7 +325,7 @@
 				},
 				{
 					"backtrace" : 7,
-					"path" : "/home/ye/Projects/embedded/G4mini-v3/./UserCode/APP/vehicle_control"
+					"path" : "/home/ye/Projects/embedded/G4mini-v3/./UserCode/APP"
 				},
 				{
 					"backtrace" : 7,
@@ -376,19 +365,7 @@
 				},
 				{
 					"backtrace" : 7,
-					"path" : "/home/ye/Projects/embedded/G4mini-v3/./UserCode/SRV/error_monitor"
-				},
-				{
-					"backtrace" : 7,
-					"path" : "/home/ye/Projects/embedded/G4mini-v3/./UserCode/SRV/ins"
-				},
-				{
-					"backtrace" : 7,
-					"path" : "/home/ye/Projects/embedded/G4mini-v3/./UserCode/SRV/motion"
-				},
-				{
-					"backtrace" : 7,
-					"path" : "/home/ye/Projects/embedded/G4mini-v3/./UserCode/SRV/motor_control"
+					"path" : "/home/ye/Projects/embedded/G4mini-v3/./UserCode/SRV"
 				},
 				{
 					"backtrace" : 4,
@@ -604,7 +581,8 @@
 				39,
 				40,
 				41,
-				42
+				42,
+				43
 			]
 		},
 		{
@@ -618,7 +596,6 @@
 			"name" : "Object Libraries",
 			"sourceIndexes" : 
 			[
-				43,
 				44,
 				45,
 				46,
@@ -658,7 +635,8 @@
 				80,
 				81,
 				82,
-				83
+				83,
+				84
 			]
 		}
 	],
@@ -861,7 +839,7 @@
 				9
 			],
 			"compileGroupIndex" : 0,
-			"path" : "UserCode/APP/vehicle_control/vehicle_control.c",
+			"path" : "UserCode/APP/vehicle_control.c",
 			"sourceGroupIndex" : 0
 		},
 		{
@@ -1061,7 +1039,7 @@
 				9
 			],
 			"compileGroupIndex" : 0,
-			"path" : "UserCode/SRV/error_monitor/srv_error_monitor.c",
+			"path" : "UserCode/HAL/hal_usb.c",
 			"sourceGroupIndex" : 0
 		},
 		{
@@ -1071,7 +1049,7 @@
 				9
 			],
 			"compileGroupIndex" : 0,
-			"path" : "UserCode/SRV/ins/srv_ins.c",
+			"path" : "UserCode/SRV/srv_error_monitor.c",
 			"sourceGroupIndex" : 0
 		},
 		{
@@ -1081,7 +1059,7 @@
 				9
 			],
 			"compileGroupIndex" : 0,
-			"path" : "UserCode/SRV/motion/srv_motion.c",
+			"path" : "UserCode/SRV/srv_ins.c",
 			"sourceGroupIndex" : 0
 		},
 		{
@@ -1091,7 +1069,17 @@
 				9
 			],
 			"compileGroupIndex" : 0,
-			"path" : "UserCode/SRV/motor_control/srv_motor_control.c",
+			"path" : "UserCode/SRV/srv_motion.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 9,
+			"backtraces" : 
+			[
+				9
+			],
+			"compileGroupIndex" : 0,
+			"path" : "UserCode/SRV/srv_motor_control.c",
 			"sourceGroupIndex" : 0
 		},
 		{
