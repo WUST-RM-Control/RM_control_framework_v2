@@ -50,39 +50,44 @@
 #define REMOTE_CAN_JOYSTIC_CAN_ID           0x21
 #define REMOTE_CAN_KEYBOARDMOUSE_CAN_ID     0x22
 
-/*===| CAN节点基类(所有CAN设备的公共字段) |===*/
-typedef struct
-{
-        FDCAN_HandleTypeDef *hfdcan;          //FDCAN句柄
-        uint16_t             CAN_Send_ID;     //发送ID
-        uint16_t             CAN_Feedback_ID; //反馈ID
-} CAN_Node_HandleTypeDef;
-
-/*===| 基类访问接口 |===*/
-__STATIC_INLINE FDCAN_HandleTypeDef *CAN_Node_Get_HFDCAN(CAN_Node_HandleTypeDef *node)
-{
-        return node->hfdcan;
-}
-
-__STATIC_INLINE uint16_t CAN_Node_Get_Send_ID(CAN_Node_HandleTypeDef *node)
-{
-        return node->CAN_Send_ID;
-}
-
-__STATIC_INLINE uint16_t CAN_Node_Get_Feedback_ID(CAN_Node_HandleTypeDef *node)
-{
-        return node->CAN_Feedback_ID;
-}
-
-//CAN节点构造(参考 LED_Ctor)
-void CAN_Node_Ctor(CAN_Node_HandleTypeDef *node, FDCAN_HandleTypeDef *hfdcan, uint16_t CAN_Send_ID, uint16_t CAN_Feedback_ID);
-
-/*===| CAN节点分发框架 |===*/
+typedef struct CAN_Node_HandleTypeDef CAN_Node_HandleTypeDef;
 
 //节点数据回调: 收到匹配(总线+反馈ID)的帧时被调用
 //注: 设备结构体需将 CAN_Node_HandleTypeDef Node 作为第一个成员, 回调内可将其转回设备指针
 //    例如: Motor_HandleTypeDef *hmotor = (Motor_HandleTypeDef *)node;
 typedef void (*CAN_Node_Handler)(CAN_Node_HandleTypeDef *node, const uint8_t *Data);
+
+/*===| CAN节点基类(所有CAN设备的公共字段) |===*/
+struct CAN_Node_HandleTypeDef
+{
+        FDCAN_HandleTypeDef *hfdcan;          //FDCAN句柄
+        uint16_t             CAN_Send_ID;     //发送ID
+        uint16_t             CAN_Feedback_ID; //反馈ID
+
+        CAN_Node_Handler     handler; //数据回调
+};
+
+
+/*===| 基类访问接口 |===*/
+__STATIC_INLINE FDCAN_HandleTypeDef *CAN_Node_GetHFDCAN(CAN_Node_HandleTypeDef *node)
+{
+        return node->hfdcan;
+}
+
+__STATIC_INLINE uint16_t CAN_Node_GetSendID(CAN_Node_HandleTypeDef *node)
+{
+        return node->CAN_Send_ID;
+}
+
+__STATIC_INLINE uint16_t CAN_Node_GetFeedbackID(CAN_Node_HandleTypeDef *node)
+{
+        return node->CAN_Feedback_ID;
+}
+
+//CAN节点构造(参考 LED_Ctor)
+void CAN_Node_Ctor(CAN_Node_HandleTypeDef *node, FDCAN_HandleTypeDef *hfdcan, uint16_t CAN_Send_ID, uint16_t CAN_Feedback_ID, CAN_Node_Handler handler);
+
+/*===| CAN节点分发框架 |===*/
 
 //注册节点(重复注册则更新回调)
 void CAN_Node_Register(CAN_Node_HandleTypeDef *node, CAN_Node_Handler handler);
@@ -107,9 +112,9 @@ uint16_t CAN_Get_Bus_ErrorCount(FDCAN_HandleTypeDef *hfdcan);
 //CAN总线重启: 停止→去初始化→重新初始化→启动→重配过滤器/中断 (处理总线错误/总线关闭)
 HAL_StatusTypeDef CAN_Bus_Restart(FDCAN_HandleTypeDef *hfdcan);
 
-void CAN_Send_Data_STD(FDCAN_HandleTypeDef *hfdcan, uint16_t ID, const uint8_t *TX_Data);
+void CAN_Send_Data_STD(CAN_Node_HandleTypeDef *hcan_node, const uint8_t *TX_Data);
 
-void CAN_Send_Data_EXD(FDCAN_HandleTypeDef *hfdcan, uint32_t ID, uint8_t *TX_Data, uint8_t Length);
+void CAN_Send_Data_EXD(CAN_Node_HandleTypeDef *hcan_node, uint8_t *TX_Data, uint8_t Length);
 
 void CAN_Filter_Init(FDCAN_HandleTypeDef *hfdcan);
 

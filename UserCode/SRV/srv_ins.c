@@ -27,7 +27,6 @@ const float zb[3] = {0, 0, 1};
 static uint32_t INS_DWT_Count  = 0;
 static float    dt             = 0, t = 0;
 static uint8_t  ins_debug_mode = 0;
-static float    RefTemp        = 40;
 
 static void IMU_Param_Correction(IMU_Param_t *param, float gyro[3], float accel[3]);
 

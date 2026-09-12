@@ -11,7 +11,7 @@
 /*===| 电机系统初始化(创建对象 + PID整定 + 注册CAN节点) |===*/
 void Motor_Init()
 {
-        static const uint16_t Motor_CAN_Feedback_ID[9] = {
+        static const uint16_t Motor_CAN_Feedback_ID_Table[9] = {
                 CHASSIS_MOTOR1_FEEDBACK_CAN_ID,
                 CHASSIS_MOTOR2_FEEDBACK_CAN_ID,
                 CHASSIS_MOTOR3_FEEDBACK_CAN_ID,
@@ -25,13 +25,13 @@ void Motor_Init()
         //底盘电机 * 4
         for (int i = 0; i < 4; i++)
         {
-                Motor_DJI_Ctor(hmotor[i], &CHASSIS_MOTOR_CAN, CHASSIS_MOTOR_SEND_CAN_ID, Motor_CAN_Feedback_ID[i]);
+                Motor_Ctor(hmotor[i], &CHASSIS_MOTOR_CAN, CHASSIS_MOTOR_SEND_CAN_ID, Motor_CAN_Feedback_ID_Table[i], &Motor_DJI_VTable_Default);
                 Motor_Set_Status(hmotor[i], MOTOR_TORQUE);
         }
 
         //yaw
         {
-                Motor_DM_Ctor(&hmotor_yaw, &GIMBAL_YAW_CAN, GIMBAL_YAW_SEND_CAN_ID, GIMBAL_YAW_FEEDBACK_CAN_ID);
+                Motor_Ctor(&hmotor_yaw, &GIMBAL_YAW_CAN, GIMBAL_YAW_SEND_CAN_ID, GIMBAL_YAW_FEEDBACK_CAN_ID, &Motor_DM_VTable_Default);
                 Motor_Set_Status(&hmotor_yaw, MOTOR_ANGLE);
 
                 PID_Init(
@@ -69,7 +69,7 @@ void Motor_Init()
 
         //pitch
         {
-                Motor_DJI_Ctor(&hmotor_pitch, &GIMBAL_PITCH_CAN, GIMBAL_PITCH_SEND_CAN_ID, GIMBAL_PITCH_FEEDBACK_CAN_ID);
+                Motor_Ctor(&hmotor_pitch, &GIMBAL_PITCH_CAN, GIMBAL_PITCH_SEND_CAN_ID, GIMBAL_PITCH_FEEDBACK_CAN_ID, &Motor_DJI_VTable_Default);
                 Motor_Set_Status(&hmotor_pitch, MOTOR_ANGLE);
 
                 PID_Init(
@@ -108,7 +108,7 @@ void Motor_Init()
         //摩擦轮 * 2
         for (int i = 6; i < 8; i++)
         {
-                Motor_DJI_Ctor(hmotor[i], &SHOOT_FRIC_CAN, SHOOT_FRIC_SEND_CAN_ID, Motor_CAN_Feedback_ID[i]);
+                Motor_Ctor(hmotor[i], &SHOOT_FRIC_CAN, SHOOT_FRIC_SEND_CAN_ID, Motor_CAN_Feedback_ID_Table[i], &Motor_DJI_VTable_Default);
                 Motor_Set_Status(hmotor[i], MOTOR_SPEED);
 
                 PID_Init(
@@ -130,7 +130,7 @@ void Motor_Init()
 
         //拨弹盘
         {
-                Motor_DJI_Ctor(&hmotor_trigger, &SHOOT_TRIGGER_CAN, SHOOT_TRIGGER_SEND_CAN_ID, SHOOT_TRIGGER_FEEDBACK_CAN_ID);
+                Motor_Ctor(&hmotor_trigger, &SHOOT_TRIGGER_CAN, SHOOT_TRIGGER_SEND_CAN_ID, SHOOT_TRIGGER_FEEDBACK_CAN_ID, &Motor_DJI_VTable_Default);
                 Motor_Set_Status(&hmotor_trigger, MOTOR_ANGLE);
 
                 PID_Init(
@@ -166,11 +166,6 @@ void Motor_Init()
                         );
         }
 
-        //注册所有电机CAN节点到通用分发框架
-        for (int i = 0; i < MOTOR_COUNT; i++)
-        {
-                CAN_Node_Register(&hmotor[i]->Node, Motor_CAN_Node_Handler);
-        }
 }
 
 /*===| 电机控制任务: PID计算 + 发送力矩 |===*/

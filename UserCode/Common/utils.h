@@ -196,7 +196,6 @@ float Get_OLS_Derivative(Ordinary_Least_Squares_t *OLS);
 float Get_OLS_Smooth(Ordinary_Least_Squares_t *OLS);
 
 
-__STATIC_INLINE void null_function()
-{}
+__STATIC_INLINE void null_function() {}
 
 #endif //G4MINI_V3_UTILS_H

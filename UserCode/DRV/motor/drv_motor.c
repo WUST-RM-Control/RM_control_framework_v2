@@ -48,3 +48,13 @@ void Motor_CAN_Node_Handler(CAN_Node_HandleTypeDef *node, const uint8_t *Data)
         Motor_HandleTypeDef *hmotor = (Motor_HandleTypeDef *)node;
         hmotor->vptr->storage_data(hmotor, Data);
 }
+
+//创建电机对象
+void Motor_Ctor(Motor_HandleTypeDef *hmotor,FDCAN_HandleTypeDef *hfdcan, uint16_t CAN_Send_ID, uint16_t CAN_Feedback_ID, Motor_VTable *Motor_VTable)
+{
+        memset(hmotor, 0, sizeof(Motor_HandleTypeDef));
+
+        CAN_Node_Ctor(&hmotor->Node, hfdcan, CAN_Send_ID, CAN_Feedback_ID, Motor_CAN_Node_Handler);
+        hmotor->vptr = Motor_VTable;
+        hmotor->Error_Code = 1;//默认使能
+}

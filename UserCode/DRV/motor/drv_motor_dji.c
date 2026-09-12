@@ -22,7 +22,15 @@ void Motor_DJI_SendCurrent(FDCAN_HandleTypeDef *hfdcan, uint16_t CAN_ID, int16_t
         Motor_Tx_Data[6] = ID4_Currnet >> 8;
         Motor_Tx_Data[7] = ID4_Currnet & 0xFF;
 
-        CAN_Send_Data_STD(hfdcan, CAN_ID, Motor_Tx_Data);
+        CAN_Node_HandleTypeDef hcan_node = {
+                hfdcan,
+                CAN_ID,
+                0x000,
+                (void(*)(CAN_Node_HandleTypeDef *node, const uint8_t *Data)) null_function
+        };
+
+        CAN_Send_Data_STD(&hcan_node, Motor_Tx_Data);
+        //讨厌一拖四，为什么要四个电机绑定在一起，每个电机单独控制不好吗
 }
 
 
@@ -53,19 +61,10 @@ void Motor_DJI_Storage_Data(Motor_HandleTypeDef *Motor_Data_Struct, const uint8_
 
 
 /*=============|OOPC|================*/
-static Motor_VTable Motor_DJI_VTable_Default = {
+Motor_VTable Motor_DJI_VTable_Default = {
         .enable       = (void(*)(Motor_HandleTypeDef *hmotor))null_function,
         .disable      = (void(*)(Motor_HandleTypeDef *hmotor))null_function,
         .set_zero     = Motor_DJI_Set_Zero,
         .storage_data = Motor_DJI_Storage_Data
 };
 
-//创建DJI电机对象
-void Motor_DJI_Ctor(Motor_HandleTypeDef *hmotor,FDCAN_HandleTypeDef *hfdcan, uint16_t CAN_Send_ID, uint16_t CAN_Feedback_ID)
-{
-        memset(hmotor, 0, sizeof(Motor_HandleTypeDef));
-
-        CAN_Node_Ctor(&hmotor->Node, hfdcan, CAN_Send_ID, CAN_Feedback_ID);
-        hmotor->vptr = &Motor_DJI_VTable_Default;
-        hmotor->Error_Code = 1;//默认使能
-}

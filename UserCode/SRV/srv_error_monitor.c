@@ -46,8 +46,6 @@ static void Error_Recover(void);
 
 static void Error_Indicate(void);
 
-static void Error_Print(void);
-
 void Error_Monitor_Task(void *pvParameters)
 {
         for (;;)
@@ -86,7 +84,6 @@ void Error_Monitor_Task(void *pvParameters)
 
                 //3. 指示与上报
                 Error_Indicate();
-                Error_Print();
 
                 vTaskDelay(MONITOR_PERIOD_MS);
         }
