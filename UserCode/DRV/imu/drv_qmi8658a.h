@@ -57,10 +57,10 @@ typedef struct
 
     float  AccelScale;
     float Gyro_Offset[3];
-} IMU_StructTypedef;
+} IMU_HandleTypedef;
 
 //QMI8658A数据结构体
-extern IMU_StructTypedef himu1;
+extern IMU_HandleTypedef himu1;
 
 
 //QMI8658A初始化

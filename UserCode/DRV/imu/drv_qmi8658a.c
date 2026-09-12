@@ -13,7 +13,7 @@
 
 
 //QMI8658A数据结构体
-IMU_StructTypedef himu1;
+IMU_HandleTypedef himu1;
 
 //QMI8658A通信配置
 #define QMI8658A_SPI               hspi1

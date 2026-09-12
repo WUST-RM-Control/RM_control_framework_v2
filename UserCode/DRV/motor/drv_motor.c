@@ -5,31 +5,11 @@
 
 #include "drv_motor.h"
 
+#include "drv_buzzer.h"
 #include "hal_can.h"
 #include "hal_dwt.h"
 
-/*===| 电机对象实例 |===*/
-Motor_HandleTypeDef hmotor_chassis1    = {};
-Motor_HandleTypeDef hmotor_chassis2    = {};
-Motor_HandleTypeDef hmotor_chassis3    = {};
-Motor_HandleTypeDef hmotor_chassis4    = {};
-Motor_HandleTypeDef hmotor_yaw         = {};
-Motor_HandleTypeDef hmotor_pitch       = {};
-Motor_HandleTypeDef hmotor_fric_right  = {};
-Motor_HandleTypeDef hmotor_fric_left   = {};
-Motor_HandleTypeDef hmotor_trigger     = {};
 
-Motor_HandleTypeDef *hmotor[MOTOR_COUNT] = {
-        &hmotor_chassis1,
-        &hmotor_chassis2,
-        &hmotor_chassis3,
-        &hmotor_chassis4,
-        &hmotor_yaw,
-        &hmotor_pitch,
-        &hmotor_fric_right,
-        &hmotor_fric_left,
-        &hmotor_trigger
-};
 
 //通过角度改变计算速度
 void Motor_Get_TotalAngle_Speed(Motor_HandleTypeDef *hmotor, float K)
@@ -49,12 +29,28 @@ void Motor_CAN_Node_Handler(CAN_Node_HandleTypeDef *node, const uint8_t *Data)
         hmotor->vptr->storage_data(hmotor, Data);
 }
 
+void Motor_Err_Handler(Err_HandleTypeDef *herr)
+{
+        herr->tick++;
+        if (herr->tick > herr->tick_timeout) herr->If_Online = 0;
+
+        if (herr->count < herr->count_maximum)
+        {
+                if (herr->tick > 2 * herr->tick_timeout)
+                {
+                        herr->count++;
+                        herr->tick = herr->tick_timeout;
+                        Motor_Recover((Motor_HandleTypeDef *)herr);
+                }
+        }
+}
+
 //创建电机对象
-void Motor_Ctor(Motor_HandleTypeDef *hmotor,FDCAN_HandleTypeDef *hfdcan, uint16_t CAN_Send_ID, uint16_t CAN_Feedback_ID, Motor_VTable *Motor_VTable)
+void Motor_Ctor(Motor_HandleTypeDef *hmotor,FDCAN_HandleTypeDef *hfdcan, uint16_t CAN_Send_ID, uint16_t CAN_Feedback_ID, Motor_VTable *Motor_VTable, uint16_t err_tick_timeout, uint16_t err_count_maximum, Err_Handler err_handler)
 {
         memset(hmotor, 0, sizeof(Motor_HandleTypeDef));
 
-        CAN_Node_Ctor(&hmotor->Node, hfdcan, CAN_Send_ID, CAN_Feedback_ID, Motor_CAN_Node_Handler);
+        CAN_Node_Ctor(&hmotor->Node, hfdcan, CAN_Send_ID, CAN_Feedback_ID, Motor_CAN_Node_Handler, err_tick_timeout, err_count_maximum, err_handler);
         hmotor->vptr = Motor_VTable;
         hmotor->Error_Code = 1;//默认使能
 }

@@ -5,49 +5,8 @@
 #include "hal_can.h"
 
 #include "fdcan.h"
+#include "utils.h"
 
-
-static uint16_t CAN1_Err_Ticker;
-static uint16_t CAN2_Err_Ticker;
-static uint16_t CAN3_Err_Ticker;
-
-static uint16_t CAN1_ErrorCount;
-static uint16_t CAN2_ErrorCount;
-static uint16_t CAN3_ErrorCount;
-
-//总线离线计时: 每周期递增(收到数据在RX回调中清零)
-void CAN_Bus_Tick(void)
-{
-        CAN1_Err_Ticker++;
-        CAN2_Err_Ticker++;
-        CAN3_Err_Ticker++;
-}
-
-//查询总线在线状态
-uint8_t CAN_Get_Bus_Online(FDCAN_HandleTypeDef *hfdcan)
-{
-        if (hfdcan == &hfdcan1) return CAN1_Err_Ticker < CAN_OFFLINE_TICK;
-        if (hfdcan == &hfdcan2) return CAN2_Err_Ticker < CAN_OFFLINE_TICK;
-        if (hfdcan == &hfdcan3) return CAN3_Err_Ticker < CAN_OFFLINE_TICK;
-        return 0;
-}
-
-//查询总线硬件错误计数
-uint16_t CAN_Get_Bus_ErrorCount(FDCAN_HandleTypeDef *hfdcan)
-{
-        if (hfdcan == &hfdcan1) return CAN1_ErrorCount;
-        if (hfdcan == &hfdcan2) return CAN2_ErrorCount;
-        if (hfdcan == &hfdcan3) return CAN3_ErrorCount;
-        return 0;
-}
-
-//FDCAN硬件错误中断回调(错误警告/被动错误/总线关闭)
-void HAL_FDCAN_ErrorCallback(FDCAN_HandleTypeDef *hfdcan)
-{
-        if (hfdcan == &hfdcan1) CAN1_ErrorCount++;
-        if (hfdcan == &hfdcan2) CAN2_ErrorCount++;
-        if (hfdcan == &hfdcan3) CAN3_ErrorCount++;
-}
 
 //CAN总线重启: 停止→去初始化→重新初始化→启动→重配过滤器/中断, 并清零硬件错误计数
 HAL_StatusTypeDef CAN_Bus_Restart(FDCAN_HandleTypeDef *hfdcan)
@@ -66,9 +25,9 @@ HAL_StatusTypeDef CAN_Bus_Restart(FDCAN_HandleTypeDef *hfdcan)
         }
 
         //清零硬件错误计数(恢复健康后重新累计)
-        if (hfdcan == &hfdcan1) CAN1_ErrorCount = 0;
-        if (hfdcan == &hfdcan2) CAN2_ErrorCount = 0;
-        if (hfdcan == &hfdcan3) CAN3_ErrorCount = 0;
+        // if (hfdcan == &hfdcan1) CAN1_ErrorCount = 0;
+        // if (hfdcan == &hfdcan2) CAN2_ErrorCount = 0;
+        // if (hfdcan == &hfdcan3) CAN3_ErrorCount = 0;
 
         return Status;
 }
@@ -76,52 +35,54 @@ HAL_StatusTypeDef CAN_Bus_Restart(FDCAN_HandleTypeDef *hfdcan)
 /*===| CAN节点分发框架(基于 can_node 基类) |===*/
 #define CAN_NODE_MAX 32
 
-static CAN_Node_HandleTypeDef hcan_node_Table[CAN_NODE_MAX];
-static uint8_t                CAN_Node_Count = 0;
+static CAN_Node_HandleTypeDef *hcan_node_table[CAN_NODE_MAX];
+static uint8_t                 CAN_Node_Count = 0;
 
 //注册节点(重复注册则更新回调)
-void CAN_Node_Register(CAN_Node_HandleTypeDef *node, CAN_Node_Handler handler)
+void CAN_Node_Register(CAN_Node_HandleTypeDef *hcan_node, CAN_Node_Handler handler)
 {
-        if (node == NULL || handler == NULL) return;
+        if (hcan_node == NULL || handler == NULL) return;
 
         for (uint8_t i = 0; i < CAN_Node_Count; i++)
         {
-                if (&hcan_node_Table[i] == node)
+                if (hcan_node_table[i] == hcan_node)
                 {
-                        hcan_node_Table[i].handler = handler;
+                        hcan_node_table[i]->handler = handler;
                         return;
                 }
         }
 
         if (CAN_Node_Count >= CAN_NODE_MAX) return;
 
-        hcan_node_Table[CAN_Node_Count]         = *node;
-        hcan_node_Table[CAN_Node_Count].handler = handler;
+        hcan_node_table[CAN_Node_Count]         = hcan_node;
+        hcan_node_table[CAN_Node_Count]->handler = handler;
         CAN_Node_Count++;
 }
 
 //注销节点
-void CAN_Node_UnRegister(CAN_Node_HandleTypeDef *node)
+void CAN_Node_UnRegister(CAN_Node_HandleTypeDef *hcan_node)
 {
         for (uint8_t i = 0; i < CAN_Node_Count; i++)
         {
-                if (&hcan_node_Table[i] == node)
+                if (hcan_node_table[i] == hcan_node)
                 {
                         CAN_Node_Count--;
-                        hcan_node_Table[i] = hcan_node_Table[CAN_Node_Count];
+                        hcan_node_table[i] = hcan_node_table[CAN_Node_Count];
                         return;
                 }
         }
 }
 
 //CAN节点构造: 绑定FDCAN句柄与收发ID与回调函数
-void CAN_Node_Ctor(CAN_Node_HandleTypeDef *node, FDCAN_HandleTypeDef *hfdcan, uint16_t CAN_Send_ID, uint16_t CAN_Feedback_ID, CAN_Node_Handler handler)
+void CAN_Node_Ctor(CAN_Node_HandleTypeDef *hcan_node, FDCAN_HandleTypeDef *hfdcan, uint16_t CAN_Send_ID, uint16_t CAN_Feedback_ID, CAN_Node_Handler node_handler, uint16_t err_tick_Timeout, uint16_t err_count_maximum, Err_Handler err_handler)
 {
-        node->hfdcan          = hfdcan;
-        node->CAN_Send_ID     = CAN_Send_ID;
-        node->CAN_Feedback_ID = CAN_Feedback_ID;
+        Err_Ctor(&hcan_node->herr, err_tick_Timeout, err_count_maximum, err_handler);
 
-        CAN_Node_Register(node, handler);
+        hcan_node->hfdcan          = hfdcan;
+        hcan_node->CAN_Send_ID     = CAN_Send_ID;
+        hcan_node->CAN_Feedback_ID = CAN_Feedback_ID;
+
+        CAN_Node_Register(hcan_node, node_handler);
 }
 
 void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
@@ -132,19 +93,19 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
         HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &RxHeader, CAN_RX_Data);
 
         //清零对应CAN的错误计时
-        if (hfdcan == &hfdcan1) CAN1_Err_Ticker = 0;
-        if (hfdcan == &hfdcan2) CAN2_Err_Ticker = 0;
-        if (hfdcan == &hfdcan3) CAN3_Err_Ticker = 0;
+        // if (hfdcan == &hfdcan1) CAN1_Err_Ticker = 0;
+        // if (hfdcan == &hfdcan2) CAN2_Err_Ticker = 0;
+        // if (hfdcan == &hfdcan3) CAN3_Err_Ticker = 0;
 
         uint16_t CAN_RX_ID = RxHeader.Identifier;
 
         //基于can_node的通用分发: 按(总线, 反馈ID)匹配节点, 调用节点数据回调
         for (uint8_t i = 0; i < CAN_Node_Count; i++)
         {
-                if (hcan_node_Table[i].hfdcan          == hfdcan &&
-                    hcan_node_Table[i].CAN_Feedback_ID == CAN_RX_ID)
+                if (hcan_node_table[i]->hfdcan          == hfdcan &&
+                    hcan_node_table[i]->CAN_Feedback_ID == CAN_RX_ID)
                 {
-                        hcan_node_Table[i].handler(&hcan_node_Table[i], CAN_RX_Data);
+                        hcan_node_table[i]->handler(hcan_node_table[i], CAN_RX_Data);
                 }
         }
 }

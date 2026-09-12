@@ -102,8 +102,9 @@ void Motor_DM_Storage_Data(Motor_HandleTypeDef *hmotor, const uint8_t *Data)
 
         if (Error_ID == 1)
         {
-                hmotor->Ticker    = 0;
-                hmotor->If_Online = 1;
+                hmotor->Node.herr.tick      = 0;
+                hmotor->Node.herr.count     = 0;
+                hmotor->Node.herr.If_Online = 1;
         }
 }
 

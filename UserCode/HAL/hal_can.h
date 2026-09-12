@@ -5,6 +5,7 @@
 #ifndef G4MINI_V3_HAL_CAN_H
 #define G4MINI_V3_HAL_CAN_H
 
+#include "srv_error_monitor.h"
 #include "stm32g4xx_hal.h"
 
 /*===| CAN总线资源分配(各设备使用的总线与ID, 使用前需包含fdcan.h) |===*/
@@ -52,14 +53,13 @@
 
 typedef struct CAN_Node_HandleTypeDef CAN_Node_HandleTypeDef;
 
-//节点数据回调: 收到匹配(总线+反馈ID)的帧时被调用
-//注: 设备结构体需将 CAN_Node_HandleTypeDef Node 作为第一个成员, 回调内可将其转回设备指针
-//    例如: Motor_HandleTypeDef *hmotor = (Motor_HandleTypeDef *)node;
-typedef void (*CAN_Node_Handler)(CAN_Node_HandleTypeDef *node, const uint8_t *Data);
+typedef void (*CAN_Node_Handler)(CAN_Node_HandleTypeDef *hcan_node, const uint8_t *Data);
 
 /*===| CAN节点基类(所有CAN设备的公共字段) |===*/
 struct CAN_Node_HandleTypeDef
 {
+        Err_HandleTypeDef herr;
+
         FDCAN_HandleTypeDef *hfdcan;          //FDCAN句柄
         uint16_t             CAN_Send_ID;     //发送ID
         uint16_t             CAN_Feedback_ID; //反馈ID
@@ -84,16 +84,15 @@ __STATIC_INLINE uint16_t CAN_Node_GetFeedbackID(CAN_Node_HandleTypeDef *node)
         return node->CAN_Feedback_ID;
 }
 
-//CAN节点构造(参考 LED_Ctor)
-void CAN_Node_Ctor(CAN_Node_HandleTypeDef *node, FDCAN_HandleTypeDef *hfdcan, uint16_t CAN_Send_ID, uint16_t CAN_Feedback_ID, CAN_Node_Handler handler);
+void CAN_Node_Ctor(CAN_Node_HandleTypeDef *hcan_node, FDCAN_HandleTypeDef *hfdcan, uint16_t CAN_Send_ID, uint16_t CAN_Feedback_ID, CAN_Node_Handler node_handler, uint16_t err_tick_Timeout, uint16_t err_count_maximum, Err_Handler err_handler);
 
 /*===| CAN节点分发框架 |===*/
 
 //注册节点(重复注册则更新回调)
-void CAN_Node_Register(CAN_Node_HandleTypeDef *node, CAN_Node_Handler handler);
+void CAN_Node_Register(CAN_Node_HandleTypeDef *hcan_node, CAN_Node_Handler handler);
 
 //注销节点
-void CAN_Node_UnRegister(CAN_Node_HandleTypeDef *node);
+void CAN_Node_UnRegister(CAN_Node_HandleTypeDef *hcan_node);
 
 /*===| CAN总线错误处理 |===*/
 

@@ -11,7 +11,6 @@
 #include "task.h"
 #include "hal_can.h"
 
-#define MOTOR_COUNT 9
 
 typedef enum
 {
@@ -72,45 +71,29 @@ struct Motor_HandleTypeDef
 
         uint32_t Total_Angle_DWT_Count;
 
-        uint16_t Ticker;    //收到数据计时
-        uint8_t  If_Online; //是否在线
+
 };
 
 
-/*===| 电机对象实例 |===*/
-extern Motor_HandleTypeDef hmotor_chassis1;
-extern Motor_HandleTypeDef hmotor_chassis2;
-extern Motor_HandleTypeDef hmotor_chassis3;
-extern Motor_HandleTypeDef hmotor_chassis4;
-extern Motor_HandleTypeDef hmotor_yaw;
-extern Motor_HandleTypeDef hmotor_pitch;
-extern Motor_HandleTypeDef hmotor_fric_right;
-extern Motor_HandleTypeDef hmotor_fric_left;
-extern Motor_HandleTypeDef hmotor_trigger;
-
-extern Motor_HandleTypeDef *hmotor[MOTOR_COUNT];
-
-//电机在线检查(由监控任务周期调用): 超过 timeout_tick 周期未收到反馈则离线
-__STATIC_INLINE void Motor_Online_Check(Motor_HandleTypeDef *hmotor, uint16_t timeout_tick)
+//电机在线检查
+__STATIC_INLINE uint8_t Motor_Is_Online(Motor_HandleTypeDef *hmotor)
 {
-        if (hmotor->If_Online)
-        {
-                hmotor->Ticker++;//调用Motor_Storage_Data时会将之置0
-                if (hmotor->Ticker > timeout_tick)
-                        hmotor->If_Online = 0;
-        }
+        return ((Err_HandleTypeDef *)hmotor)->If_Online;
+
 }
 
 //电机CAN节点数据回调(供SRV层注册到CAN分发框架)
 void Motor_CAN_Node_Handler(CAN_Node_HandleTypeDef *node, const uint8_t *Data);
+//电机错误回调
+void Motor_Err_Handler(Err_HandleTypeDef *herr);
 
 //通过角度改变计算速度
 void Motor_Get_TotalAngle_Speed(Motor_HandleTypeDef *hmotor, float K);
 
-void Motor_Ctor(Motor_HandleTypeDef *hmotor,FDCAN_HandleTypeDef *hfdcan, uint16_t CAN_Send_ID, uint16_t CAN_Feedback_ID, Motor_VTable *Motor_VTable);
+void Motor_Ctor(Motor_HandleTypeDef *hmotor,FDCAN_HandleTypeDef *hfdcan, uint16_t CAN_Send_ID, uint16_t CAN_Feedback_ID, Motor_VTable *Motor_VTable, uint16_t err_tick_timeout, uint16_t err_count_maximum, Err_Handler err_handler);
 
+//电机控制
 __STATIC_INLINE void Motor_Enable(Motor_HandleTypeDef *hmotor) { hmotor->vptr->enable(hmotor); }
-
 //电机恢复: 使能(vtable: DM=ClearErr+Enable, DJI=空操作) + 清除PID积分/输出历史(防止恢复后积分饱和)
 __STATIC_INLINE void Motor_Recover(Motor_HandleTypeDef *hmotor)
 {
@@ -118,37 +101,33 @@ __STATIC_INLINE void Motor_Recover(Motor_HandleTypeDef *hmotor)
         PID_Reset(&hmotor->PID_Angle_Struct);
         PID_Reset(&hmotor->PID_Speed_Struct);
 }
-
 __STATIC_INLINE void Motor_Disable(Motor_HandleTypeDef *hmotor) { hmotor->vptr->disable(hmotor); }
 
-__STATIC_INLINE void Motor_Set_Status(Motor_HandleTypeDef *hmotor, Motor_Status_TypeDef Status) { hmotor->Status_Enum = Status; }
-
-__STATIC_INLINE void Motor_Set_Zero(Motor_HandleTypeDef *hmotor, const uint8_t *data) { hmotor->vptr->set_zero(hmotor); }
 
 __STATIC_INLINE void Motor_Storage_Data(Motor_HandleTypeDef *hmotor, const uint8_t *data) { hmotor->vptr->storage_data(hmotor, data); }
 
+//设置参数
+__STATIC_INLINE void Motor_Set_Status(Motor_HandleTypeDef *hmotor, Motor_Status_TypeDef Status) { hmotor->Status_Enum = Status; }
+__STATIC_INLINE void Motor_Set_Zero(Motor_HandleTypeDef *hmotor, const uint8_t *data) { hmotor->vptr->set_zero(hmotor); }
 __STATIC_INLINE void Motor_Set_Torque(Motor_HandleTypeDef *hmotor, float torque)
 {
         hmotor->Status_Enum   = MOTOR_TORQUE;
         hmotor->Target_Torque = torque;
 }
-
 __STATIC_INLINE void Motor_Set_Speed(Motor_HandleTypeDef *hmotor, float speed)
 {
         hmotor->Status_Enum  = MOTOR_SPEED;
         hmotor->Target_Speed = speed;
 }
-
 __STATIC_INLINE void Motor_Set_Angle(Motor_HandleTypeDef *hmotor, float angle)
 {
         hmotor->Status_Enum  = MOTOR_ANGLE;
         hmotor->Target_Angle = angle;
 }
 
+//获取参数
 __STATIC_INLINE float Motor_Get_Target_Torque(Motor_HandleTypeDef *hmotor) { return hmotor->Target_Torque; }
-
 __STATIC_INLINE float Motor_Get_Speed(Motor_HandleTypeDef *hmotor) { return hmotor->Speed; }
-
 __STATIC_INLINE float Motor_Get_Total_Angle(Motor_HandleTypeDef *hmotor) { return hmotor->Total_Angle; }
 
 #endif //G4MINI_V3_DRV_MOTOR_H

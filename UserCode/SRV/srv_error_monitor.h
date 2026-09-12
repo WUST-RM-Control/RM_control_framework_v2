@@ -7,28 +7,29 @@
 
 #include "main.h"
 
-/*===| 故障类型(位图) |===*/
-typedef enum
-{
-        FAULT_NONE              = 0x00000000u,
-        FAULT_CAN1_OFFLINE      = 0x00000001u, //CAN1总线离线
-        FAULT_CAN2_OFFLINE      = 0x00000002u, //CAN2总线离线
-        FAULT_CAN3_OFFLINE      = 0x00000004u, //CAN3总线离线
-        FAULT_MOTOR_OFFLINE     = 0x00000008u, //有电机掉线(详情看各电机If_Online)
-        FAULT_MOTOR_BLOCKED     = 0x00000010u, //有电机堵转
-        FAULT_MOTOR_OVERTEMP    = 0x00000020u, //有电机过温(仅指示, 不处理)
-        FAULT_REMOTE_DISCONNECT = 0x00000040u, //遥控器断开
-        FAULT_VT03_DISCONNECT   = 0x00000080u, //图传断开
-} Fault_TypeDef;
+#define ERR_MAX 255
 
-/*===| 故障状态(全局) |===*/
-typedef struct
-{
-        uint32_t Fault_Bitmap;      //当前故障位图
-        uint32_t Fault_Bitmap_Last; //上一周期故障位图(用于边沿检测)
-} Fault_Status_TypeDef;
+extern uint8_t Fault_Bitmap;
 
-extern Fault_Status_TypeDef hfault;
+typedef struct Err_HandleTypeDef Err_HandleTypeDef;
+
+typedef void (*Err_Handler)(Err_HandleTypeDef *herror);
+
+struct Err_HandleTypeDef{
+        volatile uint16_t tick;      //当前时间
+        uint16_t tick_timeout;       //超时时间
+
+        volatile uint16_t count;     //当前错误次数
+        uint16_t count_maximum;      //错误次数上限
+
+        volatile uint8_t If_Online;  //是否在线
+
+        Err_Handler handler;         //错误处理回调
+};
+
+extern void Err_Register(Err_HandleTypeDef *herr, Err_Handler handler);
+extern void Err_UnRegister(Err_HandleTypeDef *herr);
+extern void Err_Ctor(Err_HandleTypeDef *herr, uint16_t err_tick_Timeout, uint16_t err_count_maximum, Err_Handler handler);
 
 //错误监控任务(周期10ms): 在线计时 + 超时判离线 + 故障聚合 + 蜂鸣器/LED指示 + printf上报
 void Error_Monitor_Task(void *pvParameters);

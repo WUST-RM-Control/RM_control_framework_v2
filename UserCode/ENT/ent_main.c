@@ -63,10 +63,10 @@ void main_init()
         IMU_Init(&himu1);
 
         //惯导(任务内初始化)
-        xTaskCreate(INS_Task, "INS", 1024, NULL, 5, NULL);
+        xTaskCreate(INS_Task, "INS", 1024, NULL, 10, NULL);
 
         //蜂鸣器(任务内初始化)
-        xTaskCreate(Buzzer_Task, "Buzzer", 256, &hbuzzer1, 5, NULL);
+        xTaskCreate(Buzzer_Task, "Buzzer", 256, &hbuzzer1, 4, NULL);
 
         //遥控器(内部完成: 构造 + 注册UART空闲回调 + 启动DMA接收)
         // Remote_Init(&huart1);
@@ -74,8 +74,8 @@ void main_init()
         //电机(任务内初始化 + PID控制循环)
         xTaskCreate(Motor_Control_Task, "Motor", 512, NULL, 6, NULL);
 
-        //错误监控(10ms周期: 在线检测 + 故障聚合 + 指示上报)
-        // xTaskCreate(Error_Monitor_Task, "ErrorMon", 512, NULL, 4, NULL);
+        //错误监控
+        xTaskCreate(Error_Monitor_Task, "ErrorMon", 512, NULL, 5, NULL);
 
         // xTaskCreate(Debug_Task, "Debug", 128, NULL, 4, NULL);
 

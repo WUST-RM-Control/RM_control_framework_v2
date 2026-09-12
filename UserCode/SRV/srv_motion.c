@@ -5,6 +5,7 @@
 #include "srv_motion.h"
 
 #include "drv_motor.h"
+#include "srv_motor_control.h"
 
 //运动解算
 void Chassis_Ctrl(float Vx, float Vy, float W)
