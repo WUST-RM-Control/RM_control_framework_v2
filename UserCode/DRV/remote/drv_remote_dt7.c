@@ -66,15 +66,7 @@ void Remote_DT7_GetData(Remote_HandleTypeDef *hremote, const uint8_t *DataBuff)
         else     hremote->Data.RC_Left_Y = 0;
 }
 
-/*===| DT7 构造 |===*/
-static Remote_VTable Remote_DT7_VTable_Default = {
+/*===| DT7 协议 vtable (供通用构造 Remote_Ctor 使用) |===*/
+Remote_VTable Remote_DT7_VTable_Default = {
         .get_data = Remote_DT7_GetData
 };
-
-void Remote_DT7_Ctor(Remote_HandleTypeDef *hremote, UART_HandleTypeDef *huart)
-{
-        memset(hremote, 0, sizeof(Remote_HandleTypeDef));
-
-        hremote->huart = huart;
-        hremote->vptr  = &Remote_DT7_VTable_Default;
-}

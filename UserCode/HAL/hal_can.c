@@ -4,12 +4,20 @@
 
 #include "hal_can.h"
 
-#include "fdcan.h"
 #include "utils.h"
+
+Err_HandleTypeDef herr_can1 = {};
+Err_HandleTypeDef herr_can2 = {};
+Err_HandleTypeDef herr_can3 = {};
+
+// void HAL_FDCAN_ErrorCallback(FDCAN_HandleTypeDef *hfdcan)
+// {
+//
+// }
 
 
 //CAN总线重启: 停止→去初始化→重新初始化→启动→重配过滤器/中断, 并清零硬件错误计数
-HAL_StatusTypeDef CAN_Bus_Restart(FDCAN_HandleTypeDef *hfdcan)
+HAL_StatusTypeDef CAN_Restart(FDCAN_HandleTypeDef *hfdcan)
 {
         HAL_StatusTypeDef Status;
 
@@ -74,7 +82,7 @@ void CAN_Node_UnRegister(CAN_Node_HandleTypeDef *hcan_node)
 }
 
 //CAN节点构造: 绑定FDCAN句柄与收发ID与回调函数
-void CAN_Node_Ctor(CAN_Node_HandleTypeDef *hcan_node, FDCAN_HandleTypeDef *hfdcan, uint16_t CAN_Send_ID, uint16_t CAN_Feedback_ID, CAN_Node_Handler node_handler, uint16_t err_tick_Timeout, uint16_t err_count_maximum, Err_Handler err_handler)
+void CAN_Node_Ctor(CAN_Node_HandleTypeDef *hcan_node, FDCAN_HandleTypeDef *hfdcan, uint16_t CAN_Send_ID, uint16_t CAN_Feedback_ID, CAN_Node_Handler node_handler, uint16_t err_tick_Timeout, uint16_t err_count_maximum, err_handler err_handler)
 {
         Err_Ctor(&hcan_node->herr, err_tick_Timeout, err_count_maximum, err_handler);
 
@@ -85,6 +93,7 @@ void CAN_Node_Ctor(CAN_Node_HandleTypeDef *hcan_node, FDCAN_HandleTypeDef *hfdca
         CAN_Node_Register(hcan_node, node_handler);
 }
 
+//CAN接收回调
 void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
 {
         FDCAN_RxHeaderTypeDef RxHeader;
@@ -156,17 +165,11 @@ void CAN_Send_Data_EXD(CAN_Node_HandleTypeDef *hcan_node, uint8_t *TX_Data, uint
         HAL_FDCAN_AddMessageToTxFifoQ(hcan_node->hfdcan, &TxHeader, TX_Data);
 }
 
-//CAN初始化
-void CAN_Init(void)
+//单条CAN总线初始化: 启动 + 配置过滤器/接收中断(具体总线由 ENT 指定)
+void CAN_Bus_Init(FDCAN_HandleTypeDef *hfdcan)
 {
-        HAL_FDCAN_Start(&hfdcan1);
-        CAN_Filter_Init(&hfdcan1);
-
-        HAL_FDCAN_Start(&hfdcan2);
-        CAN_Filter_Init(&hfdcan2);
-
-        HAL_FDCAN_Start(&hfdcan3);
-        CAN_Filter_Init(&hfdcan3);
+        HAL_FDCAN_Start(hfdcan);
+        CAN_Filter_Init(hfdcan);
 }
 
 //CAN过滤器初始化

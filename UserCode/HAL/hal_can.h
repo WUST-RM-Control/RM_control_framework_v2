@@ -5,7 +5,7 @@
 #ifndef G4MINI_V3_HAL_CAN_H
 #define G4MINI_V3_HAL_CAN_H
 
-#include "srv_error_monitor.h"
+#include "err.h"
 #include "stm32g4xx_hal.h"
 
 /*===| CAN总线资源分配(各设备使用的总线与ID, 使用前需包含fdcan.h) |===*/
@@ -84,7 +84,7 @@ __STATIC_INLINE uint16_t CAN_Node_GetFeedbackID(CAN_Node_HandleTypeDef *node)
         return node->CAN_Feedback_ID;
 }
 
-void CAN_Node_Ctor(CAN_Node_HandleTypeDef *hcan_node, FDCAN_HandleTypeDef *hfdcan, uint16_t CAN_Send_ID, uint16_t CAN_Feedback_ID, CAN_Node_Handler node_handler, uint16_t err_tick_Timeout, uint16_t err_count_maximum, Err_Handler err_handler);
+void CAN_Node_Ctor(CAN_Node_HandleTypeDef *hcan_node, FDCAN_HandleTypeDef *hfdcan, uint16_t CAN_Send_ID, uint16_t CAN_Feedback_ID, CAN_Node_Handler node_handler, uint16_t err_tick_Timeout, uint16_t err_count_maximum, err_handler err_handler);
 
 /*===| CAN节点分发框架 |===*/
 
@@ -96,20 +96,12 @@ void CAN_Node_UnRegister(CAN_Node_HandleTypeDef *hcan_node);
 
 /*===| CAN总线错误处理 |===*/
 
-//总线离线计时(由监控任务周期调用: 每周期递增, 收到数据清零)
-void CAN_Bus_Tick(void);
-
-//查询总线在线状态(超过 CAN_OFFLINE_TICK 周期无数据视为离线)
-uint8_t CAN_Get_Bus_Online(FDCAN_HandleTypeDef *hfdcan);
-
-//查询总线硬件错误计数(由 HAL_FDCAN_ErrorCallback 累计)
-uint16_t CAN_Get_Bus_ErrorCount(FDCAN_HandleTypeDef *hfdcan);
 
 //总线离线判定阈值(监控周期10ms时为100ms)
 #define CAN_OFFLINE_TICK 10
 
 //CAN总线重启: 停止→去初始化→重新初始化→启动→重配过滤器/中断 (处理总线错误/总线关闭)
-HAL_StatusTypeDef CAN_Bus_Restart(FDCAN_HandleTypeDef *hfdcan);
+HAL_StatusTypeDef CAN_Restart(FDCAN_HandleTypeDef *hfdcan);
 
 void CAN_Send_Data_STD(CAN_Node_HandleTypeDef *hcan_node, const uint8_t *TX_Data);
 
@@ -117,6 +109,7 @@ void CAN_Send_Data_EXD(CAN_Node_HandleTypeDef *hcan_node, uint8_t *TX_Data, uint
 
 void CAN_Filter_Init(FDCAN_HandleTypeDef *hfdcan);
 
-void CAN_Init(void);
+//单条CAN总线初始化: 启动 + 配置过滤器/接收中断
+void CAN_Bus_Init(FDCAN_HandleTypeDef *hfdcan);
 
 #endif //G4MINI_V3_HAL_CAN_H

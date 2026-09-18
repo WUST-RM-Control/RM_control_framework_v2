@@ -7,8 +7,8 @@
 
 #include "drv_remote.h"
 
-
-void Remote_VT03_Ctor(Remote_HandleTypeDef *hremote, UART_HandleTypeDef *huart);
+//VT03 协议vtable(参考 Motor_DM_VTable_Default)
+extern Remote_VTable Remote_VT03_VTable_Default;
 
 //VT03 协议解包(参考 Motor_DJI_Storage_Data)
 void Remote_VT03_GetData(Remote_HandleTypeDef *hremote, const uint8_t *DataBuff);

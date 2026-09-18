@@ -80,7 +80,7 @@ void Fuzzy_Rule_Implementation(FuzzyRule_t *fuzzyRule, float measure, float ref)
         int   eLeftIndex,  ecLeftIndex;
         int   eRightIndex, ecRightIndex;
 
-        fuzzyRule->dt = DWT_GetDeltaT((void *) fuzzyRule->DWT_CNT);
+        fuzzyRule->dt = DWT_GetDeltaT(&fuzzyRule->DWT_CNT);
 
         fuzzyRule->e     = ref - measure;
         fuzzyRule->ec    = (fuzzyRule->e - fuzzyRule->eLast) / fuzzyRule->dt;

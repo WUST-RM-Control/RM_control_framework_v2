@@ -238,17 +238,16 @@ void Motor_Init()
 
 }
 
-/*===| 电机控制任务: PID计算 + 发送力矩 |===*/
+/*===| 电机控制任务: PID计算 + 发送力矩(对象构造在 ENT 调用 Motor_Init 完成) |===*/
 void Motor_Control_Task(void *pvParameters)
 {
-        Motor_Init();
         for (;;)
         {
                 //计算所有电机的pid
                 for (int i = 0; i < MOTOR_COUNT; i++)
                 {
                         //离线输出0力矩
-                        if (!Motor_Is_Online(hmotor_table[i]))
+                        if (Is_Err((Err_HandleTypeDef *)hmotor_table[i]))
                         {
                                 Motor_Set_Torque(hmotor_table[i], 0);
                                 continue;

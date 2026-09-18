@@ -50,8 +50,6 @@ void INS_Task(void *pvParameters)
         static uint32_t count      = 0;
         const float     gravity[3] = {0, 0, 9.81f};
 
-        INS_Init();
-
         for (;;)
         {
                 dt = DWT_GetDeltaT(&INS_DWT_Count); // 每周期更新dt

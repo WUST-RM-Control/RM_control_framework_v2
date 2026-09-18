@@ -7,8 +7,8 @@
 
 #include "drv_remote.h"
 
-//DT7 构造(参考 Motor_DJI_Ctor)
-void Remote_DT7_Ctor(Remote_HandleTypeDef *hremote, UART_HandleTypeDef *huart);
+//DT7 协议vtable(参考 Motor_DJI_VTable_Default)
+extern Remote_VTable Remote_DT7_VTable_Default;
 
 //DT7 协议解包(参考 Motor_DJI_Storage_Data)
 void Remote_DT7_GetData(Remote_HandleTypeDef *hremote, const uint8_t *DataBuff);

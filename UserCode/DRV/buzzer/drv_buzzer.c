@@ -4,8 +4,6 @@
 #include "task.h"
 #include "drv_buzzer.h"
 
-#include "tim.h"
-
 Buzzer_HandleTypeDef hbuzzer1 = {};
 
 void Buzzer_Ctor(Buzzer_HandleTypeDef *hbuzzer, TIM_HandleTypeDef *htim, uint8_t Buzzer_TIM_Channel, TickType_t buzzer_task_control_time)
@@ -35,11 +33,9 @@ void Buzzer_Stop(Buzzer_HandleTypeDef *hbuzzer)
 
 void Buzzer_Task(void *argument)
 {
-        /*===| 从任务参数取蜂鸣器对象，替代直接操作全局实例 |===*/
+        /*===| 从任务参数取蜂鸣器对象(对象构造与外设绑定已在 ENT 完成) |===*/
         Buzzer_HandleTypeDef *hbuzzer = (Buzzer_HandleTypeDef *)argument;
 
-        Buzzer_Ctor(hbuzzer, &htim16, TIM_CHANNEL_1, 10);
-        Buzzer_Init(hbuzzer);
         for (;;)
         {
                 /*===| 根据需要播放的声音来分别播放音符 |===*/

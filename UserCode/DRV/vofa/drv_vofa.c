@@ -10,7 +10,8 @@
 #define VOFA_TXDATA_SIZE 12      //vofa调试发送的信息量（float）
 #define VOFA_RXDATA_SIZE 12
 #define VOFA_TX_DELAY    30      //ms
-#define VOFA_UART        &huart2
+
+static UART_HandleTypeDef *VOFA_UART = NULL;
 
 static float VOFA_fdata[VOFA_TXDATA_SIZE] = {0};
 static uint8_t VOFA_tail[4] = {0x00, 0x00, 0x80, 0x7F};
@@ -18,14 +19,38 @@ static uint8_t VOFA_tail[4] = {0x00, 0x00, 0x80, 0x7F};
 
 static uint8_t VOFA_message[VOFA_TXDATA_SIZE * 4 + 4] = {0};
 
+//串口错误计数(发送侧错误, 供调试观察)
+static volatile uint32_t VOFA_Error_Count = 0;
+
+
+void VOFA_Ctor(UART_HandleTypeDef *huart)
+{
+        VOFA_UART = huart;
+}
+
+/* UART错误回调: 由 VOFA_Init 注册到 VOFA_UART(per-handle, 各串口设备互不干扰)
+ * 发送侧错误时 HAL/DMA 层已复位状态, 下次 VOFA_Send_Data 会重新发起, 此处仅计数 */
+static void VOFA_UART_Error_Callback(UART_HandleTypeDef *huart)
+{
+        (void) huart;
+        VOFA_Error_Count++;
+}
 
 void VOFA_Init()
 {
         memcpy(VOFA_message + VOFA_TXDATA_SIZE * 4, VOFA_tail, 4);
+
+        //注册UART错误回调
+        if (VOFA_UART != NULL)
+        {
+                HAL_UART_RegisterCallback(VOFA_UART, HAL_UART_ERROR_CB_ID, VOFA_UART_Error_Callback);
+        }
 }
 
 void VOFA_Send_Data(uint8_t channel, float data)
 {
+        if (VOFA_UART == NULL) return;
+
         VOFA_fdata[channel] = data;
 
         static float tx_time_last = 0.0f;
@@ -40,4 +65,10 @@ void VOFA_Send_Data(uint8_t channel, float data)
         }
 
 
+}
+
+//获取串口错误计数
+uint32_t VOFA_Get_Error_Count(void)
+{
+        return VOFA_Error_Count;
 }

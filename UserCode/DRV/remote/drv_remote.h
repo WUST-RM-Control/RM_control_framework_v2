@@ -6,6 +6,7 @@
 #define G4MINI_V3_DRV_REMOTE_H
 
 #include "main.h"
+#include "err.h"
 
 /** 《遥控器信息图》
     -1.0f ┌───┐ 1.0f
@@ -30,6 +31,10 @@
 #define SW_Down 2
 
 #define RC_CH_VALUE_OFFSET      ((uint16_t)1024)
+
+/*===| 遥控器错误检测参数(错误监控周期 10ms) |===*/
+#define REMOTE_OFFLINE_TIMEOUT  10  //超过 10 个监控周期(100ms)未收到数据则判为失联
+#define REMOTE_ERR_COUNT_MAX    10  //错误次数上限(与电机一致)
 
 /*===| 遥控器统一数据(DT7/VT03 解析后都存入此结构) |===*/
 typedef __PACKED_STRUCT
@@ -89,13 +94,13 @@ struct Remote_VTable
 
 struct Remote_HandleTypeDef
 {
-        Remote_VTable *vptr;
+        Err_HandleTypeDef herr; //错误检测(心跳计时, 参考 Motor_HandleTypeDef 的 Node.herr)
 
-        UART_HandleTypeDef *huart;    //串口句柄(DT7使用, VT03为NULL)
+        Remote_VTable *   vptr;
 
-        uint8_t  If_Connect;      //是否连接
-        uint8_t  If_Data_New;     //是否有新数据
-        uint16_t GetData_Ticker;  //数据计时
+        UART_HandleTypeDef *huart; //串口句柄(DT7使用, VT03为NULL)
+
+        uint8_t             If_Data_New; //是否有新数据
 
         Remote_Data_StructTypeDef Data;      //当前数据
         Remote_Data_StructTypeDef Data_Last; //上一次数据(按键边沿检测)
@@ -105,30 +110,24 @@ struct Remote_HandleTypeDef
 extern Remote_HandleTypeDef hremote_dt7;
 extern Remote_HandleTypeDef hremote_vt03;
 
-//遥控器在线检查(由监控任务周期调用): 超过 timeout_tick 周期未收到数据则断开
-__STATIC_INLINE void Remote_Online_Check(Remote_HandleTypeDef *hremote, uint16_t timeout_tick)
-{
-        if (hremote->If_Connect)
-        {
-                hremote->GetData_Ticker++;
-                if (hremote->GetData_Ticker > timeout_tick)
-                        hremote->If_Connect = 0;
-        }
-}
+/*===| 遥控器通用构造(参考 Motor_Ctor) |===*/
+//绑定串口句柄 + 协议 vtable + 错误检测参数
+void Remote_Ctor(Remote_HandleTypeDef *hremote, UART_HandleTypeDef *huart, Remote_VTable *Remote_VTable, uint16_t err_tick_timeout, uint16_t err_count_maximum, err_handler err_handler);
 
+//启动遥控器接收(对象由 ENT 调用 Remote_Ctor 构造)
+//内部注册: UART空闲回调 + UART错误回调(per-handle)
+void Remote_Init(Remote_HandleTypeDef *hremote);
 
+//遥控器错误回调: 只负责检测(超时判定 + 计数), 不做任何恢复动作
+void Remote_Err_Handler(Err_HandleTypeDef *herr);
 
-
-void Remote_Init(UART_HandleTypeDef *huart);
-
-//UART错误后重启接收(供 HAL_UART_ErrorCallback 调用)
-void Remote_Restart_Receive(UART_HandleTypeDef *huart);
-
-//统一接收入口: 通过 vptr 分发到对应协议解包并更新连接状态
+//统一接收入口: 通过 vptr 分发到对应协议解包, 并清除错误状态
 __STATIC_INLINE void Remote_Rx_Handle(Remote_HandleTypeDef *hremote, const uint8_t *DataBuff)
 {
-        hremote->If_Connect     = 1;
-        hremote->GetData_Ticker = 0;
+        //收到数据即清零错误状态(参考 Motor_DJI_Storage_Data)
+        hremote->herr.tick   = 0;
+        hremote->herr.count  = 0;
+        hremote->herr.If_Err = 0;
 
         hremote->vptr->get_data(hremote, DataBuff);
 
@@ -146,7 +145,6 @@ __STATIC_INLINE float Remote_Get_Mouse_Y(Remote_HandleTypeDef *hremote) { return
 __STATIC_INLINE float Remote_Get_Mouse_Z(Remote_HandleTypeDef *hremote) { return hremote->Data.Mouse_Speed_Z; }
 __STATIC_INLINE uint8_t Remote_Get_S1(Remote_HandleTypeDef *hremote)    { return hremote->Data.S1; }
 __STATIC_INLINE uint8_t Remote_Get_S2(Remote_HandleTypeDef *hremote)    { return hremote->Data.S2; }
-__STATIC_INLINE uint8_t Remote_Get_Connect(Remote_HandleTypeDef *hremote) { return hremote->If_Connect; }
 
 #define Remote_Key_Shift_Single_Press(hremote)    ((hremote)->Data.Keyboard_Shift == 1 && (hremote)->Data_Last.Keyboard_Shift == 0)
 #define Remote_Key_Ctrl_Single_Press(hremote)     ((hremote)->Data.Keyboard_Ctrl  == 1 && (hremote)->Data_Last.Keyboard_Ctrl  == 0)

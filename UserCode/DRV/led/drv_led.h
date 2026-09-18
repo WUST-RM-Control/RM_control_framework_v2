@@ -6,7 +6,6 @@
 #define G4MINI_V3_LED_H
 
 #include "stm32g4xx_hal.h"
-#include "tim.h"
 
 typedef struct
 {

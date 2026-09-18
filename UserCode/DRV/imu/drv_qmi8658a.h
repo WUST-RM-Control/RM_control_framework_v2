@@ -63,6 +63,9 @@ typedef struct
 extern IMU_HandleTypedef himu1;
 
 
+//QMI8658A构造: 绑定 SPI 与片选引脚(实例 ↔ 外设绑定, 由 ENT 调用)
+void QMI8658A_Ctor(SPI_HandleTypeDef *hspi, GPIO_TypeDef *CS_Port, uint16_t CS_Pin);
+
 //QMI8658A初始化
 void QMI8658A_Init(void);
 //QMI8658A读全部数据

@@ -104,11 +104,29 @@ void Motor_DM_Storage_Data(Motor_HandleTypeDef *hmotor, const uint8_t *Data)
         {
                 hmotor->Node.herr.tick      = 0;
                 hmotor->Node.herr.count     = 0;
-                hmotor->Node.herr.If_Online = 1;
+                hmotor->Node.herr.If_Err    = 0;
         }
 }
 
-//1to4是错误的，别用（）
+//注意会引入2ms延迟，慎用
+void Motor_DM_Enable(Motor_HandleTypeDef *hmotor)
+{
+        Motor_DM_CMD_ClearErr(hmotor);
+        vTaskDelay(1);
+        Motor_DM_CMD_Enable(hmotor);
+        vTaskDelay(1);
+}
+
+/*=============|OOPC|================*/
+
+Motor_VTable Motor_DM_VTable_Default = {
+        .enable = Motor_DM_Enable,
+        .disable = Motor_DM_CMD_Disable,
+        .set_zero = Motor_DM_CMD_SetZero,
+        .storage_data = Motor_DM_Storage_Data
+};
+
+//1to4是反动的，别用（）
 
 // //电机-达妙1拖4-存储反馈数据（CAN收到的反馈数组地址，电机数据结构体）
 // void Motor_DM1to4_Storage_Data(Motor_HandleTypeDef *hmotor ,const uint8_t *Data)
@@ -167,22 +185,6 @@ void Motor_DM_Storage_Data(Motor_HandleTypeDef *hmotor, const uint8_t *Data)
 // }
 
 
-void Motor_DM_Enable(Motor_HandleTypeDef *hmotor)
-{
-        Motor_DM_CMD_ClearErr(hmotor);
-        vTaskDelay(1);
-        Motor_DM_CMD_Enable(hmotor);
-        vTaskDelay(1);
-}
-
-/*=============|OOPC|================*/
-
-Motor_VTable Motor_DM_VTable_Default = {
-        .enable = Motor_DM_Enable,
-        .disable = Motor_DM_CMD_Disable,
-        .set_zero = Motor_DM_CMD_SetZero,
-        .storage_data = Motor_DM_Storage_Data
-};
 
 
 
