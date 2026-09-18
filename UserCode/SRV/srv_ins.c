@@ -40,9 +40,9 @@ void INS_Init(void)
         IMU_Param.Roll     = 180;
         IMU_Param.flag     = 1;
 
-        IMU_QuaternionEKF_Init(10, 0.001, 10000000, 1, 0);
+        IMU_QuaternionEKF_Init(10.0f, 0.001f, 10000000, 1, 0);
 
-        INS.AccelLPF = 0.0085;
+        INS.AccelLPF = 0.0085f;
 }
 
 void INS_Task(void *pvParameters)

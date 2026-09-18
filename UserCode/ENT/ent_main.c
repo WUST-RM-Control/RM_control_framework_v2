@@ -22,28 +22,28 @@
 #include "srv_ins.h"
 
 //开发时偷懒做点小事在这
-// void Debug_Task(void *pvParameters)
-// {
-//         // uint8_t TX[] = "abc\r\n";
-//         LED_Set(&hled1, 255, 255, 255);
-//         for (;;)
-//         {
-//
-//
-//                 // Motor_Set_Speed(&hmotor_chassis1, 100);
-//
-//
-//
-//                 // VOFA_Send_Data(0, Motor_Get_Speed(&hmotor_chassis1));
-//                 // VOFA_Send_Data(1, Motor_Get_Target_Torque(&hmotor_chassis1));
-//                 // VOFA_Send_Data(0, INS_Get_Pitch());
-//                 // VOFA_Send_Data(1, INS_Get_Yaw());
-//                 // VOFA_Send_Data(2, INS_Get_Roll());
-//                 // CDC_Transmit_FS(TX, 5);
-//
-//                 vTaskDelay(1000);
-//         }
-// }
+void Debug_Task(void *pvParameters)
+{
+        // uint8_t TX[] = "abc\r\n";
+        LED_Set(&hled1, 255, 255, 255);
+        for (;;)
+        {
+
+
+                // Motor_Set_Speed(&hmotor_chassis1, 100);
+
+
+
+                // VOFA_Send_Data(0, Motor_Get_Speed(&hmotor_chassis1));
+                // VOFA_Send_Data(1, Motor_Get_Target_Torque(&hmotor_chassis1));
+                VOFA_Send_Data(0, INS_Get_Pitch());
+                VOFA_Send_Data(1, INS_Get_Yaw());
+                VOFA_Send_Data(2, INS_Get_Roll());
+                // CDC_Transmit_FS(TX, 5);
+
+                vTaskDelay(10);
+        }
+}
 
 void main_init()
 {
@@ -85,6 +85,7 @@ void main_init()
         xTaskCreate(Motor_Control_Task, "Motor", 512, NULL, 6, NULL);
         // xTaskCreate(Error_Monitor_Task, "ErrorMon", 512, NULL, 5, NULL);
 
+        xTaskCreate(Debug_Task, "Debug", 1024, NULL, 6, NULL);
         Buzzer_Set_SoundEffect(&hbuzzer1, Buzzer_SoundEffect_SystemStart);
 }
 
