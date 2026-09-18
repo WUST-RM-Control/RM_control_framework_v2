@@ -15,9 +15,12 @@ static UART_HandleTypeDef *VOFA_UART = NULL;
 
 static float VOFA_fdata[VOFA_TXDATA_SIZE] = {0};
 static uint8_t VOFA_tail[4] = {0x00, 0x00, 0x80, 0x7F};
-// static float VOFA_RxData[VOFA_RXDATA_SIZE] = {0};
+static float VOFA_RxData[VOFA_RXDATA_SIZE] = {0};
 
 static uint8_t VOFA_message[VOFA_TXDATA_SIZE * 4 + 4] = {0};
+
+
+
 
 //串口错误计数(发送侧错误, 供调试观察)
 static volatile uint32_t VOFA_Error_Count = 0;
@@ -26,6 +29,15 @@ static volatile uint32_t VOFA_Error_Count = 0;
 void VOFA_Ctor(UART_HandleTypeDef *huart)
 {
         VOFA_UART = huart;
+}
+
+static void VOFA_RxEvent_CallBack(UART_HandleTypeDef *huart, uint16_t Pos)
+{
+        //重新开启下一次接收(必须在ISR内完成, 否则丢帧)
+        HAL_UARTEx_ReceiveToIdle_DMA(huart, (uint8_t *)VOFA_RxData, sizeof(VOFA_RxData));
+        __HAL_DMA_DISABLE_IT(huart->hdmarx, DMA_IT_HT);
+
+        //处理。。。
 }
 
 /* UART错误回调: 由 VOFA_Init 注册到 VOFA_UART(per-handle, 各串口设备互不干扰)
@@ -43,6 +55,8 @@ void VOFA_Init()
         //注册UART错误回调
         if (VOFA_UART != NULL)
         {
+                //注册UART空闲中断回调
+                HAL_UART_RegisterRxEventCallback(VOFA_UART, VOFA_RxEvent_CallBack);
                 HAL_UART_RegisterCallback(VOFA_UART, HAL_UART_ERROR_CB_ID, VOFA_UART_Error_Callback);
         }
 }
