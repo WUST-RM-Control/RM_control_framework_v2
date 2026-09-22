@@ -18,10 +18,12 @@
 #include "usart.h"
 #include "drv_vofa.h"
 #include "drv_imu.h"
+#include "drv_key.h"
 #include "drv_remote_dt7.h"
 #include "srv_ins.h"
+#include "srv_led_key.h"
 
-//开发时偷懒做点小事在这
+//开发时偷懒做点小事在这()
 void Debug_Task(void *pvParameters)
 {
         // uint8_t TX[] = "abc\r\n";
@@ -29,19 +31,11 @@ void Debug_Task(void *pvParameters)
         for (;;)
         {
 
-
-                // Motor_Set_Speed(&hmotor_chassis1, 100);
-
+                VOFA_Send_Data(0, Key_Get_State(&hkey1));
 
 
-                // VOFA_Send_Data(0, Motor_Get_Speed(&hmotor_chassis1));
-                // VOFA_Send_Data(1, Motor_Get_Target_Torque(&hmotor_chassis1));
-                VOFA_Send_Data(0, INS_Get_Pitch());
-                VOFA_Send_Data(1, INS_Get_Yaw());
-                VOFA_Send_Data(2, INS_Get_Roll());
-                // CDC_Transmit_FS(TX, 5);
 
-                vTaskDelay(10);
+                vTaskDelay(40);
         }
 }
 
@@ -61,6 +55,8 @@ void main_init()
         CAN_Bus_Init(&hfdcan3);
 
         /*===| 实例 ↔ 外设绑定(全部集中在此) |===*/
+        Key_Ctor(&hkey1, GPIOB, GPIO_PIN_7);
+
         LED_Ctor(&hled1, &htim1);                             //RGB LED(htim1 PWM通道1/2/3)
         LED_Init(&hled1);
 
@@ -80,9 +76,10 @@ void main_init()
         Motor_Init();                   //9个电机对象 + PID整定 + CAN节点注册
 
         /*===| 任务创建 |===*/
-        xTaskCreate(INS_Task, "INS", 1024, NULL, 10, NULL);
+        xTaskCreate(LED_Key_Task, "LED_Key", 256, NULL, 4, NULL);
         xTaskCreate(Buzzer_Task, "Buzzer", 256, &hbuzzer1, 4, NULL);
         xTaskCreate(Motor_Control_Task, "Motor", 512, NULL, 6, NULL);
+        xTaskCreate(INS_Task, "INS", 1024, NULL, 10, NULL);
         // xTaskCreate(Error_Monitor_Task, "ErrorMon", 512, NULL, 5, NULL);
 
         xTaskCreate(Debug_Task, "Debug", 1024, NULL, 6, NULL);

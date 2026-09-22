@@ -153,7 +153,7 @@ int16_t int16_deadline(int16_t Value, int16_t minValue, int16_t maxValue)
 }
 
 //限幅函数
-float float_constrain(float Value, float minValue, float maxValue)
+float float_limit(float Value, float minValue, float maxValue)
 {
     if (Value < minValue)
         return minValue;
@@ -164,7 +164,7 @@ float float_constrain(float Value, float minValue, float maxValue)
 }
 
 //限幅函数
-int16_t int16_constrain(int16_t Value, int16_t minValue, int16_t maxValue)
+int16_t int16_limit(int16_t Value, int16_t minValue, int16_t maxValue)
 {
     if (Value < minValue)
         return minValue;
@@ -175,7 +175,7 @@ int16_t int16_constrain(int16_t Value, int16_t minValue, int16_t maxValue)
 }
 
 //循环限幅函数
-float loop_float_constrain(float Input, float minValue, float maxValue)
+float loop_float_limit(float Input, float minValue, float maxValue)
 {
     if (maxValue < minValue)
     {
@@ -206,7 +206,7 @@ float loop_float_constrain(float Input, float minValue, float maxValue)
 //角度格式化为-180~180
 float theta_format(float Ang)
 {
-    return loop_float_constrain(Ang, -180.0f, 180.0f);
+    return loop_float_limit(Ang, -180.0f, 180.0f);
 }
 
 int float_rounding(float raw)
