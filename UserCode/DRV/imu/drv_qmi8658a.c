@@ -8,16 +8,26 @@
 #include <math.h>
 #include <string.h>
 #include "hal_dwt.h"
-#include "spi.h"
 #include "utils.h"
 
 
 //QMI8658A数据结构体
-IMU_StructTypedef himu1;
+IMU_HandleTypedef himu1;
 
-//QMI8658A通信配置
-#define QMI8658A_SPI               hspi1
-#define QMI8658A_CS(PIN_Status)    HAL_GPIO_WritePin(SPI1_CS_GPIO_Port, SPI1_CS_Pin, PIN_Status)
+//QMI8658A通信配置(实例 ↔ 外设绑定, 由 ENT 调用 QMI8658A_Ctor 完成)
+static SPI_HandleTypeDef *QMI8658A_hspi    = NULL;
+static GPIO_TypeDef      *QMI8658A_CS_Port = NULL;
+static uint16_t           QMI8658A_CS_Pin  = 0;
+
+#define QMI8658A_CS(PIN_Status)    HAL_GPIO_WritePin(QMI8658A_CS_Port, QMI8658A_CS_Pin, PIN_Status)
+
+//QMI8658A构造: 绑定 SPI 与片选引脚(由 ENT 调用)
+void QMI8658A_Ctor(SPI_HandleTypeDef *hspi, GPIO_TypeDef *CS_Port, uint16_t CS_Pin)
+{
+    QMI8658A_hspi    = hspi;
+    QMI8658A_CS_Port = CS_Port;
+    QMI8658A_CS_Pin  = CS_Pin;
+}
 
 //QMI8658A读单个寄存器
 uint8_t QMI8658A_Read_Reg(QMI8658A_Reg_EnumTypedef Reg)
@@ -26,7 +36,7 @@ uint8_t QMI8658A_Read_Reg(QMI8658A_Reg_EnumTypedef Reg)
     uint8_t rx[2] = {0};
 
     QMI8658A_CS(0);
-    HAL_SPI_TransmitReceive(&QMI8658A_SPI, tx, rx, 2, 1000);
+    HAL_SPI_TransmitReceive(QMI8658A_hspi, tx, rx, 2, 1000);
     QMI8658A_CS(1);
 
     return rx[1];
@@ -39,7 +49,7 @@ void QMI8658A_Read_RegList(QMI8658A_Reg_EnumTypedef Reg, uint8_t Num, uint8_t *R
     uint8_t rx[16] = {0};
 
     QMI8658A_CS(0);
-    HAL_SPI_TransmitReceive(&QMI8658A_SPI, tx, rx, Num+1, 1000);
+    HAL_SPI_TransmitReceive(QMI8658A_hspi, tx, rx, Num+1, 1000);
     QMI8658A_CS(1);
 
     memcpy(Read_Data, &rx[1], Num);
@@ -52,7 +62,7 @@ void QMI8658A_Write_Reg(QMI8658A_Reg_EnumTypedef Reg, uint8_t Write_Data)
     uint8_t rx[2] = {0};
 
     QMI8658A_CS(0);
-    HAL_SPI_TransmitReceive(&QMI8658A_SPI, tx, rx, 2, 1000);
+    HAL_SPI_TransmitReceive(QMI8658A_hspi, tx, rx, 2, 1000);
     QMI8658A_CS(1);
 }
 
@@ -81,8 +91,8 @@ void QMI8658A_Init(void)
     //从Flash读校准值，如果没有则启动自校准
     //读flash...
 
-    // if(himu1.AccelScale < 0.3f)
-    //     QMI8658A_Calibration();
+    if(himu1.AccelScale < 0.3f)
+        QMI8658A_Calibration();
 }
 
 //QMI8658A读全部数据

@@ -27,7 +27,6 @@ const float zb[3] = {0, 0, 1};
 static uint32_t INS_DWT_Count  = 0;
 static float    dt             = 0, t = 0;
 static uint8_t  ins_debug_mode = 0;
-static float    RefTemp        = 40;
 
 static void IMU_Param_Correction(IMU_Param_t *param, float gyro[3], float accel[3]);
 
@@ -41,17 +40,15 @@ void INS_Init(void)
         IMU_Param.Roll     = 180;
         IMU_Param.flag     = 1;
 
-        IMU_QuaternionEKF_Init(10, 0.001, 10000000, 1, 0);
+        IMU_QuaternionEKF_Init(10.0f, 0.001f, 10000000, 1, 0);
 
-        INS.AccelLPF = 0.0085;
+        INS.AccelLPF = 0.0085f;
 }
 
 void INS_Task(void *pvParameters)
 {
         static uint32_t count      = 0;
         const float     gravity[3] = {0, 0, 9.81f};
-
-        INS_Init();
 
         for (;;)
         {

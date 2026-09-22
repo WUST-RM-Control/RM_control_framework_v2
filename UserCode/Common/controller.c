@@ -80,7 +80,7 @@ void Fuzzy_Rule_Implementation(FuzzyRule_t *fuzzyRule, float measure, float ref)
         int   eLeftIndex,  ecLeftIndex;
         int   eRightIndex, ecRightIndex;
 
-        fuzzyRule->dt = DWT_GetDeltaT((void *) fuzzyRule->DWT_CNT);
+        fuzzyRule->dt = DWT_GetDeltaT(&fuzzyRule->DWT_CNT);
 
         fuzzyRule->e     = ref - measure;
         fuzzyRule->ec    = (fuzzyRule->e - fuzzyRule->eLast) / fuzzyRule->dt;
@@ -517,7 +517,7 @@ float Feedforward_Calculate(Feedforward_t *ffc, float ref)
         // calculate feed-forward controller output
         ffc->Output = ffc->c[0] * ffc->Ref + ffc->c[1] * ffc->Ref_dot + ffc->c[2] * ffc->Ref_ddot;
 
-        ffc->Output = float_constrain(ffc->Output, -ffc->MaxOut, ffc->MaxOut);
+        ffc->Output = float_limit(ffc->Output, -ffc->MaxOut, ffc->MaxOut);
 
         ffc->Last_Ref     = ffc->Ref;
         ffc->Last_Ref_dot = ffc->Ref_dot;
@@ -601,7 +601,7 @@ float LDOB_Calculate(LDOB_t *ldob, float measure, float u)
         ldob->Disturbance = ldob->Disturbance * ldob->dt / (ldob->LPF_RC + ldob->dt) +
                             ldob->Last_Disturbance * ldob->LPF_RC / (ldob->LPF_RC + ldob->dt);
 
-        ldob->Disturbance = float_constrain(ldob->Disturbance, -ldob->Max_Disturbance, ldob->Max_Disturbance);
+        ldob->Disturbance = float_limit(ldob->Disturbance, -ldob->Max_Disturbance, ldob->Max_Disturbance);
 
         // 扰动输出死区
         // deadband of disturbance output

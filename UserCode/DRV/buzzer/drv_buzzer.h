@@ -5,6 +5,7 @@
 #ifndef G4MINI_V3_BUZZER_H
 #define G4MINI_V3_BUZZER_H
 
+#include "stm32g4xx_hal.h"
 #include "FreeRTOS.h"
 
 /*===| 预设音效枚举定义 |===*/
@@ -56,6 +57,8 @@ typedef struct
 
 extern Buzzer_HandleTypeDef hbuzzer1;
 
+//蜂鸣器构造: 绑定定时器与通道(实例 ↔ 外设绑定, 由 ENT 调用)
+void Buzzer_Ctor(Buzzer_HandleTypeDef *hbuzzer, TIM_HandleTypeDef *htim, uint8_t Buzzer_TIM_Channel, TickType_t buzzer_task_control_time);
 
 void Buzzer_Init(Buzzer_HandleTypeDef *hbuzzer);
 

@@ -38,15 +38,7 @@ void Remote_VT03_GetData(Remote_HandleTypeDef *hremote, const uint8_t *DataBuff)
         hremote->Data.Keyboard_B     = !!(kb->KeyBoard & 0x8000);
 }
 
-/*===| VT03 构造 |===*/
-static Remote_VTable Remote_VT03_VTable_Default = {
+/*===| VT03 协议 vtable (供通用构造 Remote_Ctor 使用) |===*/
+Remote_VTable Remote_VT03_VTable_Default = {
         .get_data = Remote_VT03_GetData
 };
-
-void Remote_VT03_Ctor(Remote_HandleTypeDef *hremote, UART_HandleTypeDef *huart)
-{
-        memset(hremote, 0, sizeof(Remote_HandleTypeDef));
-
-        hremote->huart = huart;
-        hremote->vptr = &Remote_VT03_VTable_Default;
-}

@@ -13,11 +13,8 @@ void Motor_DJI_Send_Torque(Motor_HandleTypeDef *hmotor, int16_t Torque);
 
 void Motor_DJI_Storage_Data(Motor_HandleTypeDef *DJI_Motor_Data_Struct, const uint8_t *Data);
 
-void Motor_DJI_Ctor(Motor_HandleTypeDef *hmotor,FDCAN_HandleTypeDef *hfdcan, uint16_t CAN_Send_ID, uint16_t CAN_Feedback_ID);
+extern Motor_VTable Motor_DJI_VTable_Default;
 
-__STATIC_INLINE void Motor_DJI_Set_Zero(Motor_HandleTypeDef *hmotor)
-{
-        hmotor->Total_Angle_Offset = hmotor->Total_Angle;
-}
+__STATIC_INLINE void Motor_DJI_Set_Zero(Motor_HandleTypeDef *hmotor) { hmotor->Total_Angle_Offset = hmotor->Total_Angle; }
 
 #endif //G4MINI_V3_DRV_MOTOR_DJI_H
