@@ -16,7 +16,7 @@
 #include "spi.h"
 #include "tim.h"
 #include "usart.h"
-#include "drv_vofa.h"
+#include "vofa.h"
 #include "drv_imu.h"
 #include "drv_key.h"
 #include "drv_remote_dt7.h"
