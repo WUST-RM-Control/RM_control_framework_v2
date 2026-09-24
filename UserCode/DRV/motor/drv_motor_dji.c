@@ -47,7 +47,7 @@ void Motor_DJI_Storage_Data(Motor_HandleTypeDef *hmotor, const uint8_t *Data)
         /*===| 协议解包 |===*/
         hmotor->Encoder       = (int16_t) (Data[0] << 8 | Data[1]);
         hmotor->Speed         = (int16_t) (Data[2] << 8 | Data[3]);
-        hmotor->Torque = (int16_t) (Data[4] << 8 | Data[5]);
+        hmotor->Torque        = (int16_t) (Data[4] << 8 | Data[5]);
         hmotor->Temperature   = (int8_t) (Data[6]);
 
         hmotor->Angle         = ((float) hmotor->Encoder - 4096.0f) * 180.0f / 4096.0f;
@@ -57,6 +57,7 @@ void Motor_DJI_Storage_Data(Motor_HandleTypeDef *hmotor, const uint8_t *Data)
         else if (hmotor->Encoder - hmotor->Encoder_Last < -4096) hmotor->Round++;
         hmotor->Total_Angle = 360.0f * ((float)hmotor->Round + (float)hmotor->Encoder / 8192.0f) - hmotor->Total_Angle_Offset;
 
+        Motor_Get_TotalAngle_Speed(hmotor, 0.3f);
         /*===| 记录编码器值 |===*/
         hmotor->Encoder_Last = hmotor->Encoder;
         hmotor->Angle_Last   = hmotor->Angle;

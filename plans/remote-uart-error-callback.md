@@ -66,8 +66,8 @@ Remote_Init(hremote)                       <- ENT 决定用哪个实例/哪个�
 |---|---|
 | `UserCode/DRV/remote/drv_remote.c` | 删除弱符号 `HAL_UART_ErrorCallback`；新增 `static Remote_UART_Error_Callback`；`Remote_Init` 内注册 + 防重入；`Remote_Restart_Receive`/`Remote_RxBuff` 收为 `static` |
 | `UserCode/DRV/remote/drv_remote.h` | 删除 `Remote_Restart_Receive` 声明（已改 `static`，回调为模块内部实现，头文件不再导出） |
-| `UserCode/DRV/vofa/drv_vofa.c` | 新增 `static VOFA_UART_Error_Callback` + `VOFA_Error_Count`；`VOFA_Init()` 内注册 |
-| `UserCode/DRV/vofa/drv_vofa.h` | 新增 `uint32_t VOFA_Get_Error_Count(void);` |
+| `../UserCode/Common/drv_vofa.c` | 新增 `static VOFA_UART_Error_Callback` + `VOFA_Error_Count`；`VOFA_Init()` 内注册 |
+| `../UserCode/Common/drv_vofa.h` | 新增 `uint32_t VOFA_Get_Error_Count(void);` |
 | `UserCode/HAL/hal_debug.c` | 新增 `static Debug_UART_Error_Callback` + `Debug_Error_Count`；`Debug_Init()` 内注册（含 `Debug_UART == NULL` 守卫） |
 | `UserCode/HAL/hal_debug.h` | 新增 `uint32_t Debug_Get_Error_Count(void);` |
 

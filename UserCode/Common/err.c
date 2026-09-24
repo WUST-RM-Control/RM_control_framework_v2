@@ -52,7 +52,7 @@ void Err_Ctor(Err_HandleTypeDef *herr, uint16_t err_tick_Timeout, uint16_t err_c
         herr->count         = 0;
         herr->count_maximum = err_count_maximum;
 
-        herr->If_Err        = 1; //默认是错误的
+        herr->If_Err        = 0;
         Err_Register(herr, handler);
 }
 
