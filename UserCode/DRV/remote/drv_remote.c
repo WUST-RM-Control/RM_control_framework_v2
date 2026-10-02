@@ -48,7 +48,6 @@ static void Remote_RxEvent_CallBack(UART_HandleTypeDef *huart, uint16_t Pos)
                 xQueueSendFromISR(Remote_RxQueue, Remote_RxBuff, &xHigherPriorityTaskWoken);
         }
 
-        //重新开启下一次接收(必须在ISR内完成, 否则丢帧)
         HAL_UARTEx_ReceiveToIdle_DMA(huart, Remote_RxBuff, sizeof(Remote_RxBuff));
         __HAL_DMA_DISABLE_IT(huart->hdmarx, DMA_IT_HT);
 

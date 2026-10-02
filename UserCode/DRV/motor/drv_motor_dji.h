@@ -14,6 +14,7 @@ void Motor_DJI_Send_Torque(Motor_HandleTypeDef *hmotor, int16_t Torque);
 void Motor_DJI_Storage_Data(Motor_HandleTypeDef *DJI_Motor_Data_Struct, const uint8_t *Data);
 
 extern Motor_VTable Motor_DJI_VTable_Default;
+extern Motor_Config_StructTypeDef Motor_DJI_Config_Default;
 
 __STATIC_INLINE void Motor_DJI_Set_Zero(Motor_HandleTypeDef *hmotor) { hmotor->Total_Angle_Offset = hmotor->Total_Angle; }
 

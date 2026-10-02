@@ -11,6 +11,10 @@
 #include "task.h"
 #include "hal_can.h"
 
+#define ERR_COUNT_MAX 10
+#define MOTOR_TIMEOUT 10
+
+extern uint8_t Motor_Count;
 
 typedef enum
 {
@@ -19,9 +23,29 @@ typedef enum
         MOTOR_ANGLE
 } Motor_Status_TypeDef;
 
+typedef enum
+{
+        MOTOR_DJI = 0,
+        MOTOR_DM,
+        MOTOR_ZDT
+} Motor_Enum_TypeDef;
 
 typedef struct Motor_HandleTypeDef Motor_HandleTypeDef;
 typedef struct Motor_VTable        Motor_VTable;
+
+typedef struct
+{
+        Err_HandleTypeDef herr;
+
+        Motor_VTable *       vptr;
+        Motor_Enum_TypeDef   Motor_Enum;
+        Motor_Status_TypeDef Status_Enum;
+
+        uint8_t Is_Feedback_Control : 1; //MCU内闭环为1，电调内闭环为0
+        uint8_t Is_Group_Member : 1;     //一拖四使用
+
+        uint8_t Error_Code;              //反馈错误码(1=正常, 0=失能, 3~E=故障; DJI不更新恒为1)
+} Motor_Config_StructTypeDef;
 
 struct Motor_VTable
 {
@@ -37,38 +61,45 @@ struct Motor_VTable
 /*===| 电机数据结构体定义 |===*/
 struct Motor_HandleTypeDef
 {
-        CAN_Node_HandleTypeDef Node;    //CAN节点基类(第一个成员, 可向上转型为基类指针)
+        CAN_Node_HandleTypeDef Node;     //CAN节点基类(第一个成员, 可向上转型为基类指针)
 
-        Motor_VTable *vptr;
-        Motor_Status_TypeDef Status_Enum;
-
-        uint8_t Error_Code;             //反馈错误码(1=正常, 0=失能, 3~E=故障; DJI不更新恒为1)
+        Motor_Config_StructTypeDef Motor_Config_Struct;
 
         Feedforward_t FFC_Angle_Struct;
         PID_t         PID_Angle_Struct;
         Feedforward_t FFC_Speed_Struct;
         PID_t         PID_Speed_Struct;
 
-        volatile float Target_Torque;   //目标力矩[电流]
-        volatile float Target_Speed;    //目标速度
-        volatile float Target_Angle;    //目标角度
+        volatile float Target_Torque;    //目标力矩[电流]
+        volatile float Target_Speed;     //目标速度
+        volatile float Target_Angle;     //目标角度
 
-        float   Torque;                 //实际力矩[电流]
-        int16_t Encoder;                //编码器值
-        float   Angle;                  //绝对角度
-        float   Total_Angle;            //总角度值
-        float   Speed;                  //转速[RPM]
-        int8_t  Temperature;            //电机温度
+        float   Torque;                  //实际力矩[电流]
+        int16_t Encoder;                 //编码器值
+        float   Angle;                   //绝对角度
+        float   Total_Angle;             //总角度值
+        float   Speed;                   //转速[RPM]
+        int8_t  Temperature;             //电机温度
 
-        float   Total_Angle_Offset;     //总角度值零点
-        int32_t Round;                  //圈数
+        float   Total_Angle_Offset;      //总角度值零点
+        int32_t Round;                   //圈数
 
-        int16_t Encoder_Last;           //上一个编码器值
-        float   Angle_Last;             //上一个绝对角度
-        float   Total_Angle_Last;       //上一个总角度值
-        float   Speed_Last;             //上一个转速
+        int16_t Encoder_Last;            //上一个编码器值
+        float   Angle_Last;              //上一个绝对角度
+        float   Total_Angle_Last;        //上一个总角度值
+        float   Speed_Last;              //上一个转速
         uint32_t Total_Angle_DWT_Count;
 };
+
+typedef struct
+{
+        Motor_HandleTypeDef *hmotor1;
+        Motor_HandleTypeDef *hmotor2;
+        Motor_HandleTypeDef *hmotor3;
+        Motor_HandleTypeDef *hmotor4;
+} Motor_Group_HandleTypeDef;
+
+
 
 
 //电机CAN节点数据回调(供SRV层注册到CAN分发框架)
@@ -79,10 +110,10 @@ void Motor_Err_Handler(Err_HandleTypeDef *herr);
 //通过角度改变计算速度
 void Motor_Get_TotalAngle_Speed(Motor_HandleTypeDef *hmotor, float K);
 
-void Motor_Ctor(Motor_HandleTypeDef *hmotor,FDCAN_HandleTypeDef *hfdcan, uint16_t CAN_Send_ID, uint16_t CAN_Feedback_ID, Motor_VTable *Motor_VTable, uint16_t err_tick_timeout, uint16_t err_count_maximum, err_handler err_handler);
+void Motor_Ctor(Motor_HandleTypeDef *hmotor,FDCAN_HandleTypeDef *hfdcan, uint16_t CAN_Send_ID, uint16_t CAN_Feedback_ID, Motor_Config_StructTypeDef Motor_Config_Struct);
 
 //电机控制
-__STATIC_INLINE void Motor_Enable(Motor_HandleTypeDef *hmotor) { hmotor->vptr->enable(hmotor); }
+__STATIC_INLINE void Motor_Enable(Motor_HandleTypeDef *hmotor) { hmotor->Motor_Config_Struct.vptr->enable(hmotor); }
 //电机恢复: 使能(vtable: DM=ClearErr+Enable, DJI=空操作) + 清除PID积分/输出历史(防止恢复后积分饱和)
 __STATIC_INLINE void Motor_Recover(Motor_HandleTypeDef *hmotor)
 {
@@ -90,27 +121,27 @@ __STATIC_INLINE void Motor_Recover(Motor_HandleTypeDef *hmotor)
         PID_Reset(&hmotor->PID_Angle_Struct);
         PID_Reset(&hmotor->PID_Speed_Struct);
 }
-__STATIC_INLINE void Motor_Disable(Motor_HandleTypeDef *hmotor) { hmotor->vptr->disable(hmotor); }
+__STATIC_INLINE void Motor_Disable(Motor_HandleTypeDef *hmotor) { hmotor->Motor_Config_Struct.vptr->disable(hmotor); }
 
 
-__STATIC_INLINE void Motor_Storage_Data(Motor_HandleTypeDef *hmotor, const uint8_t *data) { hmotor->vptr->storage_data(hmotor, data); }
+__STATIC_INLINE void Motor_Storage_Data(Motor_HandleTypeDef *hmotor, const uint8_t *data) { hmotor->Motor_Config_Struct.vptr->storage_data(hmotor, data); }
 
 //设置参数
-__STATIC_INLINE void Motor_Set_Status(Motor_HandleTypeDef *hmotor, Motor_Status_TypeDef Status) { hmotor->Status_Enum = Status; }
-__STATIC_INLINE void Motor_Set_Zero(Motor_HandleTypeDef *hmotor, const uint8_t *data) { hmotor->vptr->set_zero(hmotor); }
+__STATIC_INLINE void Motor_Set_Status(Motor_HandleTypeDef *hmotor, Motor_Status_TypeDef Status) { hmotor->Motor_Config_Struct.Status_Enum = Status; }
+__STATIC_INLINE void Motor_Set_Zero(Motor_HandleTypeDef *hmotor, const uint8_t *data) { hmotor->Motor_Config_Struct.vptr->set_zero(hmotor); }
 __STATIC_INLINE void Motor_Set_Torque(Motor_HandleTypeDef *hmotor, float torque)
 {
-        hmotor->Status_Enum   = MOTOR_TORQUE;
+        hmotor->Motor_Config_Struct.Status_Enum   = MOTOR_TORQUE;
         hmotor->Target_Torque = torque;
 }
 __STATIC_INLINE void Motor_Set_Speed(Motor_HandleTypeDef *hmotor, float speed)
 {
-        hmotor->Status_Enum  = MOTOR_SPEED;
+        hmotor->Motor_Config_Struct.Status_Enum  = MOTOR_SPEED;
         hmotor->Target_Speed = speed;
 }
 __STATIC_INLINE void Motor_Set_Angle(Motor_HandleTypeDef *hmotor, float angle)
 {
-        hmotor->Status_Enum  = MOTOR_ANGLE;
+        hmotor->Motor_Config_Struct.Status_Enum  = MOTOR_ANGLE;
         hmotor->Target_Angle = angle;
 }
 

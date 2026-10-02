@@ -7,6 +7,8 @@
 #ifndef G4MINI_V3_ERR_H
 #define G4MINI_V3_ERR_H
 
+#include <stdbool.h>
+
 #include "stdint.h"
 #include "stddef.h"
 #include "cmsis_gcc.h"
@@ -24,7 +26,7 @@ struct Err_HandleTypeDef{
         volatile uint16_t count;     //当前错误次数
         uint16_t count_maximum;      //错误次数上限
 
-        volatile uint8_t If_Err;     //是否错误
+        volatile bool If_Err : 1;     //是否错误
 
         err_handler handler;         //错误处理回调
 };

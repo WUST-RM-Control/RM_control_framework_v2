@@ -84,7 +84,7 @@ void Motor_DM_Storage_Data(Motor_HandleTypeDef *hmotor, const uint8_t *Data)
         int     t_int       = ((Data[4] & 0xF) << 8) | Data[5];
         int     temperature = Data[7];
 
-        hmotor->Error_Code = Error_ID; //1=正常, 0=失能, 3~E=故障
+        hmotor->Motor_Config_Struct.Error_Code = Error_ID; //1=正常, 0=失能, 3~E=故障
 
         /*===| 转移数据 |===*/
         hmotor->Angle       = uint_to_float(p_int, P_MIN, P_MAX, 16) / 2.0f / PI * 360.0f; // (-12.5,12.5)
@@ -124,6 +124,22 @@ Motor_VTable Motor_DM_VTable_Default = {
         .disable = Motor_DM_CMD_Disable,
         .set_zero = Motor_DM_CMD_SetZero,
         .storage_data = Motor_DM_Storage_Data
+};
+
+Motor_Config_StructTypeDef Motor_DM_Config_Default = {
+        .Motor_Enum  = MOTOR_DM,
+        .vptr        = &Motor_DM_VTable_Default,
+        .Status_Enum = MOTOR_TORQUE,
+        .Is_Feedback_Control = true,  //DM电机的自闭环的PID调起来比较麻烦，这里可选
+        .Is_Group_Member     = false,
+        .Error_Code = 1,
+
+        .herr = {
+                .tick_timeout  = MOTOR_TIMEOUT,
+                .count_maximum = ERR_COUNT_MAX,
+                .If_Err  = false,
+                .handler = Motor_Err_Handler
+        }
 };
 
 //1to4是反动的，别用（）

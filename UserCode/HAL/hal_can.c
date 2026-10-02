@@ -4,11 +4,9 @@
 
 #include "hal_can.h"
 
-#include "utils.h"
+#include <string.h>
 
-Err_HandleTypeDef herr_can1 = {};
-Err_HandleTypeDef herr_can2 = {};
-Err_HandleTypeDef herr_can3 = {};
+QueueHandle_t CAN_TxQueue;
 
 // void HAL_FDCAN_ErrorCallback(FDCAN_HandleTypeDef *hfdcan)
 // {
@@ -31,11 +29,6 @@ HAL_StatusTypeDef CAN_Restart(FDCAN_HandleTypeDef *hfdcan)
                 HAL_FDCAN_Start(hfdcan);
                 CAN_Filter_Init(hfdcan); //重配过滤器 + 重新激活接收/错误中断
         }
-
-        //清零硬件错误计数(恢复健康后重新累计)
-        // if (hfdcan == &hfdcan1) CAN1_ErrorCount = 0;
-        // if (hfdcan == &hfdcan2) CAN2_ErrorCount = 0;
-        // if (hfdcan == &hfdcan3) CAN3_ErrorCount = 0;
 
         return Status;
 }
@@ -101,11 +94,6 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
 
         HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &RxHeader, CAN_RX_Data);
 
-        //清零对应CAN的错误计时
-        // if (hfdcan == &hfdcan1) CAN1_Err_Ticker = 0;
-        // if (hfdcan == &hfdcan2) CAN2_Err_Ticker = 0;
-        // if (hfdcan == &hfdcan3) CAN3_Err_Ticker = 0;
-
         uint16_t CAN_RX_ID = RxHeader.Identifier;
 
         //基于can_node的通用分发: 按(总线, 反馈ID)匹配节点, 调用节点数据回调
@@ -119,53 +107,80 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
         }
 }
 
-//CAN-发送标准帧(FDCAN, CANID，发送数据数组（八字节））
+//CAN-发送标准帧
 void CAN_Send_Data_STD(CAN_Node_HandleTypeDef *hcan_node, const uint8_t *TX_Data)
 {
-        FDCAN_TxHeaderTypeDef TxHeader;
-        TxHeader.Identifier          = hcan_node->CAN_Send_ID;
-        TxHeader.IdType              = FDCAN_STANDARD_ID;
-        TxHeader.TxFrameType         = FDCAN_DATA_FRAME;
-        TxHeader.DataLength          = FDCAN_DLC_BYTES_8;
-        TxHeader.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
-        TxHeader.BitRateSwitch       = FDCAN_BRS_OFF;
-        TxHeader.FDFormat            = FDCAN_CLASSIC_CAN;
-        TxHeader.TxEventFifoControl  = FDCAN_NO_TX_EVENTS;
-        TxHeader.MessageMarker       = 0;
+        CAN_Send_Packet_StructTypeDef CAN_Send_Packet_Struct = {};
 
-        uint32_t OverTick = 0;
-        while (HAL_FDCAN_GetTxFifoFreeLevel(hcan_node->hfdcan) == 0)
-        {
-                OverTick++;
-                if (OverTick > 1000) break;
-        }
-        HAL_FDCAN_AddMessageToTxFifoQ(hcan_node->hfdcan, &TxHeader, TX_Data);
+        CAN_Send_Packet_Struct.hfdcan = hcan_node->hfdcan;
+
+        CAN_Send_Packet_Struct.CAN_TxMsg.Identifier          = hcan_node->CAN_Send_ID;
+        CAN_Send_Packet_Struct.CAN_TxMsg.IdType              = FDCAN_STANDARD_ID;
+        CAN_Send_Packet_Struct.CAN_TxMsg.TxFrameType         = FDCAN_DATA_FRAME;
+        CAN_Send_Packet_Struct.CAN_TxMsg.DataLength          = FDCAN_DLC_BYTES_8;
+        CAN_Send_Packet_Struct.CAN_TxMsg.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
+        CAN_Send_Packet_Struct.CAN_TxMsg.BitRateSwitch       = FDCAN_BRS_OFF;
+        CAN_Send_Packet_Struct.CAN_TxMsg.FDFormat            = FDCAN_CLASSIC_CAN;
+        CAN_Send_Packet_Struct.CAN_TxMsg.TxEventFifoControl  = FDCAN_NO_TX_EVENTS;
+        CAN_Send_Packet_Struct.CAN_TxMsg.MessageMarker       = 0;
+
+        memcpy(CAN_Send_Packet_Struct.txData, TX_Data, sizeof(CAN_Send_Packet_Struct.txData));
+
+        CAN_Send_Data_Queue(&CAN_Send_Packet_Struct);
+
 }
 
-//CAN-发送拓展帧(FDCAN, CANID，发送数据数组，发送数据长度）
+//CAN-发送拓展帧
 void CAN_Send_Data_EXD(CAN_Node_HandleTypeDef *hcan_node, uint8_t *TX_Data, uint8_t Length)
 {
-        FDCAN_TxHeaderTypeDef TxHeader;
-        TxHeader.Identifier          = hcan_node->CAN_Send_ID;
-        TxHeader.IdType              = FDCAN_EXTENDED_ID;
-        TxHeader.TxFrameType         = FDCAN_DATA_FRAME;
-        TxHeader.DataLength          = Length;
-        TxHeader.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
-        TxHeader.BitRateSwitch       = FDCAN_BRS_OFF;
-        TxHeader.FDFormat            = FDCAN_CLASSIC_CAN;
-        TxHeader.TxEventFifoControl  = FDCAN_NO_TX_EVENTS;
-        TxHeader.MessageMarker       = 0;
+        CAN_Send_Packet_StructTypeDef CAN_Send_Packet_Struct = {};
 
-        uint32_t OverTick = 0;
-        while (HAL_FDCAN_GetTxFifoFreeLevel(hcan_node->hfdcan) == 0)
-        {
-                OverTick++;
-                if (OverTick > 1000) break;
-        }
-        HAL_FDCAN_AddMessageToTxFifoQ(hcan_node->hfdcan, &TxHeader, TX_Data);
+        CAN_Send_Packet_Struct.hfdcan = hcan_node->hfdcan;
+
+        CAN_Send_Packet_Struct.CAN_TxMsg.Identifier          = hcan_node->CAN_Send_ID;
+        CAN_Send_Packet_Struct.CAN_TxMsg.IdType              = FDCAN_EXTENDED_ID;
+        CAN_Send_Packet_Struct.CAN_TxMsg.TxFrameType         = FDCAN_DATA_FRAME;
+        CAN_Send_Packet_Struct.CAN_TxMsg.DataLength          = Length;
+        CAN_Send_Packet_Struct.CAN_TxMsg.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
+        CAN_Send_Packet_Struct.CAN_TxMsg.BitRateSwitch       = FDCAN_BRS_OFF;
+        CAN_Send_Packet_Struct.CAN_TxMsg.FDFormat            = FDCAN_CLASSIC_CAN;
+        CAN_Send_Packet_Struct.CAN_TxMsg.TxEventFifoControl  = FDCAN_NO_TX_EVENTS;
+        CAN_Send_Packet_Struct.CAN_TxMsg.MessageMarker       = 0;
+
+        memcpy(CAN_Send_Packet_Struct.txData, TX_Data, sizeof(CAN_Send_Packet_Struct.txData));
+
+        CAN_Send_Data_Queue(&CAN_Send_Packet_Struct);
+
 }
 
-//单条CAN总线初始化: 启动 + 配置过滤器/接收中断(具体总线由 ENT 指定)
+
+static void CAN_TxTask(void *argument)
+{
+        CAN_Send_Packet_StructTypeDef CAN_Send_Packet_Struct = {};
+        for (;;)
+        {
+                if (xQueueReceive(CAN_TxQueue, &CAN_Send_Packet_Struct, portMAX_DELAY) == pdPASS)
+                {
+                        //当队列取出数据，且有空闲邮箱才发
+                        while (HAL_FDCAN_GetTxFifoFreeLevel(CAN_Send_Packet_Struct.hfdcan) == 0) vTaskDelay(1);
+                        HAL_FDCAN_AddMessageToTxFifoQ(CAN_Send_Packet_Struct.hfdcan, &CAN_Send_Packet_Struct.CAN_TxMsg, CAN_Send_Packet_Struct.txData);
+                }
+        }
+}
+
+//初始化
+void CAN_Init()
+{
+        //软件缓冲队列
+        CAN_TxQueue = xQueueCreate(32, sizeof(CAN_Send_Packet_StructTypeDef));
+
+        xTaskCreate(CAN_TxTask, "CAN_Tx", 256, NULL, 10, NULL);
+
+        CAN_Bus_Init(&hfdcan1);         //CAN总线启动 + 过滤器/接收中断
+        CAN_Bus_Init(&hfdcan2);
+        CAN_Bus_Init(&hfdcan3);
+}
+
 void CAN_Bus_Init(FDCAN_HandleTypeDef *hfdcan)
 {
         HAL_FDCAN_Start(hfdcan);
@@ -194,3 +209,4 @@ void CAN_Filter_Init(FDCAN_HandleTypeDef *hfdcan)
                                        FDCAN_IT_BUS_OFF,
                                        0);
 }
+

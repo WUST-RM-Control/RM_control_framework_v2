@@ -9,17 +9,17 @@
 #include "fdcan.h"
 
 /*===| 电机对象实例 |===*/
-Motor_HandleTypeDef hmotor_chassis1    = {};
-Motor_HandleTypeDef hmotor_chassis2    = {};
-Motor_HandleTypeDef hmotor_chassis3    = {};
-Motor_HandleTypeDef hmotor_chassis4    = {};
-Motor_HandleTypeDef hmotor_yaw         = {};
-Motor_HandleTypeDef hmotor_pitch       = {};
-Motor_HandleTypeDef hmotor_fric_right  = {};
-Motor_HandleTypeDef hmotor_fric_left   = {};
-Motor_HandleTypeDef hmotor_trigger     = {};
+static Motor_HandleTypeDef hmotor_chassis1   = {};
+static Motor_HandleTypeDef hmotor_chassis2   = {};
+static Motor_HandleTypeDef hmotor_chassis3   = {};
+static Motor_HandleTypeDef hmotor_chassis4   = {};
+static Motor_HandleTypeDef hmotor_yaw        = {};
+static Motor_HandleTypeDef hmotor_pitch      = {};
+static Motor_HandleTypeDef hmotor_fric_right = {};
+static Motor_HandleTypeDef hmotor_fric_left  = {};
+static Motor_HandleTypeDef hmotor_trigger    = {};
 
-Motor_HandleTypeDef *hmotor_table[MOTOR_COUNT] = {
+static Motor_HandleTypeDef *hmotor_table[MOTOR_COUNT] = {
         &hmotor_chassis1,
         &hmotor_chassis2,
         &hmotor_chassis3,
@@ -30,6 +30,11 @@ Motor_HandleTypeDef *hmotor_table[MOTOR_COUNT] = {
         &hmotor_fric_left,
         &hmotor_trigger
 };
+
+static Motor_Group_HandleTypeDef hmotor_group1 = {};
+static Motor_Group_HandleTypeDef hmotor_group2 = {};
+static Motor_Group_HandleTypeDef hmotor_group3 = {};
+static Motor_Group_HandleTypeDef hmotor_group4 = {};
 
 /*===| 电机系统初始化(创建对象 + PID整定 + 注册CAN节点) |===*/
 void Motor_Init()
@@ -51,30 +56,24 @@ void Motor_Init()
         for (int i = 0; i < 4; i++)
         {
                 Motor_Ctor(
-                        hmotor_table[i],
-                        &CHASSIS_MOTOR_CAN,
-                        CHASSIS_MOTOR_SEND_CAN_ID,
-                        Motor_CAN_Feedback_ID_Table[i],
-                        &Motor_DJI_VTable_Default,
-                        MOTOR_TIMEOUT,
-                        ERR_COUNT_MAX,
-                        Motor_Err_Handler
-                        );
+                           hmotor_table[i],
+                           &CHASSIS_MOTOR_CAN,
+                           CHASSIS_MOTOR_SEND_CAN_ID,
+                           Motor_CAN_Feedback_ID_Table[i],
+                           Motor_DJI_Config_Default
+                          );
                 // Motor_Set_Status(hmotor_table[i], MOTOR_TORQUE);//这里设置并无屌用，留着只是告诉大家这个电机是什么控制方式
         }
 
         //yaw
         {
                 Motor_Ctor(
-                        &hmotor_yaw,
-                        &GIMBAL_YAW_CAN,
-                        GIMBAL_YAW_SEND_CAN_ID,
-                        GIMBAL_YAW_FEEDBACK_CAN_ID,
-                        &Motor_DM_VTable_Default,
-                        MOTOR_TIMEOUT,
-                        ERR_COUNT_MAX,
-                        Motor_Err_Handler
-                        );
+                           &hmotor_yaw,
+                           &GIMBAL_YAW_CAN,
+                           GIMBAL_YAW_SEND_CAN_ID,
+                           GIMBAL_YAW_FEEDBACK_CAN_ID,
+                           Motor_DM_Config_Default
+                          );
                 // Motor_Set_Status(&hmotor_yaw, MOTOR_ANGLE);
 
                 PID_Init(
@@ -113,15 +112,12 @@ void Motor_Init()
         //pitch
         {
                 Motor_Ctor(
-                        &hmotor_pitch,
-                        &GIMBAL_PITCH_CAN,
-                        GIMBAL_PITCH_SEND_CAN_ID,
-                        GIMBAL_PITCH_FEEDBACK_CAN_ID,
-                        &Motor_DJI_VTable_Default,
-                        MOTOR_TIMEOUT,
-                        ERR_COUNT_MAX,
-                        Motor_Err_Handler
-                        );
+                           &hmotor_pitch,
+                           &GIMBAL_PITCH_CAN,
+                           GIMBAL_PITCH_SEND_CAN_ID,
+                           GIMBAL_PITCH_FEEDBACK_CAN_ID,
+                           Motor_DJI_Config_Default
+                          );
                 // Motor_Set_Status(&hmotor_pitch, MOTOR_ANGLE);
 
                 PID_Init(
@@ -161,15 +157,12 @@ void Motor_Init()
         for (int i = 6; i < 8; i++)
         {
                 Motor_Ctor(
-                        hmotor_table[i],
-                        &SHOOT_FRIC_CAN,
-                        SHOOT_FRIC_SEND_CAN_ID,
-                        Motor_CAN_Feedback_ID_Table[i],
-                        &Motor_DJI_VTable_Default,
-                        MOTOR_TIMEOUT,
-                        ERR_COUNT_MAX,
-                        Motor_Err_Handler
-                        );
+                           hmotor_table[i],
+                           &SHOOT_FRIC_CAN,
+                           SHOOT_FRIC_SEND_CAN_ID,
+                           Motor_CAN_Feedback_ID_Table[i],
+                           Motor_DJI_Config_Default
+                          );
                 // Motor_Set_Status(hmotor_table[i], MOTOR_SPEED);
 
                 PID_Init(
@@ -192,15 +185,12 @@ void Motor_Init()
         //拨弹盘
         {
                 Motor_Ctor(
-                        &hmotor_trigger,
-                        &SHOOT_TRIGGER_CAN,
-                        SHOOT_TRIGGER_SEND_CAN_ID,
-                        SHOOT_TRIGGER_FEEDBACK_CAN_ID,
-                        &Motor_DJI_VTable_Default,
-                        MOTOR_TIMEOUT,
-                        ERR_COUNT_MAX,
-                        Motor_Err_Handler
-                        );
+                           &hmotor_trigger,
+                           &SHOOT_TRIGGER_CAN,
+                           SHOOT_TRIGGER_SEND_CAN_ID,
+                           SHOOT_TRIGGER_FEEDBACK_CAN_ID,
+                           Motor_DJI_Config_Default
+                          );
                 // Motor_Set_Status(&hmotor_trigger, MOTOR_ANGLE);
 
                 PID_Init(
@@ -235,7 +225,6 @@ void Motor_Init()
                          (Integral_Limit | ErrorHandle)
                         );
         }
-
 }
 
 /*===| 电机控制任务: PID计算 + 发送力矩(对象构造在 ENT 调用 Motor_Init 完成) |===*/
@@ -244,26 +233,34 @@ void Motor_Control_Task(void *pvParameters)
         for (;;)
         {
                 //计算所有电机的pid
-                for (int i = 0; i < MOTOR_COUNT; i++)
+                for (int i = 0; i < Motor_Count; i++)
                 {
                         //离线输出0力矩
-                        if (Is_Err((Err_HandleTypeDef *)hmotor_table[i]))
+                        if (Is_Err((Err_HandleTypeDef *) hmotor_table[i]))
                         {
                                 Motor_Set_Torque(hmotor_table[i], 0);
                                 continue;
                         }
 
-                        //位置环: 角度 → 目标速度
-                        if (hmotor_table[i]->Status_Enum == MOTOR_ANGLE)
+                        if (hmotor_table[i]->Motor_Config_Struct.Is_Feedback_Control)
                         {
-                                hmotor_table[i]->Target_Speed = PID_Calculate(&hmotor_table[i]->PID_Angle_Struct, hmotor_table[i]->Angle, hmotor_table[i]->Target_Angle);
+                                //位置环: 角度 → 目标速度
+                                if (hmotor_table[i]->Motor_Config_Struct.Status_Enum == MOTOR_ANGLE)
+                                {
+                                        hmotor_table[i]->Target_Speed = PID_Calculate(&hmotor_table[i]->PID_Angle_Struct, hmotor_table[i]->Angle, hmotor_table[i]->Target_Angle);
+                                }
+                                //速度环: 速度 → 目标力矩
+                                if (hmotor_table[i]->Motor_Config_Struct.Status_Enum == MOTOR_SPEED ||
+                                    hmotor_table[i]->Motor_Config_Struct.Status_Enum == MOTOR_ANGLE)
+                                {
+                                        hmotor_table[i]->Target_Torque = PID_Calculate(&hmotor_table[i]->PID_Speed_Struct, hmotor_table[i]->Speed, hmotor_table[i]->Target_Speed);
+                                }
                         }
-                        //速度环: 速度 → 目标力矩
-                        if (hmotor_table[i]->Status_Enum == MOTOR_SPEED ||
-                            hmotor_table[i]->Status_Enum == MOTOR_ANGLE)
+                        else
                         {
-                                hmotor_table[i]->Target_Torque = PID_Calculate(&hmotor_table[i]->PID_Speed_Struct, hmotor_table[i]->Speed, hmotor_table[i]->Target_Speed);
+                                if (hmotor_table[i]->Motor_Config_Struct.Status_Enum == MOTOR_ANGLE)
                         }
+
                 }
 
                 //底盘电机发电流 can1

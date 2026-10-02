@@ -7,6 +7,11 @@
 
 #include "err.h"
 #include "stm32g4xx_hal.h"
+#include <stdbool.h>
+#include "fdcan.h"
+#include "utils.h"
+#include "FreeRTOS.h"
+#include "queue.h"
 
 /*===| CAN总线资源分配(各设备使用的总线与ID, 使用前需包含fdcan.h) |===*/
 //底盘电机
@@ -51,6 +56,11 @@
 #define REMOTE_CAN_JOYSTIC_CAN_ID           0x21
 #define REMOTE_CAN_KEYBOARDMOUSE_CAN_ID     0x22
 
+// //张大头Emm_V5步进电机(CAN)
+// #define EMM_V5_CAN                          hfdcan1
+//不用
+extern QueueHandle_t CAN_TxQueue;
+
 typedef struct CAN_Node_HandleTypeDef CAN_Node_HandleTypeDef;
 
 typedef void (*CAN_Node_Handler)(CAN_Node_HandleTypeDef *hcan_node, const uint8_t *Data);
@@ -66,6 +76,12 @@ struct CAN_Node_HandleTypeDef
 
         CAN_Node_Handler     handler; //数据回调
 };
+
+typedef struct {
+        FDCAN_HandleTypeDef *hfdcan;
+        FDCAN_TxHeaderTypeDef CAN_TxMsg;
+        uint8_t txData[8];
+}CAN_Send_Packet_StructTypeDef;
 
 
 /*===| 基类访问接口 |===*/
@@ -95,7 +111,7 @@ void CAN_Node_Register(CAN_Node_HandleTypeDef *hcan_node, CAN_Node_Handler handl
 void CAN_Node_UnRegister(CAN_Node_HandleTypeDef *hcan_node);
 
 /*===| CAN总线错误处理 |===*/
-
+//hal库长大了，会自己处理的()
 
 //总线离线判定阈值(监控周期10ms时为100ms)
 #define CAN_OFFLINE_TICK 10
@@ -107,7 +123,14 @@ void CAN_Send_Data_STD(CAN_Node_HandleTypeDef *hcan_node, const uint8_t *TX_Data
 
 void CAN_Send_Data_EXD(CAN_Node_HandleTypeDef *hcan_node, uint8_t *TX_Data, uint8_t Length);
 
+__STATIC_INLINE void CAN_Send_Data_Queue(CAN_Send_Packet_StructTypeDef *CAN_Send_Packet_Struct)
+{
+        xQueueSend(CAN_TxQueue, CAN_Send_Packet_Struct, 0);
+}
+
 void CAN_Filter_Init(FDCAN_HandleTypeDef *hfdcan);
+
+void CAN_Init();
 
 //单条CAN总线初始化: 启动 + 配置过滤器/接收中断
 void CAN_Bus_Init(FDCAN_HandleTypeDef *hfdcan);

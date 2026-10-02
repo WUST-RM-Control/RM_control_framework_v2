@@ -25,6 +25,7 @@ void Motor_DM_CMD_MIT(Motor_HandleTypeDef *hmotor, float _pos, float _vel, float
 __STATIC_INLINE void Motor_DM_Send_Torque(Motor_HandleTypeDef *hmotor, float torque) { Motor_DM_CMD_MIT(hmotor, 0, 0, 0, 0, torque); }
 
 extern Motor_VTable Motor_DM_VTable_Default;
+extern Motor_Config_StructTypeDef Motor_DM_Config_Default;
 
 
 

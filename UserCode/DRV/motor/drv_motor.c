@@ -9,7 +9,7 @@
 #include "hal_can.h"
 #include "hal_dwt.h"
 
-
+uint8_t Motor_Count = 0;
 
 //通过角度改变计算速度
 void Motor_Get_TotalAngle_Speed(Motor_HandleTypeDef *hmotor, float K)
@@ -25,7 +25,7 @@ void Motor_Get_TotalAngle_Speed(Motor_HandleTypeDef *hmotor, float K)
 void Motor_CAN_Node_Handler(CAN_Node_HandleTypeDef *node, const uint8_t *Data)
 {
         Motor_HandleTypeDef *hmotor = (Motor_HandleTypeDef *)node;
-        hmotor->vptr->storage_data(hmotor, Data);
+        hmotor->Motor_Config_Struct.vptr->storage_data(hmotor, Data);
 }
 
 void Motor_Err_Handler(Err_HandleTypeDef *herr)
@@ -45,11 +45,12 @@ void Motor_Err_Handler(Err_HandleTypeDef *herr)
 }
 
 //创建电机对象
-void Motor_Ctor(Motor_HandleTypeDef *hmotor,FDCAN_HandleTypeDef *hfdcan, uint16_t CAN_Send_ID, uint16_t CAN_Feedback_ID, Motor_VTable *Motor_VTable, uint16_t err_tick_timeout, uint16_t err_count_maximum, err_handler err_handler)
+void Motor_Ctor(Motor_HandleTypeDef *hmotor,FDCAN_HandleTypeDef *hfdcan, uint16_t CAN_Send_ID, uint16_t CAN_Feedback_ID, Motor_Config_StructTypeDef Motor_Config_Struct)
 {
         memset(hmotor, 0, sizeof(Motor_HandleTypeDef));
 
-        CAN_Node_Ctor(&hmotor->Node, hfdcan, CAN_Send_ID, CAN_Feedback_ID, Motor_CAN_Node_Handler, err_tick_timeout, err_count_maximum, err_handler);
-        hmotor->vptr = Motor_VTable;
-        hmotor->Error_Code = 1;//默认使能
+        CAN_Node_Ctor(&hmotor->Node, hfdcan, CAN_Send_ID, CAN_Feedback_ID, Motor_CAN_Node_Handler, Motor_Config_Struct.herr.tick_timeout, Motor_Config_Struct.herr.count_maximum, Motor_Config_Struct.herr.handler);
+        hmotor->Motor_Config_Struct = Motor_Config_Struct;
+
+        Motor_Count++;
 }

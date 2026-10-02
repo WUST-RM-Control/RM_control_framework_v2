@@ -50,9 +50,7 @@ void main_init()
         VOFA_Ctor(&huart2);             //VOFA上位机串口
         VOFA_Init();
 
-        CAN_Bus_Init(&hfdcan1);         //CAN总线启动 + 过滤器/接收中断
-        CAN_Bus_Init(&hfdcan2);
-        CAN_Bus_Init(&hfdcan3);
+        CAN_Init();
 
         /*===| 实例 ↔ 外设绑定(全部集中在此) |===*/
         Key_Ctor(&hkey1, GPIOB, GPIO_PIN_7);

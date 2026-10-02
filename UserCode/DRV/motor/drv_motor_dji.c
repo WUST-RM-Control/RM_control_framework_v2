@@ -76,3 +76,20 @@ Motor_VTable Motor_DJI_VTable_Default = {
         .storage_data = Motor_DJI_Storage_Data
 };
 
+Motor_Config_StructTypeDef Motor_DJI_Config_Default = {
+        .Motor_Enum  = MOTOR_DJI,
+        .vptr        = &Motor_DJI_VTable_Default,
+        .Status_Enum = MOTOR_TORQUE,
+        .Is_Feedback_Control = true,
+        .Is_Group_Member     = true,
+        .Error_Code = 1,
+
+        .herr = {
+                .tick_timeout = MOTOR_TIMEOUT,
+                .count_maximum = ERR_COUNT_MAX,
+                .If_Err = false,
+                .handler = Motor_Err_Handler
+        }
+
+};
+
