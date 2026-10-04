@@ -31,10 +31,23 @@ static Motor_HandleTypeDef *hmotor_table[MOTOR_COUNT] = {
         &hmotor_trigger
 };
 
-static Motor_Group_HandleTypeDef hmotor_group1 = {};
-static Motor_Group_HandleTypeDef hmotor_group2 = {};
-static Motor_Group_HandleTypeDef hmotor_group3 = {};
-static Motor_Group_HandleTypeDef hmotor_group4 = {};
+/*===| 发送组(一拖四): 报文槽位由成员回报ID决定, 数组顺序只决定组长(member[0]) |===*/
+//底盘 4 个 (hfdcan1, 0x200): 回报ID 0x201~0x204 → 槽位0~3
+static Motor_Group_HandleTypeDef hmotor_group_chassis = {
+        .member = {&hmotor_chassis1, &hmotor_chassis2, &hmotor_chassis3, &hmotor_chassis4}
+};
+//摩擦轮 (hfdcan3, 0x200): 回报ID 0x201/0x202 → 槽位0/1, 其余槽报文填0
+static Motor_Group_HandleTypeDef hmotor_group_fric = {
+        .member = {&hmotor_fric_right, &hmotor_fric_left}
+};
+//拨弹盘 (hfdcan2, 0x200): 回报ID 0x204 → 槽位3
+static Motor_Group_HandleTypeDef hmotor_group_trigger = {
+        .member = {&hmotor_trigger}
+};
+//pitch (hfdcan3, 0x1FE): 回报ID 0x206 → 槽位1
+static Motor_Group_HandleTypeDef hmotor_group_pitch = {
+        .member = {&hmotor_pitch}
+};
 
 /*===| 电机系统初始化(创建对象 + PID整定 + 注册CAN节点) |===*/
 void Motor_Init()
@@ -225,14 +238,20 @@ void Motor_Init()
                          (Integral_Limit | ErrorHandle)
                         );
         }
+
+        /*===| 发送组绑定(一拖四设备): 回填组内成员的 Group 反向指针 |===*/
+        Motor_Group_Init(&hmotor_group_chassis);
+        Motor_Group_Init(&hmotor_group_fric);
+        Motor_Group_Init(&hmotor_group_trigger);
+        Motor_Group_Init(&hmotor_group_pitch);
 }
 
-/*===| 电机控制任务: PID计算 + 发送力矩(对象构造在 ENT 调用 Motor_Init 完成) |===*/
+/*===| 电机控制任务: "计算 → 发送" 两阶段 |===*/
 void Motor_Control_Task(void *pvParameters)
 {
         for (;;)
         {
-                //计算所有电机的pid
+                /*===| 阶段1: 计算(更新所有电机的目标值) |===*/
                 for (int i = 0; i < Motor_Count; i++)
                 {
                         //离线输出0力矩
@@ -242,7 +261,7 @@ void Motor_Control_Task(void *pvParameters)
                                 continue;
                         }
 
-                        if (hmotor_table[i]->Motor_Config_Struct.Is_Feedback_Control)
+                        if (hmotor_table[i]->Motor_Config_Struct.Is_Feedback_Control)//下位机闭环
                         {
                                 //位置环: 角度 → 目标速度
                                 if (hmotor_table[i]->Motor_Config_Struct.Status_Enum == MOTOR_ANGLE)
@@ -256,47 +275,34 @@ void Motor_Control_Task(void *pvParameters)
                                         hmotor_table[i]->Target_Torque = PID_Calculate(&hmotor_table[i]->PID_Speed_Struct, hmotor_table[i]->Speed, hmotor_table[i]->Target_Speed);
                                 }
                         }
-                        else
-                        {
-                                if (hmotor_table[i]->Motor_Config_Struct.Status_Enum == MOTOR_ANGLE)
-                        }
-
                 }
 
-                //底盘电机发电流 can1
-                Motor_DJI_SendCurrent(&CHASSIS_MOTOR_CAN, CHASSIS_MOTOR_SEND_CAN_ID,
-                                      (int16_t) Motor_Get_Target_Torque(&hmotor_chassis1),
-                                      (int16_t) Motor_Get_Target_Torque(&hmotor_chassis2),
-                                      (int16_t) Motor_Get_Target_Torque(&hmotor_chassis3),
-                                      (int16_t) Motor_Get_Target_Torque(&hmotor_chassis4)
-                                     );
-
-                //yaw电机发电流 can2
-                Motor_DM_Send_Torque(&hmotor_yaw, Motor_Get_Target_Torque(&hmotor_yaw));
-
-                //拨弹盘 can2
-                Motor_DJI_SendCurrent(&SHOOT_TRIGGER_CAN, SHOOT_TRIGGER_SEND_CAN_ID,
-                                      0,
-                                      0,
-                                      0,
-                                      (int16_t) Motor_Get_Target_Torque(&hmotor_trigger)
-                                     );
-
-                //pitch电机发电流 can3
-                Motor_DJI_SendCurrent(&GIMBAL_PITCH_CAN, GIMBAL_PITCH_SEND_CAN_ID,
-                                      0,
-                                      (int16_t) Motor_Get_Target_Torque(&hmotor_pitch),
-                                      0,
-                                      0
-                                     );
-
-                //俩摩擦轮 can3
-                Motor_DJI_SendCurrent(&SHOOT_FRIC_CAN, SHOOT_FRIC_SEND_CAN_ID,
-                                      (int16_t) Motor_Get_Target_Torque(&hmotor_fric_right),
-                                      (int16_t) Motor_Get_Target_Torque(&hmotor_fric_left),
-                                      0,
-                                      0
-                                     );
+                /*===| 阶段2: 发送 ================================================
+                 * 与阶段1分开的原因: 一拖四设备(DJI)由组长一次性组帧,
+                 * 组长必须读到组内所有成员本轮的 Target_*, 否则其余成员会滞后一个周期
+                 *===============================================================*/
+                for (int i = 0; i < Motor_Count; i++)
+                {
+                        if (hmotor_table[i]->Motor_Config_Struct.Is_Feedback_Control)//下位机闭环: 下发MCU算好的力矩
+                        {
+                                Motor_Send_Torque(hmotor_table[i], hmotor_table[i]->Target_Torque);
+                        }
+                        else//电调闭环: 目标直接下发
+                        {
+                                if (hmotor_table[i]->Motor_Config_Struct.Status_Enum == MOTOR_ANGLE)
+                                {
+                                        Motor_Send_Angle(hmotor_table[i], hmotor_table[i]->Target_Angle);
+                                }
+                                else if (hmotor_table[i]->Motor_Config_Struct.Status_Enum == MOTOR_SPEED)
+                                {
+                                        Motor_Send_Speed(hmotor_table[i], hmotor_table[i]->Target_Speed);
+                                }
+                                else if (hmotor_table[i]->Motor_Config_Struct.Status_Enum == MOTOR_TORQUE)
+                                {
+                                        Motor_Send_Torque(hmotor_table[i], hmotor_table[i]->Target_Torque);
+                                }
+                        }
+                }
 
                 //ps：g4的每个can控制器都只有3个邮箱，所以不可以一次塞入3个以上个包
                 vTaskDelay(1);

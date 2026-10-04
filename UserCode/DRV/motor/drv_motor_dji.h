@@ -9,7 +9,9 @@
 #include "drv_motor.h"
 void Motor_DJI_SendCurrent(FDCAN_HandleTypeDef *hfdcan, uint16_t CAN_ID, int16_t ID1_Current, int16_t ID2_Current, int16_t ID3_Current, int16_t ID4_Current);
 
-void Motor_DJI_Send_Torque(Motor_HandleTypeDef *hmotor, int16_t Torque);
+//单电机力矩发送: DJI一拖四, 实际由组长一次性组帧(组内其余成员调用为空操作)
+//需先用 Motor_Group_Init 建组, 否则不发送
+void Motor_DJI_Send_Torque(Motor_HandleTypeDef *hmotor, float Torque);
 
 void Motor_DJI_Storage_Data(Motor_HandleTypeDef *DJI_Motor_Data_Struct, const uint8_t *Data);
 

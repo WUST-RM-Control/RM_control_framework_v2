@@ -8,7 +8,7 @@
 
 
 //电机-大疆-发送电流控制帧（FDCAN，控制帧ID，电机1电流，电机2电流，电机3电流，电机4电流）
-void Motor_DJI_SendCurrent(FDCAN_HandleTypeDef *hfdcan, uint16_t CAN_ID, int16_t ID1_Currnet, int16_t ID2_Currnet,int16_t ID3_Currnet, int16_t ID4_Currnet)
+void Motor_DJI_SendCurrent(FDCAN_HandleTypeDef *hfdcan, uint16_t CAN_ID, int16_t ID1_Currnet, int16_t ID2_Currnet, int16_t ID3_Currnet, int16_t ID4_Currnet)
 {
         //发出去就行，错误处理和回调跟这个没关系
         CAN_Node_HandleTypeDef hcan_node = {
@@ -17,7 +17,7 @@ void Motor_DJI_SendCurrent(FDCAN_HandleTypeDef *hfdcan, uint16_t CAN_ID, int16_t
                         .tick_timeout  = 0,
                         .count         = 0,
                         .count_maximum = 0,
-                        .handler           = (void(*)(Err_HandleTypeDef *herror))null_function,
+                        .handler       = (void(*)(Err_HandleTypeDef *herror)) null_function,
                 },
                 .hfdcan          = hfdcan,
                 .CAN_Send_ID     = CAN_ID,
@@ -41,55 +41,79 @@ void Motor_DJI_SendCurrent(FDCAN_HandleTypeDef *hfdcan, uint16_t CAN_ID, int16_t
 
 
 
-//电机-大疆-存储电机反馈数据（电机反馈数组，电机数据结构体）
+// 单电机力矩接口: DJI是一拖四协议, 实际由组长一次性组帧发送
+void Motor_DJI_Send_Torque(Motor_HandleTypeDef *hmotor, float torque)
+{
+        (void) torque;
+
+        Motor_Group_HandleTypeDef *group = hmotor->Group;
+        if (group == NULL) return;              //DJI必须成组(一拖四)
+        if (group->member[0] != hmotor) return; //只有组长真正发帧, 其余成员空操作
+
+        int16_t current[MOTOR_GROUP_MAX] = {0};
+        for (uint8_t i = 0; i < MOTOR_GROUP_MAX; i++)
+        {
+                if (group->member[i] == NULL) continue;
+
+                //槽位由该电机的回报ID决定(与建组时的数组顺序无关)
+                uint8_t slot = Motor_Get_FrameSlot(group->member[i]);
+                current[slot] = (int16_t) group->member[i]->Target_Torque;
+        }
+
+        Motor_DJI_SendCurrent(group->member[0]->Node.hfdcan,
+                              group->member[0]->Node.CAN_Send_ID,
+                              current[0], current[1], current[2], current[3]);
+}
+
+//电机-大疆-存储电机反馈数据
 void Motor_DJI_Storage_Data(Motor_HandleTypeDef *hmotor, const uint8_t *Data)
 {
         /*===| 协议解包 |===*/
-        hmotor->Encoder       = (int16_t) (Data[0] << 8 | Data[1]);
-        hmotor->Speed         = (int16_t) (Data[2] << 8 | Data[3]);
-        hmotor->Torque        = (int16_t) (Data[4] << 8 | Data[5]);
-        hmotor->Temperature   = (int8_t) (Data[6]);
+        hmotor->Encoder     = (int16_t) (Data[0] << 8 | Data[1]);
+        hmotor->Speed       = (int16_t) (Data[2] << 8 | Data[3]);
+        hmotor->Torque      = (int16_t) (Data[4] << 8 | Data[5]);
+        hmotor->Temperature = (int8_t) (Data[6]);
 
-        hmotor->Angle         = ((float) hmotor->Encoder - 4096.0f) * 180.0f / 4096.0f;
+        hmotor->Angle = ((float) hmotor->Encoder - 4096.0f) * 180.0f / 4096.0f;
 
         /*===| 得到总角度值 |===*/
         if (hmotor->Encoder - hmotor->Encoder_Last > 4096) hmotor->Round--;
         else if (hmotor->Encoder - hmotor->Encoder_Last < -4096) hmotor->Round++;
-        hmotor->Total_Angle = 360.0f * ((float)hmotor->Round + (float)hmotor->Encoder / 8192.0f) - hmotor->Total_Angle_Offset;
+        hmotor->Total_Angle = 360.0f * ((float) hmotor->Round + (float) hmotor->Encoder / 8192.0f) - hmotor->Total_Angle_Offset;
 
         Motor_Get_TotalAngle_Speed(hmotor, 0.3f);
         /*===| 记录编码器值 |===*/
         hmotor->Encoder_Last = hmotor->Encoder;
         hmotor->Angle_Last   = hmotor->Angle;
 
-        hmotor->Node.herr.tick      = 0;
-        hmotor->Node.herr.count     = 0;
-        hmotor->Node.herr.If_Err    = 0;
+        hmotor->Node.herr.tick   = 0;
+        hmotor->Node.herr.count  = 0;
+        hmotor->Node.herr.If_Err = 0;
 }
-
 
 /*=============|OOPC|================*/
 Motor_VTable Motor_DJI_VTable_Default = {
-        .enable       = (void(*)(Motor_HandleTypeDef *hmotor))null_function,
-        .disable      = (void(*)(Motor_HandleTypeDef *hmotor))null_function,
+        .enable       = (void(*)(Motor_HandleTypeDef *hmotor)) null_function,
+        .disable      = (void(*)(Motor_HandleTypeDef *hmotor)) null_function,
         .set_zero     = Motor_DJI_Set_Zero,
+        .send_torque  = Motor_DJI_Send_Torque, //DJI一拖四: 由组长组帧(Motor_DJI_Send_Torque 内部收集组内目标)
+        .send_speed   = (void(*)(Motor_HandleTypeDef *, float)) null_function,
+        .send_angle   = (void(*)(Motor_HandleTypeDef *, float)) null_function,
         .storage_data = Motor_DJI_Storage_Data
 };
 
 Motor_Config_StructTypeDef Motor_DJI_Config_Default = {
-        .Motor_Enum  = MOTOR_DJI,
-        .vptr        = &Motor_DJI_VTable_Default,
-        .Status_Enum = MOTOR_TORQUE,
+        .Motor_Enum          = MOTOR_DJI,
+        .vptr                = &Motor_DJI_VTable_Default,
+        .Status_Enum         = MOTOR_TORQUE,
         .Is_Feedback_Control = true,
-        .Is_Group_Member     = true,
-        .Error_Code = 1,
+        .Error_Code          = 1,
 
         .herr = {
-                .tick_timeout = MOTOR_TIMEOUT,
-                .count_maximum = ERR_COUNT_MAX,
-                .If_Err = false,
-                .handler = Motor_Err_Handler
+                .Is_Enable     = true,
+                .tick_timeout  = MOTOR_TIMEOUT,
+                .count_maximum = MOTOR_ERR_COUNT_MAX,
+                .If_Err        = false,
+                .handler       = Motor_Err_Handler
         }
-
 };
-

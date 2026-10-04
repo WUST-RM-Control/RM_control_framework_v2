@@ -117,12 +117,17 @@ void Motor_DM_Enable(Motor_HandleTypeDef *hmotor)
         vTaskDelay(1);
 }
 
+
+
 /*=============|OOPC|================*/
 
 Motor_VTable Motor_DM_VTable_Default = {
         .enable = Motor_DM_Enable,
         .disable = Motor_DM_CMD_Disable,
         .set_zero = Motor_DM_CMD_SetZero,
+        .send_torque = Motor_DM_Send_Torque,
+        .send_speed = Motor_DM_CMD_Speed,
+        .send_angle = Motor_DM_Send_Pos,
         .storage_data = Motor_DM_Storage_Data
 };
 
@@ -131,12 +136,12 @@ Motor_Config_StructTypeDef Motor_DM_Config_Default = {
         .vptr        = &Motor_DM_VTable_Default,
         .Status_Enum = MOTOR_TORQUE,
         .Is_Feedback_Control = true,  //DM电机的自闭环的PID调起来比较麻烦，这里可选
-        .Is_Group_Member     = false,
         .Error_Code = 1,
 
         .herr = {
+                .Is_Enable = true,
                 .tick_timeout  = MOTOR_TIMEOUT,
-                .count_maximum = ERR_COUNT_MAX,
+                .count_maximum = MOTOR_ERR_COUNT_MAX,
                 .If_Err  = false,
                 .handler = Motor_Err_Handler
         }

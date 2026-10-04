@@ -4,6 +4,8 @@
 #include "fdcan.h"
 #include <stdbool.h>
 
+#include "drv_motor.h"
+
 /**********************************************************
 ***	Emm_V5.0步进闭环控制例程
 ***	编写作者：ZHANGDATOU
@@ -31,7 +33,7 @@ typedef enum {
 	S_VBAT  = 17,	// 读取多圈编码器电池电压（Y42）
 	S_TEMP  = 18,	// 读取电机实时温度（Y42）
 	S_FLAG  = 19,	// 读取电机状态标志位
-	S_OFLAG = 20, // 读取回零状态标志位
+	S_OFLAG = 20,   // 读取回零状态标志位
 	S_OAF   = 21,	// 读取电机状态标志位 + 回零状态标志位（Y42）
 	S_PIN   = 22,	// 读取引脚状态（Y42）
 }SysParams_t;
@@ -42,11 +44,11 @@ extern __IO uint16_t MMCL_count, MMCL_cmd[MMCL_LEN];
 /**
 ***********************************************************
 ***********************************************************
-*** 
+***
 ***
 *** @brief	后缀带有（Y42）为Y42新增命令，X42不能用，其他通用
 ***
-*** 
+***
 ***********************************************************
 ***********************************************************
 ***/
@@ -54,125 +56,125 @@ extern __IO uint16_t MMCL_count, MMCL_cmd[MMCL_LEN];
 *** 触发动作命令
 **********************************************************/
 // 触发编码器校准
-void Emm_V5_Trig_Encoder_Cal(uint8_t addr);
+void Emm_V5_Trig_Encoder_Cal(Motor_HandleTypeDef *hmotor);
 // 重启电机（Y42）
-void Emm_V5_Reset_Motor(uint8_t addr);
+void Emm_V5_Reset_Motor(Motor_HandleTypeDef *hmotor);
 // 将当前位置清零
-void Emm_V5_Reset_CurPos_To_Zero(uint8_t addr);
+void Emm_V5_Reset_CurPos_To_Zero(Motor_HandleTypeDef *hmotor);
 // 解除堵转保护
-void Emm_V5_Reset_Clog_Pro(uint8_t addr);
+void Emm_V5_Reset_Clog_Pro(Motor_HandleTypeDef *hmotor);
 // 恢复出厂设置
-void Emm_V5_Restore_Motor(uint8_t addr);
+void Emm_V5_Restore_Motor(Motor_HandleTypeDef *hmotor);
 /**********************************************************
 *** 运动控制命令
 **********************************************************/
 // 多电机命令（Y42）
-void Emm_V5_Multi_Motor_Cmd(uint8_t addr);
+void Emm_V5_Multi_Motor_Cmd(Motor_HandleTypeDef *hmotor);
 // 电机使能控制
-void Emm_V5_En_Control(uint8_t addr, bool state, bool snF);
+void Emm_V5_En_Control(Motor_HandleTypeDef *hmotor, bool state, bool snF);
 // 速度模式控制
-void Emm_V5_Vel_Control(uint8_t addr, uint8_t dir, uint16_t vel, uint8_t acc, bool snF);
+void Emm_V5_Vel_Control(Motor_HandleTypeDef *hmotor, uint8_t dir, uint16_t vel, uint8_t acc, bool snF);
 // 位置模式控制
-void Emm_V5_Pos_Control(uint8_t addr, uint8_t dir, uint16_t vel, uint8_t acc, uint32_t clk, uint8_t raF, bool snF);
+void Emm_V5_Pos_Control(Motor_HandleTypeDef *hmotor, uint8_t dir, uint16_t vel, uint8_t acc, uint32_t clk, uint8_t raF, bool snF);
 // 设置快速位置模式的运动参数
-void Emm_V5_Set_QPos_Params(uint8_t addr, uint16_t vel, uint8_t acc, uint8_t raF, bool snF);
+void Emm_V5_Set_QPos_Params(Motor_HandleTypeDef *hmotor, uint16_t vel, uint8_t acc, uint8_t raF, bool snF);
 // 快速位置模式控制
-void Emm_V5_QPos_Control(uint8_t addr, int32_t clk);
+void Emm_V5_QPos_Control(Motor_HandleTypeDef *hmotor, int32_t clk);
 // 让电机立即停止运动
-void Emm_V5_Stop_Now(uint8_t addr, bool snF);
+void Emm_V5_Stop_Now(Motor_HandleTypeDef *hmotor, bool snF);
 // 触发多机同步开始运动
-void Emm_V5_Synchronous_motion(uint8_t addr);
+void Emm_V5_Synchronous_motion(Motor_HandleTypeDef *hmotor);
 /**********************************************************
 *** 原点回零命令
 **********************************************************/
 // 设置单圈回零的零点位置
-void Emm_V5_Origin_Set_O(uint8_t addr, bool svF);
+void Emm_V5_Origin_Set_O(Motor_HandleTypeDef *hmotor, bool svF);
 // 触发回零
-void Emm_V5_Origin_Trigger_Return(uint8_t addr, uint8_t o_mode, bool snF);
+void Emm_V5_Origin_Trigger_Return(Motor_HandleTypeDef *hmotor, uint8_t o_mode, bool snF);
 // 强制中断并退出回零
-void Emm_V5_Origin_Interrupt(uint8_t addr);
+void Emm_V5_Origin_Interrupt(Motor_HandleTypeDef *hmotor);
 // 读取回零参数
-void Emm_V5_Origin_Read_Params(uint8_t addr);
+void Emm_V5_Origin_Read_Params(Motor_HandleTypeDef *hmotor);
 // 修改回零参数
-void Emm_V5_Origin_Modify_Params(uint8_t addr, bool svF, uint8_t o_mode, uint8_t o_dir, uint16_t o_vel, uint32_t o_tm, uint16_t sl_vel, uint16_t sl_ma, uint16_t sl_ms, bool potF);
+void Emm_V5_Origin_Modify_Params(Motor_HandleTypeDef *hmotor, bool svF, uint8_t o_mode, uint8_t o_dir, uint16_t o_vel, uint32_t o_tm, uint16_t sl_vel, uint16_t sl_ma, uint16_t sl_ms, bool potF);
 // 读取碰撞回零返回角度（X42S/Y42）
-void X_V2_Origin_Read_SL_RP(uint8_t addr);
+void X_V2_Origin_Read_SL_RP(Motor_HandleTypeDef *hmotor);
 // 修改碰撞回零返回角度（X42S/Y42）
-void X_V2_Origin_Modify_SL_RP(uint8_t addr, bool svF, uint16_t sl_rp);
+void X_V2_Origin_Modify_SL_RP(Motor_HandleTypeDef *hmotor, bool svF, uint16_t sl_rp);
 /**********************************************************
 *** 读取系统参数命令
 **********************************************************/
 // 定时返回信息命令（Y42）
-void Emm_V5_Auto_Return_Sys_Params_Timed(uint8_t addr, SysParams_t s, uint16_t time_ms);
+void Emm_V5_Auto_Return_Sys_Params_Timed(Motor_HandleTypeDef *hmotor, SysParams_t s, uint16_t time_ms);
 // 读取系统参数
-void Emm_V5_Read_Sys_Params(uint8_t addr, SysParams_t s);
+void Emm_V5_Read_Sys_Params(Motor_HandleTypeDef *hmotor, SysParams_t s);
 /**********************************************************
 *** 读写驱动参数命令
 **********************************************************/
 // 修改电机ID地址
-void Emm_V5_Modify_Motor_ID(uint8_t addr, bool svF, uint8_t id);
+void Emm_V5_Modify_Motor_ID(Motor_HandleTypeDef *hmotor, bool svF, uint8_t id);
 // 修改细分值
-void Emm_V5_Modify_MicroStep(uint8_t addr, bool svF, uint8_t mstep);
+void Emm_V5_Modify_MicroStep(Motor_HandleTypeDef *hmotor, bool svF, uint8_t mstep);
 // 修改掉电标志
-void Emm_V5_Modify_PDFlag(uint8_t addr, bool pdf);
+void Emm_V5_Modify_PDFlag(Motor_HandleTypeDef *hmotor, bool pdf);
 // 读取选项参数状态（Y42）
-void Emm_V5_Read_Opt_Param_Sta(uint8_t addr);
+void Emm_V5_Read_Opt_Param_Sta(Motor_HandleTypeDef *hmotor);
 // 修改电机类型（Y42）
-void Emm_V5_Modify_Motor_Type(uint8_t addr, bool svF, bool mottype);
+void Emm_V5_Modify_Motor_Type(Motor_HandleTypeDef *hmotor, bool svF, bool mottype);
 // 修改固件类型（Y42）
-void Emm_V5_Modify_Firmware_Type(uint8_t addr, bool svF, bool fwtype);
+void Emm_V5_Modify_Firmware_Type(Motor_HandleTypeDef *hmotor, bool svF, bool fwtype);
 // 修改开环/闭环控制模式（Y42）
-void Emm_V5_Modify_Ctrl_Mode(uint8_t addr, bool svF, bool ctrl_mode);
+void Emm_V5_Modify_Ctrl_Mode(Motor_HandleTypeDef *hmotor, bool svF, bool ctrl_mode);
 // 修改电机运动正方向（Y42）
-void Emm_V5_Modify_Motor_Dir(uint8_t addr, bool svF, bool dir);
+void Emm_V5_Modify_Motor_Dir(Motor_HandleTypeDef *hmotor, bool svF, bool dir);
 // 修改锁定按键功能（Y42）
-void Emm_V5_Modify_Lock_Btn(uint8_t addr, bool svF, bool lockbtn);
+void Emm_V5_Modify_Lock_Btn(Motor_HandleTypeDef *hmotor, bool svF, bool lockbtn);
 // 修改命令速度值是否缩小10倍输入（Y42）
-void Emm_V5_Modify_S_Vel(uint8_t addr, bool svF, bool s_vel);
+void Emm_V5_Modify_S_Vel(Motor_HandleTypeDef *hmotor, bool svF, bool s_vel);
 // 修改开环模式工作电流
-void Emm_V5_Modify_OM_ma(uint8_t addr, bool svF, uint16_t om_ma);
+void Emm_V5_Modify_OM_ma(Motor_HandleTypeDef *hmotor, bool svF, uint16_t om_ma);
 // 修改闭环模式最大电流
-void Emm_V5_Modify_FOC_mA(uint8_t addr, bool svF, uint16_t foc_mA);
+void Emm_V5_Modify_FOC_mA(Motor_HandleTypeDef *hmotor, bool svF, uint16_t foc_mA);
 // 读取PID参数
-void Emm_V5_Read_PID_Params(uint8_t addr);
+void Emm_V5_Read_PID_Params(Motor_HandleTypeDef *hmotor);
 // 修改PID参数
-void Emm_V5_Modify_PID_Params(uint8_t addr, bool svF, uint32_t kp, uint32_t ki, uint32_t kd);
+void Emm_V5_Modify_PID_Params(Motor_HandleTypeDef *hmotor, bool svF, uint32_t kp, uint32_t ki, uint32_t kd);
 // 读取DMX512协议参数（Y42）
-void Emm_V5_Read_DMX512_Params(uint8_t addr);
+void Emm_V5_Read_DMX512_Params(Motor_HandleTypeDef *hmotor);
 // 修改DMX512协议参数（Y42）
-void Emm_V5_Modify_DMX512_Params(uint8_t addr, bool svF, uint16_t tch, uint8_t nch, uint8_t mode, uint16_t vel, uint16_t acc, uint16_t vel_step, uint32_t pos_step);
+void Emm_V5_Modify_DMX512_Params(Motor_HandleTypeDef *hmotor, bool svF, uint16_t tch, uint8_t nch, uint8_t mode, uint16_t vel, uint16_t acc, uint16_t vel_step, uint32_t pos_step);
 // 读取位置到达窗口（Y42）
-void Emm_V5_Read_Pos_Window(uint8_t addr);
+void Emm_V5_Read_Pos_Window(Motor_HandleTypeDef *hmotor);
 // 修改位置到达窗口（Y42）
-void Emm_V5_Modify_Pos_Window(uint8_t addr, bool svF, uint16_t prw);
+void Emm_V5_Modify_Pos_Window(Motor_HandleTypeDef *hmotor, bool svF, uint16_t prw);
 // 读取过热过流保护检测阈值（Y42）
-void Emm_V5_Read_Otocp(uint8_t addr);
+void Emm_V5_Read_Otocp(Motor_HandleTypeDef *hmotor);
 // 修改过热过流保护检测阈值（Y42）
-void Emm_V5_Modify_Otocp(uint8_t addr, bool svF, uint16_t otp, uint16_t ocp, uint16_t time_ms);
+void Emm_V5_Modify_Otocp(Motor_HandleTypeDef *hmotor, bool svF, uint16_t otp, uint16_t ocp, uint16_t time_ms);
 // 读取心跳保护功能时间（Y42）
-void Emm_V5_Read_Heart_Protect(uint8_t addr);
+void Emm_V5_Read_Heart_Protect(Motor_HandleTypeDef *hmotor);
 // 修改心跳保护功能时间（Y42）
-void Emm_V5_Modify_Heart_Protect(uint8_t addr, bool svF, uint32_t hp);
+void Emm_V5_Modify_Heart_Protect(Motor_HandleTypeDef *hmotor, bool svF, uint32_t hp);
 // 读取积分限幅/刚性系数（Y42）
-void Emm_V5_Read_Integral_Limit(uint8_t addr);
+void Emm_V5_Read_Integral_Limit(Motor_HandleTypeDef *hmotor);
 // 修改积分限幅/刚性系数（Y42）
-void Emm_V5_Modify_Integral_Limit(uint8_t addr, bool svF, uint32_t il);
+void Emm_V5_Modify_Integral_Limit(Motor_HandleTypeDef *hmotor, bool svF, uint32_t il);
 /**********************************************************
 *** 读取所有驱动参数命令
 **********************************************************/
 // 读取系统状态参数
-void Emm_V5_Read_System_State_Params(uint8_t addr);
+void Emm_V5_Read_System_State_Params(Motor_HandleTypeDef *hmotor);
 // 读取驱动配置参数
-void Emm_V5_Read_Motor_Conf_Params(uint8_t addr);
+void Emm_V5_Read_Motor_Conf_Params(Motor_HandleTypeDef *hmotor);
 
 /**
 ***********************************************************
 ***********************************************************
-*** 
+***
 ***
 *** @brief	以下是把相应命令加载到Y42多电机命令上的函数（Y42）
 ***
-*** 
+***
 ***********************************************************
 ***********************************************************
 ***/
@@ -180,60 +182,73 @@ void Emm_V5_Read_Motor_Conf_Params(uint8_t addr);
 *** 触发动作命令
 **********************************************************/
 // 触发编码器校准 - 加载到多电机指令上
-void Emm_V5_MMCL_Trig_Encoder_Cal(uint8_t addr);
+void Emm_V5_MMCL_Trig_Encoder_Cal(Motor_HandleTypeDef *hmotor);
 // 重启电机 - 加载到多电机指令上
-void Emm_V5_MMCL_Reset_Motor(uint8_t addr);
+void Emm_V5_MMCL_Reset_Motor(Motor_HandleTypeDef *hmotor);
 // 将当前位置清零 - 加载到多电机指令上
-void Emm_V5_MMCL_Reset_CurPos_To_Zero(uint8_t addr);
+void Emm_V5_MMCL_Reset_CurPos_To_Zero(Motor_HandleTypeDef *hmotor);
 // 解除堵转保护 - 加载到多电机指令上
-void Emm_V5_MMCL_Reset_Clog_Pro(uint8_t addr);
+void Emm_V5_MMCL_Reset_Clog_Pro(Motor_HandleTypeDef *hmotor);
 // 恢复出厂设置 - 加载到多电机指令上
-void Emm_V5_MMCL_Restore_Motor(uint8_t addr);
+void Emm_V5_MMCL_Restore_Motor(Motor_HandleTypeDef *hmotor);
 /**********************************************************
 *** 运动控制命令
 **********************************************************/
 // 电机使能控制 - 加载到多电机指令上
-void Emm_V5_MMCL_En_Control(uint8_t addr, bool state, bool snF);
+void Emm_V5_MMCL_En_Control(Motor_HandleTypeDef *hmotor, bool state, bool snF);
 // 速度模式控制 - 加载到多电机指令上
-void Emm_V5_MMCL_Vel_Control(uint8_t addr, uint8_t dir, uint16_t vel, uint8_t acc, bool snF);
+void Emm_V5_MMCL_Vel_Control(Motor_HandleTypeDef *hmotor, uint8_t dir, uint16_t vel, uint8_t acc, bool snF);
 // 位置模式控制 - 加载到多电机指令上
-void Emm_V5_MMCL_Pos_Control(uint8_t addr, uint8_t dir, uint16_t vel, uint8_t acc, uint32_t clk, uint8_t raF, bool snF);
+void Emm_V5_MMCL_Pos_Control(Motor_HandleTypeDef *hmotor, uint8_t dir, uint16_t vel, uint8_t acc, uint32_t clk, uint8_t raF, bool snF);
 // 设置快速位置模式的运动参数
-void Emm_V5_MMCL_Set_QPos_Params(uint8_t addr, uint16_t vel, uint8_t acc, uint8_t raF, bool snF);
+void Emm_V5_MMCL_Set_QPos_Params(Motor_HandleTypeDef *hmotor, uint16_t vel, uint8_t acc, uint8_t raF, bool snF);
 // 快速位置模式控制
-void Emm_V5_MMCL_QPos_Control(uint8_t addr, int32_t clk);
+void Emm_V5_MMCL_QPos_Control(Motor_HandleTypeDef *hmotor, int32_t clk);
 // 让电机立即停止运动 - 加载到多电机指令上
-void Emm_V5_MMCL_Stop_Now(uint8_t addr, bool snF);
+void Emm_V5_MMCL_Stop_Now(Motor_HandleTypeDef *hmotor, bool snF);
 // 触发多机同步开始运动 - 加载到多电机指令上
-void Emm_V5_MMCL_Synchronous_motion(uint8_t addr);
+void Emm_V5_MMCL_Synchronous_motion(Motor_HandleTypeDef *hmotor);
 /**********************************************************
 *** 原点回零命令
 **********************************************************/
 // 设置单圈回零的零点位置 - 加载到多电机指令上
-void Emm_V5_MMCL_Origin_Set_O(uint8_t addr, bool svF);
+void Emm_V5_MMCL_Origin_Set_O(Motor_HandleTypeDef *hmotor, bool svF);
 // 触发回零 - 加载到多电机指令上
-void Emm_V5_MMCL_Origin_Trigger_Return(uint8_t addr, uint8_t o_mode, bool snF);
+void Emm_V5_MMCL_Origin_Trigger_Return(Motor_HandleTypeDef *hmotor, uint8_t o_mode, bool snF);
 // 强制中断并退出回零 - 加载到多电机指令上
-void Emm_V5_MMCL_Origin_Interrupt(uint8_t addr);
+void Emm_V5_MMCL_Origin_Interrupt(Motor_HandleTypeDef *hmotor);
 // 修改回零参数 - 加载到多电机指令上
-void Emm_V5_MMCL_Origin_Modify_Params(uint8_t addr, bool svF, uint8_t o_mode, uint8_t o_dir, uint16_t o_vel, uint32_t o_tm, uint16_t sl_vel, uint16_t sl_ma, uint16_t sl_ms, bool potF);
+void Emm_V5_MMCL_Origin_Modify_Params(Motor_HandleTypeDef *hmotor, bool svF, uint8_t o_mode, uint8_t o_dir, uint16_t o_vel, uint32_t o_tm, uint16_t sl_vel, uint16_t sl_ma, uint16_t sl_ms, bool potF);
 // 读取碰撞回零返回角度（X42S/Y42） - 加载到多电机指令上
-void X_V2_MMCL_Origin_Read_SL_RP(uint8_t addr);
+void X_V2_MMCL_Origin_Read_SL_RP(Motor_HandleTypeDef *hmotor);
 // 修改碰撞回零返回角度（X42S/Y42） - 加载到多电机指令上
-void X_V2_MMCL_Origin_Modify_SL_RP(uint8_t addr, bool svF, uint16_t sl_rp);
+void X_V2_MMCL_Origin_Modify_SL_RP(Motor_HandleTypeDef *hmotor, bool svF, uint16_t sl_rp);
 /**********************************************************
 *** 读取系统参数命令
 **********************************************************/
 // 定时返回信息命令（Y42） - 加载到多电机指令上
-void Emm_V5_MMCL_Auto_Return_Sys_Params_Timed(uint8_t addr, SysParams_t s, uint16_t time_ms);
+void Emm_V5_MMCL_Auto_Return_Sys_Params_Timed(Motor_HandleTypeDef *hmotor, SysParams_t s, uint16_t time_ms);
 // 读取系统参数 - 加载到多电机指令上
-void Emm_V5_MMCL_Read_Sys_Params(uint8_t addr, SysParams_t s);
+void Emm_V5_MMCL_Read_Sys_Params(Motor_HandleTypeDef *hmotor, SysParams_t s);
 /**********************************************************
 *** 读写驱动参数命令
 **********************************************************/
 
+//张大头Emm_V5命令发送(扩展帧
+void can_SendCmd(Motor_HandleTypeDef *hmotor, __IO uint8_t *cmd, uint8_t len);
 
-//张大头Emm_V5命令发送(扩展帧, 分包, 总线为 EMM_V5_CAN)
-void can_SendCmd(__IO uint8_t *cmd, uint8_t len);
+__STATIC_INLINE void Motor_ZDT_Enable(Motor_HandleTypeDef *hmotor) { Emm_V5_En_Control(hmotor, true, false); }
+__STATIC_INLINE void Motor_ZDT_Disable(Motor_HandleTypeDef *hmotor) { Emm_V5_En_Control(hmotor, false, false); }
+__STATIC_INLINE void Motor_ZDT_SetZero(Motor_HandleTypeDef *hmotor) { Emm_V5_Reset_CurPos_To_Zero(hmotor); }
+
+/*===| ZDT统一发送接口(供 Motor_VTable 调用) |===*/
+//速度下达: speed[RPM], 符号决定方向(正=CW, 负=CCW)
+void Motor_ZDT_Send_Speed(Motor_HandleTypeDef *hmotor, float speed);
+
+//角度下达: angle[度], 绝对运动(以零点为基准的角度)
+void Motor_ZDT_Send_Angle(Motor_HandleTypeDef *hmotor, float angle);
+
+//反馈解析: Emm_V5 CAN应答帧
+void Motor_ZDT_Storage_Data(Motor_HandleTypeDef *hmotor, const uint8_t *Data);
 
 #endif

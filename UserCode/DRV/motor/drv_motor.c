@@ -54,3 +54,18 @@ void Motor_Ctor(Motor_HandleTypeDef *hmotor,FDCAN_HandleTypeDef *hfdcan, uint16_
 
         Motor_Count++;
 }
+
+//电机组初始化
+//成员数组需先用静态初始化写好; 组长 member[0] 为空则不建组
+void Motor_Group_Init(Motor_Group_HandleTypeDef *group)
+{
+        if (group == NULL || group->member[0] == NULL) return;
+
+        for (uint8_t i = 0; i < MOTOR_GROUP_MAX; i++)
+        {
+                if (group->member[i] != NULL)
+                {
+                        group->member[i]->Group = group;
+                }
+        }
+}

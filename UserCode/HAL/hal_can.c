@@ -110,60 +110,60 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
 //CAN-发送标准帧
 void CAN_Send_Data_STD(CAN_Node_HandleTypeDef *hcan_node, const uint8_t *TX_Data)
 {
-        CAN_Send_Packet_StructTypeDef CAN_Send_Packet_Struct = {};
+        CAN_Send_Frame_StructTypeDef CAN_Send_Frame_Struct = {};
 
-        CAN_Send_Packet_Struct.hfdcan = hcan_node->hfdcan;
+        CAN_Send_Frame_Struct.hfdcan = hcan_node->hfdcan;
 
-        CAN_Send_Packet_Struct.CAN_TxMsg.Identifier          = hcan_node->CAN_Send_ID;
-        CAN_Send_Packet_Struct.CAN_TxMsg.IdType              = FDCAN_STANDARD_ID;
-        CAN_Send_Packet_Struct.CAN_TxMsg.TxFrameType         = FDCAN_DATA_FRAME;
-        CAN_Send_Packet_Struct.CAN_TxMsg.DataLength          = FDCAN_DLC_BYTES_8;
-        CAN_Send_Packet_Struct.CAN_TxMsg.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
-        CAN_Send_Packet_Struct.CAN_TxMsg.BitRateSwitch       = FDCAN_BRS_OFF;
-        CAN_Send_Packet_Struct.CAN_TxMsg.FDFormat            = FDCAN_CLASSIC_CAN;
-        CAN_Send_Packet_Struct.CAN_TxMsg.TxEventFifoControl  = FDCAN_NO_TX_EVENTS;
-        CAN_Send_Packet_Struct.CAN_TxMsg.MessageMarker       = 0;
+        CAN_Send_Frame_Struct.CAN_TxMsg.Identifier          = hcan_node->CAN_Send_ID;
+        CAN_Send_Frame_Struct.CAN_TxMsg.IdType              = FDCAN_STANDARD_ID;
+        CAN_Send_Frame_Struct.CAN_TxMsg.TxFrameType         = FDCAN_DATA_FRAME;
+        CAN_Send_Frame_Struct.CAN_TxMsg.DataLength          = FDCAN_DLC_BYTES_8;
+        CAN_Send_Frame_Struct.CAN_TxMsg.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
+        CAN_Send_Frame_Struct.CAN_TxMsg.BitRateSwitch       = FDCAN_BRS_OFF;
+        CAN_Send_Frame_Struct.CAN_TxMsg.FDFormat            = FDCAN_CLASSIC_CAN;
+        CAN_Send_Frame_Struct.CAN_TxMsg.TxEventFifoControl  = FDCAN_NO_TX_EVENTS;
+        CAN_Send_Frame_Struct.CAN_TxMsg.MessageMarker       = 0;
 
-        memcpy(CAN_Send_Packet_Struct.txData, TX_Data, sizeof(CAN_Send_Packet_Struct.txData));
+        memcpy(CAN_Send_Frame_Struct.txData, TX_Data, sizeof(CAN_Send_Frame_Struct.txData));
 
-        CAN_Send_Data_Queue(&CAN_Send_Packet_Struct);
+        CAN_Send_Data_Queue(&CAN_Send_Frame_Struct);
 
 }
 
 //CAN-发送拓展帧
 void CAN_Send_Data_EXD(CAN_Node_HandleTypeDef *hcan_node, uint8_t *TX_Data, uint8_t Length)
 {
-        CAN_Send_Packet_StructTypeDef CAN_Send_Packet_Struct = {};
+        CAN_Send_Frame_StructTypeDef CAN_Send_Frame_Struct = {};
 
-        CAN_Send_Packet_Struct.hfdcan = hcan_node->hfdcan;
+        CAN_Send_Frame_Struct.hfdcan = hcan_node->hfdcan;
 
-        CAN_Send_Packet_Struct.CAN_TxMsg.Identifier          = hcan_node->CAN_Send_ID;
-        CAN_Send_Packet_Struct.CAN_TxMsg.IdType              = FDCAN_EXTENDED_ID;
-        CAN_Send_Packet_Struct.CAN_TxMsg.TxFrameType         = FDCAN_DATA_FRAME;
-        CAN_Send_Packet_Struct.CAN_TxMsg.DataLength          = Length;
-        CAN_Send_Packet_Struct.CAN_TxMsg.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
-        CAN_Send_Packet_Struct.CAN_TxMsg.BitRateSwitch       = FDCAN_BRS_OFF;
-        CAN_Send_Packet_Struct.CAN_TxMsg.FDFormat            = FDCAN_CLASSIC_CAN;
-        CAN_Send_Packet_Struct.CAN_TxMsg.TxEventFifoControl  = FDCAN_NO_TX_EVENTS;
-        CAN_Send_Packet_Struct.CAN_TxMsg.MessageMarker       = 0;
+        CAN_Send_Frame_Struct.CAN_TxMsg.Identifier          = hcan_node->CAN_Send_ID;
+        CAN_Send_Frame_Struct.CAN_TxMsg.IdType              = FDCAN_EXTENDED_ID;
+        CAN_Send_Frame_Struct.CAN_TxMsg.TxFrameType         = FDCAN_DATA_FRAME;
+        CAN_Send_Frame_Struct.CAN_TxMsg.DataLength          = Length;
+        CAN_Send_Frame_Struct.CAN_TxMsg.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
+        CAN_Send_Frame_Struct.CAN_TxMsg.BitRateSwitch       = FDCAN_BRS_OFF;
+        CAN_Send_Frame_Struct.CAN_TxMsg.FDFormat            = FDCAN_CLASSIC_CAN;
+        CAN_Send_Frame_Struct.CAN_TxMsg.TxEventFifoControl  = FDCAN_NO_TX_EVENTS;
+        CAN_Send_Frame_Struct.CAN_TxMsg.MessageMarker       = 0;
 
-        memcpy(CAN_Send_Packet_Struct.txData, TX_Data, sizeof(CAN_Send_Packet_Struct.txData));
+        memcpy(CAN_Send_Frame_Struct.txData, TX_Data, sizeof(CAN_Send_Frame_Struct.txData));
 
-        CAN_Send_Data_Queue(&CAN_Send_Packet_Struct);
+        CAN_Send_Data_Queue(&CAN_Send_Frame_Struct);
 
 }
 
 
 static void CAN_TxTask(void *argument)
 {
-        CAN_Send_Packet_StructTypeDef CAN_Send_Packet_Struct = {};
+        CAN_Send_Frame_StructTypeDef CAN_Send_Frame_Struct = {};
         for (;;)
         {
-                if (xQueueReceive(CAN_TxQueue, &CAN_Send_Packet_Struct, portMAX_DELAY) == pdPASS)
+                if (xQueueReceive(CAN_TxQueue, &CAN_Send_Frame_Struct, portMAX_DELAY) == pdPASS)
                 {
                         //当队列取出数据，且有空闲邮箱才发
-                        while (HAL_FDCAN_GetTxFifoFreeLevel(CAN_Send_Packet_Struct.hfdcan) == 0) vTaskDelay(1);
-                        HAL_FDCAN_AddMessageToTxFifoQ(CAN_Send_Packet_Struct.hfdcan, &CAN_Send_Packet_Struct.CAN_TxMsg, CAN_Send_Packet_Struct.txData);
+                        while (HAL_FDCAN_GetTxFifoFreeLevel(CAN_Send_Frame_Struct.hfdcan) == 0) vTaskDelay(1);
+                        HAL_FDCAN_AddMessageToTxFifoQ(CAN_Send_Frame_Struct.hfdcan, &CAN_Send_Frame_Struct.CAN_TxMsg, CAN_Send_Frame_Struct.txData);
                 }
         }
 }
@@ -172,7 +172,7 @@ static void CAN_TxTask(void *argument)
 void CAN_Init()
 {
         //软件缓冲队列
-        CAN_TxQueue = xQueueCreate(32, sizeof(CAN_Send_Packet_StructTypeDef));
+        CAN_TxQueue = xQueueCreate(32, sizeof(CAN_Send_Frame_StructTypeDef));
 
         xTaskCreate(CAN_TxTask, "CAN_Tx", 256, NULL, 10, NULL);
 

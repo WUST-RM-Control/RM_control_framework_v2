@@ -24,7 +24,7 @@ void Error_Monitor_Task(void *pvParameters)
                 for (uint8_t i = 0; i < Err_Get_Count(); i++)
                 {
                         Err_HandleTypeDef *herr = Err_Get_Handle(i);
-                        if (herr == NULL || herr->handler == NULL) continue;
+                        if (herr == NULL || herr->handler == NULL || herr->Is_Enable == false) continue;
 
                         herr->handler(herr);
                         Is_Fault |= Is_Err(herr);

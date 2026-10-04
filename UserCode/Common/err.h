@@ -20,6 +20,8 @@ typedef struct Err_HandleTypeDef Err_HandleTypeDef;
 typedef void (*err_handler)(Err_HandleTypeDef *herror);
 
 struct Err_HandleTypeDef{
+        bool Is_Enable : 1;          //是否启用错误处理
+
         volatile uint16_t tick;      //当前时间
         uint16_t tick_timeout;       //超时时间
 

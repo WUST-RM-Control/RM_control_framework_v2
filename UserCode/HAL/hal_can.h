@@ -81,7 +81,7 @@ typedef struct {
         FDCAN_HandleTypeDef *hfdcan;
         FDCAN_TxHeaderTypeDef CAN_TxMsg;
         uint8_t txData[8];
-}CAN_Send_Packet_StructTypeDef;
+}CAN_Send_Frame_StructTypeDef;
 
 
 /*===| 基类访问接口 |===*/
@@ -123,7 +123,7 @@ void CAN_Send_Data_STD(CAN_Node_HandleTypeDef *hcan_node, const uint8_t *TX_Data
 
 void CAN_Send_Data_EXD(CAN_Node_HandleTypeDef *hcan_node, uint8_t *TX_Data, uint8_t Length);
 
-__STATIC_INLINE void CAN_Send_Data_Queue(CAN_Send_Packet_StructTypeDef *CAN_Send_Packet_Struct)
+__STATIC_INLINE void CAN_Send_Data_Queue(CAN_Send_Frame_StructTypeDef *CAN_Send_Packet_Struct)
 {
         xQueueSend(CAN_TxQueue, CAN_Send_Packet_Struct, 0);
 }
