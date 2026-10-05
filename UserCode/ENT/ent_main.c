@@ -54,7 +54,7 @@ void main_init()
         CAN_Init();
 
         /*===| 实例 ↔ 外设绑定(全部集中在此) |===*/
-        Key_Ctor(&hkey1, GPIOB, GPIO_PIN_7);
+        Key_Ctor(&hkey1, GPIOA, GPIO_PIN_0);
 
         LED_Ctor(&hled1, &htim5);                             //RGB LED(htim1 PWM通道1/2/3)
         LED_Init(&hled1);
@@ -71,8 +71,8 @@ void main_init()
         // Remote_Init(&hremote_dt7);
 
         /*===| 服务初始化 |===*/
-        INS_Init();                     //惯导(IMU参数 + 四元数EKF)
-        Motor_Init();                   //9个电机对象 + PID整定 + CAN节点注册
+        INS_Init();
+        Motor_Init();
 
         /*===| 任务创建 |===*/
         xTaskCreate(LED_Key_Task, "LED_Key", 256, NULL, 4, NULL);
