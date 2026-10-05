@@ -18,6 +18,7 @@
 #include "usart.h"
 #include "vofa.h"
 #include "drv_imu.h"
+#include "drv_bmi088.h"
 #include "drv_key.h"
 #include "drv_remote_dt7.h"
 #include "srv_ins.h"
@@ -47,7 +48,7 @@ void main_init()
         Debug_Ctor(&huart3);            //printf重定向目标
         Debug_Init();
 
-        VOFA_Ctor(&huart2);             //VOFA上位机串口
+        VOFA_Ctor(&huart1);             //VOFA上位机串口
         VOFA_Init();
 
         CAN_Init();
@@ -55,19 +56,19 @@ void main_init()
         /*===| 实例 ↔ 外设绑定(全部集中在此) |===*/
         Key_Ctor(&hkey1, GPIOB, GPIO_PIN_7);
 
-        LED_Ctor(&hled1, &htim1);                             //RGB LED(htim1 PWM通道1/2/3)
+        LED_Ctor(&hled1, &htim5);                             //RGB LED(htim1 PWM通道1/2/3)
         LED_Init(&hled1);
 
         Buzzer_Ctor(&hbuzzer1, &htim4, TIM_CHANNEL_3, 10);   //蜂鸣器(htim16 CH1, 10ms任务周期)
         Buzzer_Init(&hbuzzer1);
 
-        IMU_Ctor(&himu1, &hspi1, SPI1_CS_GPIO_Port, SPI1_CS_Pin);   //QMI8658A(SPI1 + 片选引脚)
+        IMU_Ctor(&himu1, IMU_BMI088_Config_Default);   //BMI088(SPI1 + CS1_ACCEL + CS1_GYRO)
         IMU_Init(&himu1);
 
         //遥控器: 构造 + 启动接收
-        Remote_Ctor(&hremote_dt7, &huart1, &Remote_DT7_VTable_Default,
-                    REMOTE_OFFLINE_TIMEOUT, REMOTE_ERR_COUNT_MAX, Remote_Err_Handler);
-        Remote_Init(&hremote_dt7);
+        // Remote_Ctor(&hremote_dt7, &huart1, &Remote_DT7_VTable_Default,
+        //             REMOTE_OFFLINE_TIMEOUT, REMOTE_ERR_COUNT_MAX, Remote_Err_Handler);
+        // Remote_Init(&hremote_dt7);
 
         /*===| 服务初始化 |===*/
         INS_Init();                     //惯导(IMU参数 + 四元数EKF)
