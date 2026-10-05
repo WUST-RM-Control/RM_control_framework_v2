@@ -9,14 +9,14 @@ LED_HandleTypeDef hled1 = {};
 void LED_Ctor(LED_HandleTypeDef* hled, TIM_HandleTypeDef *htim)
 {
         hled->htim      = htim;
-        hled->R_channel = TIM_CHANNEL_2;
-        hled->G_channel = TIM_CHANNEL_3;
+        hled->R_channel = TIM_CHANNEL_3;
+        hled->G_channel = TIM_CHANNEL_2;
         hled->B_channel = TIM_CHANNEL_1;
 }
 
 void LED_Init(LED_HandleTypeDef* hled)
 {
-        //DJI_C的R，G通道使用的是正向通道
+        //DJI_C的R，G，B都是使用的是正向通道
         // HAL_TIMEx_PWMN_Start(hled->htim, hled->R_channel);
         // HAL_TIMEx_PWMN_Start(hled->htim, hled->G_channel);
         // HAL_TIMEx_PWMN_Start(hled->htim, hled->B_channel);
