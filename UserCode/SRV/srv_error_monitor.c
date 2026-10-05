@@ -30,7 +30,7 @@ void Error_Monitor_Task(void *pvParameters)
                         Is_Fault |= Is_Err(herr);
                 }
 
-                if (Is_Fault != 0) Buzzer_Set_SoundEffect(&hbuzzer1, Buzzer_SoundEffect_Error);//只哔哔不处理
+                if (Is_Fault != 0) Buzzer_Set_SoundEffect(&hbuzzer1, Buzzer_SoundEffect_Error); //只哔哔不处理
                 vTaskDelay(MONITOR_PERIOD_MS);
         }
 }

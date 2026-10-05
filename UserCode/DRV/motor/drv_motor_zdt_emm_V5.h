@@ -1,7 +1,7 @@
 #ifndef __EMM_V5_H
 #define __EMM_V5_H
 
-#include "fdcan.h"
+#include "can.h"
 #include <stdbool.h>
 
 #include "drv_motor.h"

@@ -5,7 +5,7 @@
 #ifndef G4MINI_V3_DRV_REMOTE_H
 #define G4MINI_V3_DRV_REMOTE_H
 
-#include "main.h"
+#include "stm32f4xx_hal.h"
 #include "err.h"
 
 /** 《遥控器信息图》

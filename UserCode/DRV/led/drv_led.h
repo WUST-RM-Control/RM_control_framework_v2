@@ -5,7 +5,7 @@
 #ifndef G4MINI_V3_LED_H
 #define G4MINI_V3_LED_H
 
-#include "stm32g4xx_hal.h"
+#include "stm32f4xx_hal.h"
 
 typedef struct
 {

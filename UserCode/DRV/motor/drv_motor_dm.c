@@ -7,35 +7,35 @@
 #include "hal_can.h"
 #include "utils.h"
 
-//电机-达妙-指令-使能（FDCAN，电机MasterID）
+//电机-达妙-指令-使能（CAN，电机MasterID）
 void Motor_DM_CMD_Enable(Motor_HandleTypeDef *hmotor)
 {
         uint8_t DM_Enable_Data[8] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFC};
         CAN_Send_Data_STD(&hmotor->Node, DM_Enable_Data);
 }
 
-//电机-达妙-指令-失能（FDCAN，电机MasterID）
+//电机-达妙-指令-失能（CAN，电机MasterID）
 void Motor_DM_CMD_Disable(Motor_HandleTypeDef *hmotor)
 {
         uint8_t DM_Disable_Data[8] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFD};
         CAN_Send_Data_STD(&hmotor->Node, DM_Disable_Data);
 }
 
-//电机-达妙-指令-设置零点（FDCAN，电机Master_ID）
+//电机-达妙-指令-设置零点（CAN，电机Master_ID）
 void Motor_DM_CMD_SetZero(Motor_HandleTypeDef *hmotor)
 {
         uint8_t DM_SetZero_Data[8] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE};
         CAN_Send_Data_STD(&hmotor->Node, DM_SetZero_Data);
 }
 
-//电机-达妙-指令-清除错误（FDCAN，电机Master_ID）
+//电机-达妙-指令-清除错误（CAN，电机Master_ID）
 void Motor_DM_CMD_ClearErr(Motor_HandleTypeDef *hmotor)
 {
         uint8_t DM_ClearErr_Data[8] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFB};
         CAN_Send_Data_STD(&hmotor->Node, DM_ClearErr_Data);
 }
 
-//电机-达妙-指令-MID控制（FDCAN，电机Master_ID，位置，速度，Kp，Kd，力矩）
+//电机-达妙-指令-MID控制（CAN，电机Master_ID，位置，速度，Kp，Kd，力矩）
 void Motor_DM_CMD_MIT(Motor_HandleTypeDef *hmotor, float _pos, float _vel, float _KP, float _KD, float _torq)
 {
         uint16_t pos_tmp = float_to_uint(_pos, P_MIN, P_MAX, 16);
@@ -58,7 +58,7 @@ void Motor_DM_CMD_MIT(Motor_HandleTypeDef *hmotor, float _pos, float _vel, float
         CAN_Send_Data_STD(&hmotor->Node, DM_Send_Data);
 }
 
-//电机-达妙-指令-位置控制（FDCAN，电机Master_ID，位置，速度）
+//电机-达妙-指令-位置控制（CAN，电机Master_ID，位置，速度）
 void Motor_DM_CMD_Position(Motor_HandleTypeDef *hmotor, float Position, float Speed)
 {
         float Position_Speed_Buf[2] = {Position, Speed};
@@ -66,10 +66,10 @@ void Motor_DM_CMD_Position(Motor_HandleTypeDef *hmotor, float Position, float Sp
         CAN_Send_Data_STD(&hmotor->Node, (uint8_t *) Position_Speed_Buf);
 }
 
-//电机-达妙-指令-速度控制（FDCAN，电机Master_ID，速度）
+//电机-达妙-指令-速度控制（CAN，电机Master_ID，速度）
 void Motor_DM_CMD_Speed(Motor_HandleTypeDef *hmotor, float Speed)
 {
-        float Speed_Buf[1] = {Speed};
+        float Speed_Buf[2] = {Speed, 0}; //CAN_Send_Data_STD 按8字节整帧发送, 补足8字节避免越界读
 
         CAN_Send_Data_STD(&hmotor->Node, (uint8_t *) Speed_Buf);
 }
@@ -173,7 +173,7 @@ Motor_Config_StructTypeDef Motor_DM_Config_Default = {
 //         hmotor->If_Online = 1;
 // }
 //
-// //电机-达妙1拖4-发送电流控制帧（FDCAN，电机MasterID，1号电机电流，2号电机电流，3号电机电流，4号电机电流）
+// //电机-达妙1拖4-发送电流控制帧（CAN，电机MasterID，1号电机电流，2号电机电流，3号电机电流，4号电机电流）
 // void Motor_DM1to4_SendCurrent(Motor_HandleTypeDef *hmotor, int16_t ID1_Currnet, int16_t ID2_Currnet, int16_t ID3_Currnet, int16_t ID4_Currnet)
 // {
 //         uint8_t Motor_Tx_Data[8];
@@ -186,11 +186,11 @@ Motor_Config_StructTypeDef Motor_DM_Config_Default = {
 //         Motor_Tx_Data[7] = ID4_Currnet >> 8;
 //         Motor_Tx_Data[6] = ID4_Currnet & 0xFF;
 //
-//         CAN_Send_Data_STD(hmotor->Node.hfdcan, hmotor->Node.CAN_Send_ID, Motor_Tx_Data);
+//         CAN_Send_Data_STD(&hmotor->Node, Motor_Tx_Data);
 // }
 //
 // //电机-达妙1拖4-清除错误
-// void Motor_DM1to4_ClearErr(FDCAN_HandleTypeDef *hfdcan, uint16_t CAN_ID)
+// void Motor_DM1to4_ClearErr(CAN_HandleTypeDef *hcan, uint16_t CAN_ID)
 // {
 //         uint8_t Motor_Tx_Data[8];
 //         Motor_Tx_Data[0] = CAN_ID & 0xFF;
@@ -202,7 +202,7 @@ Motor_Config_StructTypeDef Motor_DM_Config_Default = {
 //         Motor_Tx_Data[6] = 0;
 //         Motor_Tx_Data[7] = 0;
 //
-//         CAN_Send_Data_STD(hfdcan, 0x7FF, Motor_Tx_Data);
+//         CAN_Send_Data_STD(hcan, 0x7FF, Motor_Tx_Data);
 // }
 
 

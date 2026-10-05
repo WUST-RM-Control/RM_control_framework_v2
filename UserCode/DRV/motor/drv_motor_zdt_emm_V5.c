@@ -1921,7 +1921,7 @@ void Emm_V5_MMCL_Read_Sys_Params(Motor_HandleTypeDef *hmotor, SysParams_t s)
 
 //来自张大头电机驱动
 /**
-        * @brief   CAN发送多个字节(FDCAN扩展帧)
+        * @brief   CAN发送多个字节(CAN扩展帧)
         * @param   cmd: [0]=电机地址, [1]=功能码, [2..]=数据
         * @param   len: 命令总长度
         * @retval  无
@@ -1941,36 +1941,33 @@ void can_SendCmd(Motor_HandleTypeDef *hmotor, __IO uint8_t *cmd, uint8_t len)
                 k = j - i;
 
                 // 填充缓存
-                CAN_Send_Frame_Struct.hfdcan = hmotor->Node.hfdcan;
+                CAN_Send_Frame_Struct.hcan = hmotor->Node.hcan;
 
-                CAN_Send_Frame_Struct.CAN_TxMsg.Identifier          = ((uint32_t) cmd[0] << 8) | (uint32_t) packNum;
-                CAN_Send_Frame_Struct.CAN_TxMsg.IdType              = FDCAN_EXTENDED_ID;
-                CAN_Send_Frame_Struct.CAN_TxMsg.TxFrameType         = FDCAN_DATA_FRAME;
-                CAN_Send_Frame_Struct.CAN_TxMsg.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
-                CAN_Send_Frame_Struct.CAN_TxMsg.BitRateSwitch       = FDCAN_BRS_OFF;
-                CAN_Send_Frame_Struct.CAN_TxMsg.FDFormat            = FDCAN_CLASSIC_CAN;
-                CAN_Send_Frame_Struct.CAN_TxMsg.TxEventFifoControl  = FDCAN_NO_TX_EVENTS;
-                CAN_Send_Frame_Struct.CAN_TxMsg.MessageMarker       = 0;
-                CAN_Send_Frame_Struct.txData[0]                     = cmd[1];
+                CAN_Send_Frame_Struct.CAN_TxMsg.ExtId              = ((uint32_t) cmd[0] << 8) | (uint32_t) packNum;
+                CAN_Send_Frame_Struct.CAN_TxMsg.IDE                = CAN_ID_EXT;
+                CAN_Send_Frame_Struct.CAN_TxMsg.RTR                = CAN_RTR_DATA;
+                CAN_Send_Frame_Struct.CAN_TxMsg.TransmitGlobalTime = DISABLE;
+                CAN_Send_Frame_Struct.txData[0]                    = cmd[1];
 
                 // 小于8字节命令
                 if (k < 8)
                 {
                         for (l = 0; l < k; l++, i++) { CAN_Send_Frame_Struct.txData[l + 1] = cmd[i + 2]; }
-                        CAN_Send_Frame_Struct.CAN_TxMsg.DataLength = k + 1; //经典帧 0~8 字节时 DLC 即字节数
+                        CAN_Send_Frame_Struct.CAN_TxMsg.DLC = k + 1; //经典帧 0~8 字节时 DLC 即字节数
                 }
                 // 大于8字节命令，分包发送，每包数据最多发送8个字节
                 else
                 {
                         for (l = 0; l < 7; l++, i++) { CAN_Send_Frame_Struct.txData[l + 1] = cmd[i + 2]; }
-                        CAN_Send_Frame_Struct.CAN_TxMsg.DataLength = FDCAN_DLC_BYTES_8;
+                        CAN_Send_Frame_Struct.CAN_TxMsg.DLC = 8;
                 }
 
                 CAN_Send_Data_Queue(&CAN_Send_Frame_Struct);
 
-                // // 发送数据(等待Tx FIFO有空位)
-                // while(HAL_FDCAN_GetTxFifoFreeLevel(&EMM_V5_CAN) == 0);
-                // HAL_FDCAN_AddMessageToTxFifoQ(&EMM_V5_CAN, (FDCAN_TxHeaderTypeDef *)(&CAN_Send_Frame_Struct.CAN_TxMsg), (uint8_t *)(&CAN_Send_Frame_Struct.txData));
+                // // 发送数据(等待Tx邮箱有空位)
+                // while(HAL_CAN_GetTxMailboxesFreeLevel(&hmotor->Node.hcan) == 0);
+                // HAL_CAN_AddTxMessage(&hmotor->Node.hcan, &CAN_Send_Frame_Struct.CAN_TxMsg, CAN_Send_Frame_Struct.txData, &mailbox);
+                // 实际发送统一走 CAN_TxTask 软件队列
 
                 // 记录发送的第几包的数据
                 ++packNum;

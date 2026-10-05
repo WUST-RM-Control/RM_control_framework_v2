@@ -5,7 +5,7 @@
 #ifndef G4MINI_V3_HAL_USB_H
 #define G4MINI_V3_HAL_USB_H
 #include "usbd_cdc_if.h"
-#include "stm32g4xx_hal.h"
+#include "stm32f4xx_hal.h"
 
 #endif //G4MINI_V3_HAL_USB_H
 

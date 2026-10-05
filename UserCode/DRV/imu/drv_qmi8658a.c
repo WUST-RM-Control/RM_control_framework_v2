@@ -2,7 +2,7 @@
 // Created by ye on 2026/8/25.
 //
 
-#include "stm32g4xx_hal.h"
+#include "stm32f4xx_hal.h"
 #include "drv_qmi8658a.h"
 
 #include <math.h>

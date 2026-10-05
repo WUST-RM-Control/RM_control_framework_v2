@@ -5,7 +5,7 @@
 #ifndef G4MINI_V3_BUZZER_H
 #define G4MINI_V3_BUZZER_H
 
-#include "stm32g4xx_hal.h"
+#include "stm32f4xx_hal.h"
 #include "FreeRTOS.h"
 
 /*===| 预设音效枚举定义 |===*/

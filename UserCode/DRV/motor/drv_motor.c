@@ -45,11 +45,11 @@ void Motor_Err_Handler(Err_HandleTypeDef *herr)
 }
 
 //创建电机对象
-void Motor_Ctor(Motor_HandleTypeDef *hmotor,FDCAN_HandleTypeDef *hfdcan, uint16_t CAN_Send_ID, uint16_t CAN_Feedback_ID, Motor_Config_StructTypeDef Motor_Config_Struct)
+void Motor_Ctor(Motor_HandleTypeDef *hmotor,CAN_HandleTypeDef *hcan, uint16_t CAN_Send_ID, uint16_t CAN_Feedback_ID, Motor_Config_StructTypeDef Motor_Config_Struct)
 {
         memset(hmotor, 0, sizeof(Motor_HandleTypeDef));
 
-        CAN_Node_Ctor(&hmotor->Node, hfdcan, CAN_Send_ID, CAN_Feedback_ID, Motor_CAN_Node_Handler, Motor_Config_Struct.herr.tick_timeout, Motor_Config_Struct.herr.count_maximum, Motor_Config_Struct.herr.handler);
+        CAN_Node_Ctor(&hmotor->Node, hcan, CAN_Send_ID, CAN_Feedback_ID, Motor_CAN_Node_Handler, Motor_Config_Struct.herr.tick_timeout, Motor_Config_Struct.herr.count_maximum, Motor_Config_Struct.herr.handler);
         hmotor->Motor_Config_Struct = Motor_Config_Struct;
 
         Motor_Count++;

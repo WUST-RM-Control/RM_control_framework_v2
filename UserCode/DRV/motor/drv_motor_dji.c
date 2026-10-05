@@ -7,8 +7,8 @@
 #include "utils.h"
 
 
-//电机-大疆-发送电流控制帧（FDCAN，控制帧ID，电机1电流，电机2电流，电机3电流，电机4电流）
-void Motor_DJI_SendCurrent(FDCAN_HandleTypeDef *hfdcan, uint16_t CAN_ID, int16_t ID1_Currnet, int16_t ID2_Currnet, int16_t ID3_Currnet, int16_t ID4_Currnet)
+//电机-大疆-发送电流控制帧（CAN，控制帧ID，电机1电流，电机2电流，电机3电流，电机4电流）
+void Motor_DJI_SendCurrent(CAN_HandleTypeDef *hcan, uint16_t CAN_ID, int16_t ID1_Currnet, int16_t ID2_Currnet, int16_t ID3_Currnet, int16_t ID4_Currnet)
 {
         //发出去就行，错误处理和回调跟这个没关系
         CAN_Node_HandleTypeDef hcan_node = {
@@ -19,7 +19,7 @@ void Motor_DJI_SendCurrent(FDCAN_HandleTypeDef *hfdcan, uint16_t CAN_ID, int16_t
                         .count_maximum = 0,
                         .handler       = (void(*)(Err_HandleTypeDef *herror)) null_function,
                 },
-                .hfdcan          = hfdcan,
+                .hcan            = hcan,
                 .CAN_Send_ID     = CAN_ID,
                 .CAN_Feedback_ID = 0x000,
                 .handler         = (void(*)(CAN_Node_HandleTypeDef *node, const uint8_t *Data)) null_function,
@@ -60,7 +60,7 @@ void Motor_DJI_Send_Torque(Motor_HandleTypeDef *hmotor, float torque)
                 current[slot] = (int16_t) group->member[i]->Target_Torque;
         }
 
-        Motor_DJI_SendCurrent(group->member[0]->Node.hfdcan,
+        Motor_DJI_SendCurrent(group->member[0]->Node.hcan,
                               group->member[0]->Node.CAN_Send_ID,
                               current[0], current[1], current[2], current[3]);
 }

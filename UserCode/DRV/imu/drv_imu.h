@@ -6,7 +6,7 @@
 #define G4MINI_V3_DRV_IMU_H
 
 #include "drv_qmi8658a.h"
-#include "stm32g4xx_hal.h"
+#include "stm32f4xx_hal.h"
 #include "utils.h"
 
 //IMU构造: 绑定 SPI 与片选引脚(实例 ↔ 外设绑定, 由 ENT 调用)

@@ -12,7 +12,7 @@
 #include "hal_dwt.h"
 #include "srv_error_monitor.h"
 #include "srv_motor_control.h"
-#include "fdcan.h"
+#include "can.h"
 #include "spi.h"
 #include "tim.h"
 #include "usart.h"
@@ -58,7 +58,7 @@ void main_init()
         LED_Ctor(&hled1, &htim1);                             //RGB LED(htim1 PWM通道1/2/3)
         LED_Init(&hled1);
 
-        Buzzer_Ctor(&hbuzzer1, &htim16, TIM_CHANNEL_1, 10);   //蜂鸣器(htim16 CH1, 10ms任务周期)
+        Buzzer_Ctor(&hbuzzer1, &htim4, TIM_CHANNEL_3, 10);   //蜂鸣器(htim16 CH1, 10ms任务周期)
         Buzzer_Init(&hbuzzer1);
 
         IMU_Ctor(&himu1, &hspi1, SPI1_CS_GPIO_Port, SPI1_CS_Pin);   //QMI8658A(SPI1 + 片选引脚)

@@ -6,59 +6,17 @@
 #define G4MINI_V3_HAL_CAN_H
 
 #include "err.h"
-#include "stm32g4xx_hal.h"
+#include "stm32f4xx_hal.h"
 #include <stdbool.h>
-#include "fdcan.h"
+#include "can.h"
 #include "utils.h"
 #include "FreeRTOS.h"
 #include "queue.h"
 
-/*===| CAN总线资源分配(各设备使用的总线与ID, 使用前需包含fdcan.h) |===*/
-//底盘电机
-#define CHASSIS_MOTOR_CAN                   hfdcan1  //底盘CAN
-#define CHASSIS_MOTOR_SEND_CAN_ID           0x200    //底盘电机CAN发送ID
-#define CHASSIS_MOTOR1_FEEDBACK_CAN_ID      0x201    //底盘电机1CAN反馈ID
-#define CHASSIS_MOTOR2_FEEDBACK_CAN_ID      0x202    //底盘电机2CAN反馈ID
-#define CHASSIS_MOTOR3_FEEDBACK_CAN_ID      0x203    //底盘电机3CAN反馈ID
-#define CHASSIS_MOTOR4_FEEDBACK_CAN_ID      0x204    //底盘电机4CAN反馈ID
+/*===| CAN总线资源分配(各设备使用的总线与ID, 使用前需包含can.h) |===*/
 
-//云台电机
-#define GIMBAL_YAW_CAN                      hfdcan2  //Yaw_使用的CAN
-#define GIMBAL_YAW_SEND_CAN_ID              0x06     //Yaw_CAN发送ID
-#define GIMBAL_YAW_FEEDBACK_CAN_ID          0x106    //Yaw_CAN反馈ID
+//两条总线(hcan1/hcan2 由 can.h 声明); STM32F407 双bxCAN共享28个过滤bank, CAN1用0~13, CAN2用14~27
 
-#define GIMBAL_PITCH_CAN                    hfdcan3  //Pitch_使用的CAN
-#define GIMBAL_PITCH_SEND_CAN_ID            0x1FE    //Pitch_CAN发送ID
-#define GIMBAL_PITCH_FEEDBACK_CAN_ID        0x206    //Pitch_CAN反馈ID
-
-//发射机构电机
-#define SHOOT_FRIC_CAN                      hfdcan3  //Fric_使用的CAN
-#define SHOOT_FRIC_SEND_CAN_ID              0x200    //Fric_CAN发送ID
-#define SHOOT_FRIC_RIGHT_FEEDBACK_CAN_ID    0x201    //右Fric_CAN反馈ID
-#define SHOOT_FRIC_LEFT_FEEDBACK_CAN_ID     0x202    //左Fric_CAN反馈ID
-
-#define SHOOT_TRIGGER_CAN                   hfdcan2  //Trigger_使用的CAN
-#define SHOOT_TRIGGER_SEND_CAN_ID           0x200    //Trigger_CAN发送ID
-#define SHOOT_TRIGGER_FEEDBACK_CAN_ID       0x204    //Trigger_CAN反馈ID
-
-//超电
-#define SUPERCAP_CAN                        hfdcan1  //hcan1
-#define SUPERCAP_CONTROL_CAN_ID             0x030    //超电控制CANID
-#define SUPERCAP_FEEDBACK_CAN_ID            0x031    //超电反馈CANID
-
-//陀螺仪(IMU)
-#define IMU_CAN                             hfdcan3  //hcan3
-#define IMU_CONTROL_CAN_ID                  0x001    //IMU控制CANID
-#define IMU_FEEDBACK_CAN_ID                 0x002    //IMU反馈CANID
-
-//遥控CAN转发
-#define REMOTE_CAN                          hfdcan3
-#define REMOTE_CAN_JOYSTIC_CAN_ID           0x21
-#define REMOTE_CAN_KEYBOARDMOUSE_CAN_ID     0x22
-
-// //张大头Emm_V5步进电机(CAN)
-// #define EMM_V5_CAN                          hfdcan1
-//不用
 extern QueueHandle_t CAN_TxQueue;
 
 typedef struct CAN_Node_HandleTypeDef CAN_Node_HandleTypeDef;
@@ -70,24 +28,24 @@ struct CAN_Node_HandleTypeDef
 {
         Err_HandleTypeDef herr;
 
-        FDCAN_HandleTypeDef *hfdcan;          //FDCAN句柄
-        uint16_t             CAN_Send_ID;     //发送ID
-        uint16_t             CAN_Feedback_ID; //反馈ID
+        CAN_HandleTypeDef *hcan;              //CAN句柄
+        uint16_t           CAN_Send_ID;       //发送ID
+        uint16_t           CAN_Feedback_ID;   //反馈ID
 
-        CAN_Node_Handler     handler; //数据回调
+        CAN_Node_Handler   handler; //数据回调
 };
 
 typedef struct {
-        FDCAN_HandleTypeDef *hfdcan;
-        FDCAN_TxHeaderTypeDef CAN_TxMsg;
-        uint8_t txData[8];
+        CAN_HandleTypeDef   *hcan;
+        CAN_TxHeaderTypeDef CAN_TxMsg;
+        uint8_t             txData[8]; //恒定8字节(HAL_CAN_AddTxMessage 无条件读8字节)
 }CAN_Send_Frame_StructTypeDef;
 
 
 /*===| 基类访问接口 |===*/
-__STATIC_INLINE FDCAN_HandleTypeDef *CAN_Node_GetHFDCAN(CAN_Node_HandleTypeDef *node)
+__STATIC_INLINE CAN_HandleTypeDef *CAN_Node_GetHcan(CAN_Node_HandleTypeDef *node)
 {
-        return node->hfdcan;
+        return node->hcan;
 }
 
 __STATIC_INLINE uint16_t CAN_Node_GetSendID(CAN_Node_HandleTypeDef *node)
@@ -100,7 +58,7 @@ __STATIC_INLINE uint16_t CAN_Node_GetFeedbackID(CAN_Node_HandleTypeDef *node)
         return node->CAN_Feedback_ID;
 }
 
-void CAN_Node_Ctor(CAN_Node_HandleTypeDef *hcan_node, FDCAN_HandleTypeDef *hfdcan, uint16_t CAN_Send_ID, uint16_t CAN_Feedback_ID, CAN_Node_Handler node_handler, uint16_t err_tick_Timeout, uint16_t err_count_maximum, err_handler err_handler);
+void CAN_Node_Ctor(CAN_Node_HandleTypeDef *hcan_node, CAN_HandleTypeDef *hcan, uint16_t CAN_Send_ID, uint16_t CAN_Feedback_ID, CAN_Node_Handler node_handler, uint16_t err_tick_Timeout, uint16_t err_count_maximum, err_handler err_handler);
 
 /*===| CAN节点分发框架 |===*/
 
@@ -111,13 +69,16 @@ void CAN_Node_Register(CAN_Node_HandleTypeDef *hcan_node, CAN_Node_Handler handl
 void CAN_Node_UnRegister(CAN_Node_HandleTypeDef *hcan_node);
 
 /*===| CAN总线错误处理 |===*/
-//hal库长大了，会自己处理的()
+//总线错误/总线关闭: ABOM=ENABLE 由硬件自动恢复, 另在 HAL_CAN_ErrorCallback 里记录错误码供观察
+
+//总线错误码快照[0]=CAN1, [1]=CAN2 (HAL_CAN_ErrorCallback 更新, 供调试观察)
+extern volatile uint32_t CAN_Error_Code[2];
 
 //总线离线判定阈值(监控周期10ms时为100ms)
 #define CAN_OFFLINE_TICK 10
 
-//CAN总线重启: 停止→去初始化→重新初始化→启动→重配过滤器/中断 (处理总线错误/总线关闭)
-HAL_StatusTypeDef CAN_Restart(FDCAN_HandleTypeDef *hfdcan);
+//CAN总线重启: 停止→去初始化→重新初始化→启动→重配过滤器/中断 (手动处理总线错误/总线关闭)
+HAL_StatusTypeDef CAN_Restart(CAN_HandleTypeDef *hcan);
 
 void CAN_Send_Data_STD(CAN_Node_HandleTypeDef *hcan_node, const uint8_t *TX_Data);
 
@@ -128,11 +89,12 @@ __STATIC_INLINE void CAN_Send_Data_Queue(CAN_Send_Frame_StructTypeDef *CAN_Send_
         xQueueSend(CAN_TxQueue, CAN_Send_Packet_Struct, 0);
 }
 
-void CAN_Filter_Init(FDCAN_HandleTypeDef *hfdcan);
+//CAN过滤器初始化: CAN1→bank0, CAN2→bank14(FMR.CAN2SB=14), 全通过→FIFO0
+void CAN_Filter_Init(CAN_HandleTypeDef *hcan);
 
 void CAN_Init();
 
 //单条CAN总线初始化: 启动 + 配置过滤器/接收中断
-void CAN_Bus_Init(FDCAN_HandleTypeDef *hfdcan);
+void CAN_Bus_Init(CAN_HandleTypeDef *hcan);
 
 #endif //G4MINI_V3_HAL_CAN_H

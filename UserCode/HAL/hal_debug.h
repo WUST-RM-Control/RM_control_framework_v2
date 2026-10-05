@@ -5,7 +5,7 @@
 #ifndef G4MINI_V3_HAL_DEBUG_H
 #define G4MINI_V3_HAL_DEBUG_H
 
-#include "stm32g4xx_hal.h"
+#include "stm32f4xx_hal.h"
 
 //调试串口对象构造: 绑定调试串口(实例 ↔ 外设绑定, 由 ENT 调用)
 void Debug_Ctor(UART_HandleTypeDef *huart);

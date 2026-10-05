@@ -134,7 +134,7 @@ void Motor_Err_Handler(Err_HandleTypeDef *herr);
 //通过角度改变计算速度
 void Motor_Get_TotalAngle_Speed(Motor_HandleTypeDef *hmotor, float K);
 
-void Motor_Ctor(Motor_HandleTypeDef *hmotor, FDCAN_HandleTypeDef *hfdcan, uint16_t CAN_Send_ID, uint16_t CAN_Feedback_ID, Motor_Config_StructTypeDef Motor_Config_Struct);
+void Motor_Ctor(Motor_HandleTypeDef *hmotor, CAN_HandleTypeDef *hcan, uint16_t CAN_Send_ID, uint16_t CAN_Feedback_ID, Motor_Config_StructTypeDef Motor_Config_Struct);
 
 //电机发送组初始化: 回填组内成员的 Group 反向指针(成员数组需先静态初始化好)
 //组长 member[0] 为空则忽略(不建组)
