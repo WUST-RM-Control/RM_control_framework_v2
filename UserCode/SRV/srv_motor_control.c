@@ -289,18 +289,18 @@ void Motor_Control_Task(void *pvParameters)
                         }
                         else//电调闭环: 目标直接下发
                         {
-                                if (hmotor_table[i]->Motor_Config_Struct.Status_Enum == MOTOR_ANGLE)
-                                {
-                                        Motor_Send_Angle(hmotor_table[i], hmotor_table[i]->Target_Angle);
-                                }
-                                else if (hmotor_table[i]->Motor_Config_Struct.Status_Enum == MOTOR_SPEED)
-                                {
-                                        Motor_Send_Speed(hmotor_table[i], hmotor_table[i]->Target_Speed);
-                                }
-                                else if (hmotor_table[i]->Motor_Config_Struct.Status_Enum == MOTOR_TORQUE)
-                                {
-                                        Motor_Send_Torque(hmotor_table[i], hmotor_table[i]->Target_Torque);
-                                }
+                                // if (hmotor_table[i]->Motor_Config_Struct.Status_Enum == MOTOR_ANGLE)
+                                // {
+                                //         Motor_Send_Angle(hmotor_table[i], hmotor_table[i]->Target_Angle);
+                                // }
+                                // else if (hmotor_table[i]->Motor_Config_Struct.Status_Enum == MOTOR_SPEED)
+                                // {
+                                //         Motor_Send_Speed(hmotor_table[i], hmotor_table[i]->Target_Speed);
+                                // }
+                                // else if (hmotor_table[i]->Motor_Config_Struct.Status_Enum == MOTOR_TORQUE)
+                                // {
+                                //         Motor_Send_Torque(hmotor_table[i], hmotor_table[i]->Target_Torque);
+                                // }
                         }
                 }
 
