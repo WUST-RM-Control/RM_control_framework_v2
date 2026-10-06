@@ -251,7 +251,7 @@ void Motor_Control_Task(void *pvParameters)
 {
         for (;;)
         {
-                /*===| 阶段1: 计算(更新所有电机的目标值) |===*/
+                //计算
                 for (int i = 0; i < Motor_Count; i++)
                 {
                         //离线输出0力矩
@@ -277,17 +277,14 @@ void Motor_Control_Task(void *pvParameters)
                         }
                 }
 
-                /*===| 阶段2: 发送 ================================================
-                 * 与阶段1分开的原因: 一拖四设备(DJI)由组长一次性组帧,
-                 * 组长必须读到组内所有成员本轮的 Target_*, 否则其余成员会滞后一个周期
-                 *===============================================================*/
+                //发送
                 for (int i = 0; i < Motor_Count; i++)
                 {
                         if (hmotor_table[i]->Motor_Config_Struct.Is_Feedback_Control)//下位机闭环: 下发MCU算好的力矩
                         {
                                 Motor_Send_Torque(hmotor_table[i], hmotor_table[i]->Target_Torque);
                         }
-                        else//电调闭环: 目标直接下发
+                        else//电调闭环: 目标直接下发, 好像直接在应用层发送比较好（）
                         {
                                 // if (hmotor_table[i]->Motor_Config_Struct.Status_Enum == MOTOR_ANGLE)
                                 // {
