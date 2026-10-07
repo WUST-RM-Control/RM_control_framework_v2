@@ -2036,6 +2036,7 @@ Motor_Config_StructTypeDef Motor_ZDT_Config_Default = {
         .Motor_Enum          = MOTOR_ZDT,
         .vptr                = &Motor_ZDT_VTable_Default,
         .Status_Enum         = MOTOR_ANGLE,
+        .CAN_Feedback_ID_Mask = CAN_FEEDBACK_ID_MASK_LOW8,
         .Is_Feedback_Control = false,
         .Error_Code          = 1,
 

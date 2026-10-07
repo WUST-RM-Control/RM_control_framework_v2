@@ -37,7 +37,7 @@ void INS_Init(void)
         IMU_Param.scale[INS_Z] = 1;
         IMU_Param.Yaw      = 0;
         IMU_Param.Pitch    = 0;
-        IMU_Param.Roll     = 180;
+        IMU_Param.Roll     = 0;
         IMU_Param.flag     = 1;
 
         IMU_QuaternionEKF_Init(10.0f, 0.001f, 10000000, 1, 0);

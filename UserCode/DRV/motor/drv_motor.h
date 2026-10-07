@@ -42,6 +42,8 @@ typedef struct
         Motor_Enum_TypeDef   Motor_Enum;
         Motor_Status_TypeDef Status_Enum;
 
+        uint32_t CAN_Feedback_ID_Mask;
+
         uint8_t Is_Feedback_Control: 1; //MCU内闭环为1，电调内闭环为0
 
         uint8_t Error_Code; //反馈错误码(1=正常, 0=失能, 3~E=故障; DJI不更新恒为1)
@@ -134,7 +136,7 @@ void Motor_Err_Handler(Err_HandleTypeDef *herr);
 //通过角度改变计算速度
 void Motor_Get_TotalAngle_Speed(Motor_HandleTypeDef *hmotor, float K);
 
-void Motor_Ctor(Motor_HandleTypeDef *hmotor, CAN_HandleTypeDef *hcan, uint16_t CAN_Send_ID, uint16_t CAN_Feedback_ID, Motor_Config_StructTypeDef Motor_Config_Struct);
+void Motor_Ctor(Motor_HandleTypeDef *hmotor,CAN_HandleTypeDef *hcan, uint32_t CAN_Send_ID, uint32_t CAN_Feedback_ID,  Motor_Config_StructTypeDef Motor_Config_Struct);
 
 //电机发送组初始化: 回填组内成员的 Group 反向指针(成员数组需先静态初始化好)
 //组长 member[0] 为空则忽略(不建组)

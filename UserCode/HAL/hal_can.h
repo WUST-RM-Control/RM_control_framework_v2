@@ -13,6 +13,10 @@
 #include "FreeRTOS.h"
 #include "queue.h"
 
+//掩码预设
+#define CAN_FEEDBACK_ID_MASK_NONE 0xFFFF  //精确匹配( 默认)
+#define CAN_FEEDBACK_ID_MASK_LOW8 0xFF00  //忽略ID低8 位
+
 /*===| CAN总线资源分配(各设备使用的总线与ID, 使用前需包含can.h) |===*/
 
 //两条总线(hcan1/hcan2 由 can.h 声明); STM32F407 双bxCAN共享28个过滤bank, CAN1用0~13, CAN2用14~27
@@ -28,9 +32,10 @@ struct CAN_Node_HandleTypeDef
 {
         Err_HandleTypeDef herr;
 
-        CAN_HandleTypeDef *hcan;              //CAN句柄
-        uint16_t           CAN_Send_ID;       //发送ID
-        uint16_t           CAN_Feedback_ID;   //反馈ID
+        CAN_HandleTypeDef *hcan;                 //CAN句柄
+        uint32_t           CAN_Send_ID;          //发送ID
+        uint32_t           CAN_Feedback_ID;      //反馈ID
+        uint32_t           CAN_Feedback_ID_Mask; //反馈ID掩码
 
         CAN_Node_Handler   handler; //数据回调
 };
@@ -58,7 +63,7 @@ __STATIC_INLINE uint16_t CAN_Node_GetFeedbackID(CAN_Node_HandleTypeDef *node)
         return node->CAN_Feedback_ID;
 }
 
-void CAN_Node_Ctor(CAN_Node_HandleTypeDef *hcan_node, CAN_HandleTypeDef *hcan, uint16_t CAN_Send_ID, uint16_t CAN_Feedback_ID, CAN_Node_Handler node_handler, uint16_t err_tick_Timeout, uint16_t err_count_maximum, err_handler err_handler);
+void CAN_Node_Ctor(CAN_Node_HandleTypeDef *hcan_node, CAN_HandleTypeDef *hcan, uint32_t CAN_Send_ID, uint32_t CAN_Feedback_ID, uint32_t CAN_Feedback_ID_Mask, CAN_Node_Handler node_handler, uint16_t err_tick_Timeout, uint16_t err_count_maximum, err_handler err_handler);
 
 /*===| CAN节点分发框架 |===*/
 

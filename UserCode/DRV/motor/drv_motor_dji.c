@@ -106,6 +106,7 @@ Motor_Config_StructTypeDef Motor_DJI_Config_Default = {
         .Motor_Enum          = MOTOR_DJI,
         .vptr                = &Motor_DJI_VTable_Default,
         .Status_Enum         = MOTOR_TORQUE,
+        .CAN_Feedback_ID_Mask = CAN_FEEDBACK_ID_MASK_NONE,
         .Is_Feedback_Control = true,
         .Error_Code          = 1,
 

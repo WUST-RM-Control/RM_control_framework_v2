@@ -135,6 +135,7 @@ Motor_Config_StructTypeDef Motor_DM_Config_Default = {
         .Motor_Enum  = MOTOR_DM,
         .vptr        = &Motor_DM_VTable_Default,
         .Status_Enum = MOTOR_TORQUE,
+        .CAN_Feedback_ID_Mask = CAN_FEEDBACK_ID_MASK_NONE,
         .Is_Feedback_Control = true,  //DM电机的自闭环的PID调起来比较麻烦，这里可选
         .Error_Code = 1,
 

@@ -73,18 +73,19 @@ void CAN_Node_UnRegister(CAN_Node_HandleTypeDef *hcan_node)
 }
 
 //CAN节点构造: 绑定CAN句柄与收发ID与回调函数
-void CAN_Node_Ctor(CAN_Node_HandleTypeDef *hcan_node, CAN_HandleTypeDef *hcan, uint16_t CAN_Send_ID, uint16_t CAN_Feedback_ID, CAN_Node_Handler node_handler, uint16_t err_tick_Timeout, uint16_t err_count_maximum, err_handler err_handler)
+void CAN_Node_Ctor(CAN_Node_HandleTypeDef *hcan_node, CAN_HandleTypeDef *hcan, uint32_t CAN_Send_ID, uint32_t CAN_Feedback_ID, uint32_t CAN_Feedback_ID_Mask, CAN_Node_Handler node_handler, uint16_t err_tick_Timeout, uint16_t err_count_maximum, err_handler err_handler)
 {
         Err_Ctor(&hcan_node->herr, err_tick_Timeout, err_count_maximum, err_handler);
 
-        hcan_node->hcan            = hcan;
-        hcan_node->CAN_Send_ID     = CAN_Send_ID;
-        hcan_node->CAN_Feedback_ID = CAN_Feedback_ID;
+        hcan_node->hcan                 = hcan;
+        hcan_node->CAN_Send_ID          = CAN_Send_ID;
+        hcan_node->CAN_Feedback_ID      = CAN_Feedback_ID;
+        hcan_node->CAN_Feedback_ID_Mask = CAN_Feedback_ID_Mask;
 
         CAN_Node_Register(hcan_node, node_handler);
 }
 
-//CAN接收回调(FIFO0)
+//CAN接收回调
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
         CAN_RxHeaderTypeDef RxHeader;
@@ -99,7 +100,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
         for (uint8_t i = 0; i < CAN_Node_Count; i++)
         {
                 if (hcan_node_table[i]->hcan == hcan &&
-                    hcan_node_table[i]->CAN_Feedback_ID == CAN_RX_ID)
+                    hcan_node_table[i]->CAN_Feedback_ID ==( CAN_RX_ID & hcan_node_table[i]->CAN_Feedback_ID_Mask))
                 {
                         hcan_node_table[i]->handler(hcan_node_table[i], CAN_RX_Data);
                 }
@@ -211,4 +212,3 @@ void CAN_Filter_Init(CAN_HandleTypeDef *hcan)
                                      CAN_IT_BUSOFF |
                                      CAN_IT_ERROR);
 }
-

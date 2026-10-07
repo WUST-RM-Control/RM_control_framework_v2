@@ -20,6 +20,7 @@
 #include "drv_imu.h"
 #include "drv_bmi088.h"
 #include "drv_key.h"
+#include "drv_motor_zdt_emm_V5.h"
 #include "drv_remote_dt7.h"
 #include "srv_ins.h"
 #include "srv_led_key.h"
@@ -32,11 +33,18 @@ void Debug_Task(void *pvParameters)
         for (;;)
         {
 
-                VOFA_Send_Data(0, Key_Get_State(&hkey1));
-
-
+                VOFA_Send_Data(0, INS_Get_Pitch());
+                VOFA_Send_Data(1, INS_Get_Yaw());
+                VOFA_Send_Data(2, INS_Get_Roll());
+                // Motor_Send_Angle(&hmotor1, 1000);
+                // Emm_V5_Pos_Control(&hmotor1, 0, 1000, 0, 32000, 0, 0);
 
                 vTaskDelay(40);
+
+                // Motor_Send_Angle(&hmotor1, 0);
+
+                // vTaskDelay(1000);
+
         }
 }
 
@@ -48,7 +56,7 @@ void main_init()
         Debug_Ctor(&huart3);            //printf重定向目标
         Debug_Init();
 
-        VOFA_Ctor(&huart1);             //VOFA上位机串口
+        VOFA_Ctor(&huart6);             //VOFA上位机串口
         VOFA_Init();
 
         CAN_Init();
@@ -76,7 +84,7 @@ void main_init()
 
         /*===| 任务创建 |===*/
         xTaskCreate(LED_Key_Task, "LED_Key", 256, NULL, 4, NULL);
-        xTaskCreate(Buzzer_Task, "Buzzer", 256, &hbuzzer1, 4, NULL);
+        // xTaskCreate(Buzzer_Task, "Buzzer", 256, &hbuzzer1, 4, NULL);
         xTaskCreate(Motor_Control_Task, "Motor", 512, NULL, 6, NULL);
         xTaskCreate(INS_Task, "INS", 1024, NULL, 10, NULL);
         // xTaskCreate(Error_Monitor_Task, "ErrorMon", 512, NULL, 5, NULL);

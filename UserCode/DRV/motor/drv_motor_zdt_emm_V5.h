@@ -15,7 +15,8 @@
 ***	qq交流群：262438510
 **********************************************************/
 
-#define					ABS(x)							((x) > 0 ? (x) : -(x)) 
+#define					ABS(x)							((x) > 0 ? (x) : -(x))
+
 
 typedef enum {
 	S_VBUS  = 5,	// 读取总线电压
@@ -41,6 +42,8 @@ typedef enum {
 #define		MMCL_LEN		512
 extern __IO uint16_t MMCL_count, MMCL_cmd[MMCL_LEN];
 
+extern Motor_Config_StructTypeDef Motor_ZDT_Config_Default;
+extern Motor_HandleTypeDef hmotor1;
 /**
 ***********************************************************
 ***********************************************************

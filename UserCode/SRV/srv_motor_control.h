@@ -8,8 +8,6 @@
 #include "drv_motor.h"
 #include "hal_can.h"
 
-#define MOTOR_COUNT 9
-
 /*===| 电机控制服务(初始化 + 控制循环, 位于SRV层) |===*/
 
 //电机系统初始化: 创建电机对象 + PID整定 + 注册CAN节点
