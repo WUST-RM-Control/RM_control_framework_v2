@@ -45,7 +45,7 @@ void Motor_Err_Handler(Err_HandleTypeDef *herr)
 }
 
 //创建电机对象
-void Motor_Ctor(Motor_HandleTypeDef *hmotor,CAN_HandleTypeDef *hcan, uint32_t CAN_Send_ID, uint32_t CAN_Feedback_ID,  Motor_Config_StructTypeDef Motor_Config_Struct)
+void Motor_Ctor(Motor_HandleTypeDef *hmotor,CAN_HandleTypeDef *hcan, uint32_t CAN_Send_ID, uint32_t CAN_Feedback_ID, Motor_Config_StructTypeDef Motor_Config_Struct)
 {
         memset(hmotor, 0, sizeof(Motor_HandleTypeDef));
 

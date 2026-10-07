@@ -28,10 +28,10 @@ static Motor_HandleTypeDef *hmotor_table[MOTOR_COUNT] = {
 /*===| 电机系统初始化(创建对象 + PID整定 + 注册CAN节点) |===*/
 void Motor_Init()
 {
-        static const uint16_t Motor_CAN_Feedback_ID_Table[9] = {
-
-        };
-        Motor_Ctor(&hmotor1, &hcan1, 0x01, 0x01 << 8, Motor_ZDT_Config_Default);
+        // static const uint16_t Motor_CAN_Feedback_ID_Table[MOTOR_COUNT] = {
+        //
+        // };
+        // Motor_Ctor(&hmotor1, &hcan1, 0x01, 0x01 << 8, Motor_ZDT_Config_Default);
 }
 
 /*===| 电机控制任务: "计算 → 发送" 两阶段 |===*/

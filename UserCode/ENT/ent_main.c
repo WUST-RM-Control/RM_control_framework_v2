@@ -22,6 +22,7 @@
 #include "drv_key.h"
 #include "drv_motor_zdt_emm_V5.h"
 #include "drv_remote_dt7.h"
+#include "Emm_V5.h"
 #include "srv_ins.h"
 #include "srv_led_key.h"
 
@@ -33,17 +34,16 @@ void Debug_Task(void *pvParameters)
         for (;;)
         {
 
-                VOFA_Send_Data(0, INS_Get_Pitch());
-                VOFA_Send_Data(1, INS_Get_Yaw());
-                VOFA_Send_Data(2, INS_Get_Roll());
+                Emm_V5_Pos_Control(1, 0, 1000, 0, 32000, 1, 0);
+
                 // Motor_Send_Angle(&hmotor1, 1000);
                 // Emm_V5_Pos_Control(&hmotor1, 0, 1000, 0, 32000, 0, 0);
 
-                vTaskDelay(40);
+                vTaskDelay(1000);
 
-                // Motor_Send_Angle(&hmotor1, 0);
+                Emm_V5_Pos_Control(1, 0, 1000, 200, 0, 1, 0);
 
-                // vTaskDelay(1000);
+                vTaskDelay(4000);
 
         }
 }
