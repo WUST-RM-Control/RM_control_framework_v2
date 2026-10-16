@@ -37,25 +37,19 @@ HAL_StatusTypeDef CAN_Restart(CAN_HandleTypeDef *hcan)
 static CAN_Node_HandleTypeDef *hcan_node_table[CAN_NODE_MAX];
 static uint8_t                 CAN_Node_Count = 0;
 
-//注册节点(重复注册则更新回调)
-void CAN_Node_Register(CAN_Node_HandleTypeDef *hcan_node, CAN_Node_Handler handler)
+//注册节点(重复注册则忽略)
+void CAN_Node_Register(CAN_Node_HandleTypeDef *hcan_node)
 {
-        if (hcan_node == NULL || handler == NULL) return;
+        if (hcan_node == NULL || hcan_node->Base.handler == NULL) return;
 
         for (uint8_t i = 0; i < CAN_Node_Count; i++)
         {
-                if (hcan_node_table[i] == hcan_node)
-                {
-                        hcan_node_table[i]->handler = handler;
-                        return;
-                }
+                if (hcan_node_table[i] == hcan_node) return;
         }
 
         if (CAN_Node_Count >= CAN_NODE_MAX) return;
 
-        hcan_node_table[CAN_Node_Count]          = hcan_node;
-        hcan_node_table[CAN_Node_Count]->handler = handler;
-        CAN_Node_Count++;
+        hcan_node_table[CAN_Node_Count++] = hcan_node;
 }
 
 //注销节点
@@ -72,17 +66,17 @@ void CAN_Node_UnRegister(CAN_Node_HandleTypeDef *hcan_node)
         }
 }
 
-//CAN节点构造: 绑定CAN句柄与收发ID与回调函数
-void CAN_Node_Ctor(CAN_Node_HandleTypeDef *hcan_node, CAN_HandleTypeDef *hcan, uint32_t CAN_Send_ID, uint32_t CAN_Feedback_ID, uint32_t CAN_Feedback_ID_Mask, CAN_Node_Handler node_handler, uint16_t err_tick_Timeout, uint16_t err_count_maximum, err_handler err_handler)
+//CAN节点构造: 绑定 CAN 句柄/收发ID/回调
+void CAN_Node_Ctor(CAN_Node_HandleTypeDef *hcan_node, CAN_HandleTypeDef *hcan, uint32_t CAN_Send_ID, uint32_t CAN_Feedback_ID, uint32_t CAN_Feedback_ID_Mask, Bus_Node_Handler node_handler, uint16_t err_tick_timeout, uint16_t err_count_maximum, err_handler err_handler)
 {
-        Err_Ctor(&hcan_node->herr, err_tick_Timeout, err_count_maximum, err_handler);
+        Bus_Node_Ctor(&hcan_node->Base, BUS_TYPE_CAN, CAN_Send_ID, node_handler, err_tick_timeout, err_count_maximum, err_handler);
 
-        hcan_node->hcan                 = hcan;
-        hcan_node->CAN_Send_ID          = CAN_Send_ID;
-        hcan_node->CAN_Feedback_ID      = CAN_Feedback_ID;
-        hcan_node->CAN_Feedback_ID_Mask = CAN_Feedback_ID_Mask;
+        hcan_node->hcan             = hcan;
+        hcan_node->Send_ID          = CAN_Send_ID;
+        hcan_node->Feedback_ID      = CAN_Feedback_ID;
+        hcan_node->Feedback_ID_Mask = CAN_Feedback_ID_Mask;
 
-        CAN_Node_Register(hcan_node, node_handler);
+        CAN_Node_Register(hcan_node);
 }
 
 //CAN接收回调
@@ -96,25 +90,27 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
         //标准帧取StdId, 扩展帧取ExtId(bxCAN把标准/扩展ID放在两个不同字段)
         uint32_t CAN_RX_ID = (RxHeader.IDE == CAN_ID_EXT) ? RxHeader.ExtId : RxHeader.StdId;
 
-        //基于can_node的通用分发: 按(总线, 反馈ID)匹配节点, 调用节点数据回调
+        //基于总线节点的通用分发: 按(总线, 反馈ID)匹配节点, 回填帧信息后调节点回调
         for (uint8_t i = 0; i < CAN_Node_Count; i++)
         {
                 if (hcan_node_table[i]->hcan == hcan &&
-                    hcan_node_table[i]->CAN_Feedback_ID ==( CAN_RX_ID & hcan_node_table[i]->CAN_Feedback_ID_Mask))
+                    hcan_node_table[i]->Feedback_ID == (CAN_RX_ID & hcan_node_table[i]->Feedback_ID_Mask))
                 {
-                        hcan_node_table[i]->handler(hcan_node_table[i], CAN_RX_Data);
+                        hcan_node_table[i]->Base.Rx_Data   = CAN_RX_Data;
+                        hcan_node_table[i]->Base.Rx_Length = 8;
+                        hcan_node_table[i]->Base.handler(&hcan_node_table[i]->Base);
                 }
         }
 }
 
-//CAN-发送标准帧
-void CAN_Send_Data_STD(CAN_Node_HandleTypeDef *hcan_node, const uint8_t *TX_Data)
+//CAN-发送标准帧(不依赖节点)
+void CAN_Send_STD(CAN_HandleTypeDef *hcan, uint32_t Send_ID, const uint8_t *TX_Data)
 {
         CAN_Send_Frame_StructTypeDef CAN_Send_Frame_Struct = {};
 
-        CAN_Send_Frame_Struct.hcan = hcan_node->hcan;
+        CAN_Send_Frame_Struct.hcan = hcan;
 
-        CAN_Send_Frame_Struct.CAN_TxMsg.StdId              = hcan_node->CAN_Send_ID;
+        CAN_Send_Frame_Struct.CAN_TxMsg.StdId              = Send_ID;
         CAN_Send_Frame_Struct.CAN_TxMsg.IDE                = CAN_ID_STD;
         CAN_Send_Frame_Struct.CAN_TxMsg.RTR                = CAN_RTR_DATA;
         CAN_Send_Frame_Struct.CAN_TxMsg.DLC                = 8;
@@ -123,6 +119,12 @@ void CAN_Send_Data_STD(CAN_Node_HandleTypeDef *hcan_node, const uint8_t *TX_Data
         memcpy(CAN_Send_Frame_Struct.txData, TX_Data, sizeof(CAN_Send_Frame_Struct.txData));
 
         CAN_Send_Data_Queue(&CAN_Send_Frame_Struct);
+}
+
+//CAN-发送标准帧
+void CAN_Send_Data_STD(CAN_Node_HandleTypeDef *hcan_node, const uint8_t *TX_Data)
+{
+        CAN_Send_STD(hcan_node->hcan, hcan_node->Send_ID, TX_Data);
 }
 
 //CAN-发送拓展帧
@@ -134,7 +136,7 @@ void CAN_Send_Data_EXD(CAN_Node_HandleTypeDef *hcan_node, uint8_t *TX_Data, uint
 
         CAN_Send_Frame_Struct.hcan = hcan_node->hcan;
 
-        CAN_Send_Frame_Struct.CAN_TxMsg.ExtId              = hcan_node->CAN_Send_ID;
+        CAN_Send_Frame_Struct.CAN_TxMsg.ExtId              = hcan_node->Send_ID;
         CAN_Send_Frame_Struct.CAN_TxMsg.IDE                = CAN_ID_EXT;
         CAN_Send_Frame_Struct.CAN_TxMsg.RTR                = CAN_RTR_DATA;
         CAN_Send_Frame_Struct.CAN_TxMsg.DLC                = Length; //经典帧 0~8 字节时 DLC 即字节数

@@ -20,41 +20,19 @@
 #include "drv_imu.h"
 #include "drv_bmi088.h"
 #include "drv_key.h"
-#include "drv_motor_zdt_emm_V5.h"
 #include "drv_remote_dt7.h"
-#include "Emm_V5.h"
+#include "hal_uart.h"
 #include "srv_ins.h"
 #include "srv_led_key.h"
-uint8_t ZDT_RxBuff[32] = {};
-
-void ZDT_RxEvent_CallBack(struct __UART_HandleTypeDef *huart, uint16_t Pos)
-{
-        HAL_UARTEx_ReceiveToIdle_DMA(huart, ZDT_RxBuff, sizeof(ZDT_RxBuff));
-        __HAL_DMA_DISABLE_IT(huart->hdmarx, DMA_IT_HT);
-}
 
 //开发时偷懒做点小事在这()
 void Debug_Task(void *pvParameters)
 {
         LED_Set(&hled1, 255, 255, 255);
 
-        HAL_UART_RegisterRxEventCallback(&huart1, ZDT_RxEvent_CallBack);
-        HAL_UARTEx_ReceiveToIdle_DMA(&huart1, ZDT_RxBuff, sizeof(ZDT_RxBuff));
-        __HAL_DMA_DISABLE_IT(huart1.hdmarx, DMA_IT_HT);
-
         for (;;)
         {
-                Emm_V5_Pos_Control(1, 0, 1000, 0, 32000, 1, 0);
-
-                // Motor_Send_Angle(&hmotor1, 1000);
-                // Emm_V5_Pos_Control(&hmotor1, 0, 1000, 0, 32000, 0, 0);
-
                 vTaskDelay(1000);
-
-                Emm_V5_Pos_Control(1, 0, 1000, 200, 0, 1, 0);
-
-                vTaskDelay(4000);
-
         }
 }
 
@@ -70,6 +48,8 @@ void main_init()
         VOFA_Init();
 
         CAN_Init();
+
+        UART_Bus_Init(&huart1); //ZDT电机总线(USART1: TX PA9 / RX PB7)
 
         /*===| 实例 ↔ 外设绑定(全部集中在此) |===*/
         Key_Ctor(&hkey1, GPIOA, GPIO_PIN_0);

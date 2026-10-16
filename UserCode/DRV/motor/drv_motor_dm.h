@@ -24,35 +24,28 @@ typedef struct
 {
         Motor_Base_HandleTypeDef hmotor_base;
 
-        Feedforward_t FFC_Angle_Struct;
-        PID_t         PID_Angle_Struct;
-        Feedforward_t FFC_Speed_Struct;
-        PID_t         PID_Speed_Struct;
+        Motor_Loop_CtrlTypeDef Ctrl_Angle;
+        Motor_Loop_CtrlTypeDef Ctrl_Speed;
 } Motor_DM_HandleTypeDef;
 
 typedef struct
 {
-        Motor_Enum_TypeDef Motor_Enum;
+        Motor_Config_StructTypeDef Base;
 
-        Err_HandleTypeDef herr;
+        Motor_PID_ParamTypeDef PID_Angle;
+        Motor_PID_ParamTypeDef PID_Speed;
 
-        uint32_t CAN_Feedback_ID_Mask; //反馈ID掩码
-
-        Motor_VTable *vptr;
-
-        uint8_t Error_Code; //反馈错误码(1=正常, 0=失能, 3~E=故障; DJI不更新恒为1)
-
-        Motor_Status_TypeDef Status_Enum;
+        Motor_FFC_ParamTypeDef FFC_Angle;
+        Motor_FFC_ParamTypeDef FFC_Speed;
 } Motor_DM_Config_StructTypeDef;
+
+extern Motor_VTable                  Motor_DM_VTable_Default;
+extern Motor_DM_Config_StructTypeDef Motor_DM_Config_Default;
+
+void Motor_DM_Ctor(Motor_DM_HandleTypeDef *hmotor_dm, CAN_HandleTypeDef *hcan, uint32_t CAN_Send_ID, uint32_t CAN_Feedback_ID);
 
 void Motor_DM_CMD_MIT(Motor_Base_HandleTypeDef *hmotor_base, float _pos, float _vel, float _KP, float _KD, float _torq);
 
-void Motor_DM_CMD_Position(Motor_Base_HandleTypeDef *hmotor_base, float Position, float Speed);
-
-__STATIC_INLINE void Motor_DM_Send_Torque(Motor_Base_HandleTypeDef *hmotor, float torque) { Motor_DM_CMD_MIT(hmotor, 0, 0, 0, 0, torque); }
-__STATIC_INLINE void Motor_DM_Send_Pos(Motor_Base_HandleTypeDef *hmotor, float Position) { Motor_DM_CMD_Position(hmotor, Position, 1); } //待测试
-
-extern Motor_VTable Motor_DM_VTable_Default;
-
+void Motor_DM_CMD_Speed(Motor_Base_HandleTypeDef *hmotor_base, float Speed);
 
 #endif //G4MINI_V3_DRV_MOTOR_DM_H

@@ -447,7 +447,7 @@ static void f_PID_ErrorHandle(PID_t *pid)
 void Feedforward_Init(
         Feedforward_t *ffc,
         float          max_out,
-        float *        c,
+        const float *  c,
         float          lpf_rc,
         uint16_t       ref_dot_ols_order,
         uint16_t       ref_ddot_ols_order)

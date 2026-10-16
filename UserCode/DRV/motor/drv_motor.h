@@ -9,10 +9,12 @@
 #include "main.h"
 #include "FreeRTOS.h"
 #include "task.h"
+#include "hal_bus.h"
 #include "hal_can.h"
+#include "hal_uart.h"
 
 #define MOTOR_ERR_COUNT_MAX 10
-#define MOTOR_TIMEOUT 10
+#define MOTOR_TIMEOUT       10
 
 extern uint8_t Motor_Count;
 
@@ -34,40 +36,112 @@ typedef enum
 typedef struct Motor_Base_HandleTypeDef Motor_Base_HandleTypeDef;
 typedef struct Motor_VTable             Motor_VTable;
 
+/*===| 单个控制环: 前馈 + 反馈 |===*/
+typedef struct
+{
+        Feedforward_t FFC;
+        PID_t         PID;
+} Motor_Loop_CtrlTypeDef;
+
+/*===| 控制环参数(由上层整定表提供) |===*/
+typedef struct
+{
+        float Kp;
+        float Ki;
+        float Kd;
+
+        float MaxOut;
+        float IntegralLimit;
+        float DeadBand;
+
+        float CoefA;
+        float CoefB;
+
+        float Output_LPF_RC;
+        float Derivative_LPF_RC;
+
+        uint16_t OLS_Order;
+        uint8_t  Improve;
+} Motor_PID_ParamTypeDef;
+
+typedef struct
+{
+        float MaxOut;
+        float C[3];
+        float LPF_RC;
+
+        uint16_t Ref_Dot_OLS_Order;
+        uint16_t Ref_Ddot_OLS_Order;
+} Motor_FFC_ParamTypeDef;
+
+__STATIC_INLINE void Motor_Loop_Init(Motor_Loop_CtrlTypeDef *loop, const Motor_PID_ParamTypeDef *pid_param, const Motor_FFC_ParamTypeDef *ffc_param)
+{
+        PID_Init(&loop->PID, pid_param->MaxOut, pid_param->IntegralLimit, pid_param->DeadBand,
+                 pid_param->Kp, pid_param->Ki, pid_param->Kd,
+                 pid_param->CoefA, pid_param->CoefB,
+                 pid_param->Output_LPF_RC, pid_param->Derivative_LPF_RC,
+                 pid_param->OLS_Order, pid_param->Improve);
+
+        Feedforward_Init(&loop->FFC, ffc_param->MaxOut, ffc_param->C, ffc_param->LPF_RC,
+                         ffc_param->Ref_Dot_OLS_Order, ffc_param->Ref_Ddot_OLS_Order);
+}
+
+/*===| 电机虚函数表 |===*/
 struct Motor_VTable
 {
-        void (*enable)(Motor_Base_HandleTypeDef *hmotor);
+        void (*enable)(Motor_Base_HandleTypeDef *hmotor_base);
 
-        void (*disable)(Motor_Base_HandleTypeDef *hmotor);
+        void (*disable)(Motor_Base_HandleTypeDef *hmotor_base);
 
-        void (*set_zero)(Motor_Base_HandleTypeDef *hmotor);
+        void (*set_zero)(Motor_Base_HandleTypeDef *hmotor_base);
 
-        void (*send_torque)(Motor_Base_HandleTypeDef *hmotor, float torque);
+        //闭环计算: 目标 → Target_Torque (仅MCU内闭环的型号有实际动作)
+        void (*update)(Motor_Base_HandleTypeDef *hmotor_base);
 
-        void (*send_speed)(Motor_Base_HandleTypeDef *hmotor, float speed);
+        //下发: MIT 5 参数(型号不支持的量传0忽略)
+        void (*send)(Motor_Base_HandleTypeDef *hmotor_base, float _pos, float _vel, float _KP, float _KD, float _torq);
 
-        void (*send_angle)(Motor_Base_HandleTypeDef *hmotor, float angle);
-
-        void (*storage_data)(Motor_Base_HandleTypeDef *hmotor, const uint8_t *Data);
+        //总线帧到达: 从 Link.Node.Rx_Data/Rx_Length 自行解包
+        void (*on_frame)(Motor_Base_HandleTypeDef *hmotor_base);
 };
 
-/*===| 电机数据结构体定义 |===*/
+/*===| 电机配置(型号默认值) |===*/
+typedef struct
+{
+        Motor_VTable *       vptr;
+        Motor_Enum_TypeDef   Motor_Enum;
+        Motor_Status_TypeDef Status_Enum;
+        bool                 Is_Feedback_Control;
+
+        float Gain_Position;
+        float Gain_Velocity;
+} Motor_Config_StructTypeDef;
+
+/*===| 电机数据结构体 |===*/
 struct Motor_Base_HandleTypeDef
 {
-        Motor_Enum_TypeDef Motor_Enum;
-
-        CAN_Node_HandleTypeDef Node; //CAN节点基类(第一个成员, 可向上转型为基类指针)
+        /* 链路节点: 三个视图共用同一块内存(公共首段相同), 按实际总线取用
+         *   Link.Node : 基类视图  → herr / Bus_Type / Device_ID / handler
+         *   Link.CAN  : CAN 电机
+         *   Link.UART : UART 电机 */
+        union
+        {
+                Bus_Node_HandleTypeDef  Node;
+                CAN_Node_HandleTypeDef  CAN;
+                UART_Node_HandleTypeDef UART;
+        } Link;
 
         Motor_VTable *vptr;
 
-        uint8_t              Error_Code; //反馈错误码(1=正常, 0=失能, 3~E=故障; DJI不更新恒为1)
+        Motor_Enum_TypeDef   Motor_Enum;
         Motor_Status_TypeDef Status_Enum;
 
-        // uint16_t Default_Vel; //默认速度[RPM]
-        // uint8_t  Default_Acc; //默认加速度(0=直接启动)
-        //
-        // //步进运动参数: 角度→脉冲换算 + 默认下发参数
-        // uint16_t Pulse_Per_Rev; //每圈脉冲数(对应驱动细分, 如16细分=3200)
+        bool Is_Feedback_Control : 1;
+
+        uint8_t Error_Code; //反馈错误码(1=正常, 0=失能, 3~E=故障)
+
+        float Gain_Position;
+        float Gain_Velocity;
 
         volatile float Target_Torque; //目标力矩[电流]
         volatile float Target_Speed;  //目标速度
@@ -90,60 +164,68 @@ struct Motor_Base_HandleTypeDef
         uint32_t Total_Angle_DWT_Count;
 };
 
-
-//电机CAN节点数据回调(供SRV层注册到CAN分发框架)
-void Motor_CAN_Node_Handler(CAN_Node_HandleTypeDef *node, const uint8_t *Data);
+//电机总线节点回调(供总线层注册, CAN/UART 共用)
+void Motor_Bus_Node_Handler(Bus_Node_HandleTypeDef *bus_node);
 
 //电机错误回调
 void Motor_Err_Handler(Err_HandleTypeDef *herr);
 
 //通过角度改变计算速度
-void Motor_Get_TotalAngle_Speed(Motor_Base_HandleTypeDef *hmotor, float K);
+void Motor_Get_TotalAngle_Speed(Motor_Base_HandleTypeDef *hmotor_base, float K);
 
-void Motor_Base_Ctor(Motor_Base_HandleTypeDef *hmotor, CAN_HandleTypeDef *hcan, uint16_t CAN_Send_ID, uint16_t CAN_Feedback_ID, uint32_t CAN_Feedback_ID_Mask, Motor_VTable *Motor_VTable, uint16_t err_tick_timeout, uint16_t err_count_maximum, err_handler err_handler);
+void Motor_Base_Ctor(Motor_Base_HandleTypeDef *hmotor_base, const Motor_Config_StructTypeDef *config);
 
-//电机控制
-__STATIC_INLINE void Motor_Enable(Motor_Base_HandleTypeDef *hmotor) { hmotor->vptr->enable(hmotor); }
-//电机恢复
-__STATIC_INLINE void Motor_Recover(Motor_Base_HandleTypeDef *hmotor)
+/*===| vtable 空实现(签名与 vtable 一致, 避免函数指针强转) |===*/
+__STATIC_INLINE void Motor_Null_Void(Motor_Base_HandleTypeDef *hmotor_base) { (void) hmotor_base; }
+
+/*===| 控制接口 |===*/
+__STATIC_INLINE void Motor_Enable(Motor_Base_HandleTypeDef *hmotor_base) { hmotor_base->vptr->enable(hmotor_base); }
+
+__STATIC_INLINE void Motor_Disable(Motor_Base_HandleTypeDef *hmotor_base) { hmotor_base->vptr->disable(hmotor_base); }
+
+__STATIC_INLINE void Motor_Set_Zero(Motor_Base_HandleTypeDef *hmotor_base) { hmotor_base->vptr->set_zero(hmotor_base); }
+
+__STATIC_INLINE void Motor_Recover(Motor_Base_HandleTypeDef *hmotor_base) { Motor_Enable(hmotor_base); }
+
+__STATIC_INLINE void Motor_Update(Motor_Base_HandleTypeDef *hmotor_base) { hmotor_base->vptr->update(hmotor_base); }
+
+//从对象当前状态组包下发
+__STATIC_INLINE void Motor_Send(Motor_Base_HandleTypeDef *hmotor_base)
 {
-        Motor_Enable(hmotor);
+        hmotor_base->vptr->send(hmotor_base, hmotor_base->Target_Angle, hmotor_base->Target_Speed,
+                                hmotor_base->Gain_Position, hmotor_base->Gain_Velocity, hmotor_base->Target_Torque);
 }
 
-__STATIC_INLINE void Motor_Disable(Motor_Base_HandleTypeDef *hmotor) { hmotor->vptr->disable(hmotor); }
-
-
-__STATIC_INLINE void Motor_Storage_Data(Motor_Base_HandleTypeDef *hmotor, const uint8_t *data) { hmotor->vptr->storage_data(hmotor, data); }
-
-//设置参数
-__STATIC_INLINE void Motor_Set_Status(Motor_Base_HandleTypeDef *hmotor, Motor_Status_TypeDef Status) { hmotor->Status_Enum = Status; }
-__STATIC_INLINE void Motor_Set_Zero(Motor_Base_HandleTypeDef *hmotor, const uint8_t *data) { hmotor->vptr->set_zero(hmotor); }
-__STATIC_INLINE void Motor_Set_Torque(Motor_Base_HandleTypeDef *hmotor, float torque)
+//显式 5 参数下发
+__STATIC_INLINE void Motor_Send_Cmd(Motor_Base_HandleTypeDef *hmotor_base, float _pos, float _vel, float _KP, float _KD, float _torq)
 {
-        hmotor->Status_Enum   = MOTOR_TORQUE;
-        hmotor->Target_Torque = torque;
+        hmotor_base->vptr->send(hmotor_base, _pos, _vel, _KP, _KD, _torq);
 }
 
-__STATIC_INLINE void Motor_Set_Speed(Motor_Base_HandleTypeDef *hmotor, float speed)
+/*===| 目标值 |===*/
+__STATIC_INLINE void Motor_Set_Torque(Motor_Base_HandleTypeDef *hmotor_base, float torque)
 {
-        hmotor->Status_Enum  = MOTOR_SPEED;
-        hmotor->Target_Speed = speed;
+        hmotor_base->Status_Enum   = MOTOR_TORQUE;
+        hmotor_base->Target_Torque = torque;
 }
 
-__STATIC_INLINE void Motor_Set_Angle(Motor_Base_HandleTypeDef *hmotor, float angle)
+__STATIC_INLINE void Motor_Set_Speed(Motor_Base_HandleTypeDef *hmotor_base, float speed)
 {
-        hmotor->Status_Enum  = MOTOR_ANGLE;
-        hmotor->Target_Angle = angle;
+        hmotor_base->Status_Enum  = MOTOR_SPEED;
+        hmotor_base->Target_Speed = speed;
 }
 
-//获取参数
-__STATIC_INLINE float Motor_Get_Target_Torque(Motor_Base_HandleTypeDef *hmotor) { return hmotor->Target_Torque; }
-__STATIC_INLINE float Motor_Get_Speed(Motor_Base_HandleTypeDef *hmotor) { return hmotor->Speed; }
-__STATIC_INLINE float Motor_Get_Total_Angle(Motor_Base_HandleTypeDef *hmotor) { return hmotor->Total_Angle; }
+__STATIC_INLINE void Motor_Set_Angle(Motor_Base_HandleTypeDef *hmotor_base, float angle)
+{
+        hmotor_base->Status_Enum  = MOTOR_ANGLE;
+        hmotor_base->Target_Angle = angle;
+}
 
-/*===| 统一发送接口(通过vtable分发到各型号电机驱动) |===*/
-__STATIC_INLINE void Motor_Send_Torque(Motor_Base_HandleTypeDef *hmotor, float torque) { hmotor->vptr->send_torque(hmotor, torque); }
-__STATIC_INLINE void Motor_Send_Speed(Motor_Base_HandleTypeDef *hmotor, float speed) { hmotor->vptr->send_speed(hmotor, speed); }
-__STATIC_INLINE void Motor_Send_Angle(Motor_Base_HandleTypeDef *hmotor, float angle) { hmotor->vptr->send_angle(hmotor, angle); }
+/*===| 反馈值 |===*/
+__STATIC_INLINE float Motor_Get_Target_Torque(Motor_Base_HandleTypeDef *hmotor_base) { return hmotor_base->Target_Torque; }
+
+__STATIC_INLINE float Motor_Get_Speed(Motor_Base_HandleTypeDef *hmotor_base) { return hmotor_base->Speed; }
+
+__STATIC_INLINE float Motor_Get_Total_Angle(Motor_Base_HandleTypeDef *hmotor_base) { return hmotor_base->Total_Angle; }
 
 #endif //G4MINI_V3_DRV_MOTOR_H

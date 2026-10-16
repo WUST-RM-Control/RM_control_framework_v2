@@ -5,7 +5,7 @@
 #ifndef G4MINI_V3_HAL_CAN_H
 #define G4MINI_V3_HAL_CAN_H
 
-#include "err.h"
+#include "hal_bus.h"
 #include "stm32f4xx_hal.h"
 #include <stdbool.h>
 #include "can.h"
@@ -25,19 +25,15 @@ extern QueueHandle_t CAN_TxQueue;
 
 typedef struct CAN_Node_HandleTypeDef CAN_Node_HandleTypeDef;
 
-typedef void (*CAN_Node_Handler)(CAN_Node_HandleTypeDef *hcan_node, const uint8_t *Data);
-
-/*===| CAN节点基类(所有CAN设备的公共字段) |===*/
+/*===| CAN节点: 继承 Bus_Node(第一成员) |===*/
 struct CAN_Node_HandleTypeDef
 {
-        Err_HandleTypeDef herr;
+        Bus_Node_HandleTypeDef Base;
 
-        CAN_HandleTypeDef *hcan;                 //CAN句柄
-        uint32_t           CAN_Send_ID;          //发送ID
-        uint32_t           CAN_Feedback_ID;      //反馈ID
-        uint32_t           CAN_Feedback_ID_Mask; //反馈ID掩码
-
-        CAN_Node_Handler   handler; //数据回调
+        CAN_HandleTypeDef *hcan;
+        uint32_t           Send_ID;
+        uint32_t           Feedback_ID;
+        uint32_t           Feedback_ID_Mask;
 };
 
 typedef struct {
@@ -53,22 +49,22 @@ __STATIC_INLINE CAN_HandleTypeDef *CAN_Node_GetHcan(CAN_Node_HandleTypeDef *node
         return node->hcan;
 }
 
-__STATIC_INLINE uint16_t CAN_Node_GetSendID(CAN_Node_HandleTypeDef *node)
+__STATIC_INLINE uint32_t CAN_Node_GetSendID(CAN_Node_HandleTypeDef *node)
 {
-        return node->CAN_Send_ID;
+        return node->Send_ID;
 }
 
-__STATIC_INLINE uint16_t CAN_Node_GetFeedbackID(CAN_Node_HandleTypeDef *node)
+__STATIC_INLINE uint32_t CAN_Node_GetFeedbackID(CAN_Node_HandleTypeDef *node)
 {
-        return node->CAN_Feedback_ID;
+        return node->Feedback_ID;
 }
 
-void CAN_Node_Ctor(CAN_Node_HandleTypeDef *hcan_node, CAN_HandleTypeDef *hcan, uint32_t CAN_Send_ID, uint32_t CAN_Feedback_ID, uint32_t CAN_Feedback_ID_Mask, CAN_Node_Handler node_handler, uint16_t err_tick_Timeout, uint16_t err_count_maximum, err_handler err_handler);
+void CAN_Node_Ctor(CAN_Node_HandleTypeDef *hcan_node, CAN_HandleTypeDef *hcan, uint32_t CAN_Send_ID, uint32_t CAN_Feedback_ID, uint32_t CAN_Feedback_ID_Mask, Bus_Node_Handler node_handler, uint16_t err_tick_timeout, uint16_t err_count_maximum, err_handler err_handler);
 
 /*===| CAN节点分发框架 |===*/
 
 //注册节点(重复注册则更新回调)
-void CAN_Node_Register(CAN_Node_HandleTypeDef *hcan_node, CAN_Node_Handler handler);
+void CAN_Node_Register(CAN_Node_HandleTypeDef *hcan_node);
 
 //注销节点
 void CAN_Node_UnRegister(CAN_Node_HandleTypeDef *hcan_node);
@@ -88,6 +84,9 @@ HAL_StatusTypeDef CAN_Restart(CAN_HandleTypeDef *hcan);
 void CAN_Send_Data_STD(CAN_Node_HandleTypeDef *hcan_node, const uint8_t *TX_Data);
 
 void CAN_Send_Data_EXD(CAN_Node_HandleTypeDef *hcan_node, uint8_t *TX_Data, uint8_t Length);
+
+//底层发送: 不依赖节点(供一拖四组帧等临时发送用)
+void CAN_Send_STD(CAN_HandleTypeDef *hcan, uint32_t Send_ID, const uint8_t *TX_Data);
 
 __STATIC_INLINE void CAN_Send_Data_Queue(CAN_Send_Frame_StructTypeDef *CAN_Send_Packet_Struct)
 {
