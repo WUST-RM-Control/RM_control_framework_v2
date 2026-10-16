@@ -19,6 +19,7 @@
  */
 
 #include "stdint.h"
+#include "stddef.h"
 #include "cmsis_gcc.h"
 
 
@@ -64,6 +65,9 @@ extern uint8_t GlobalDebugMode;
 #ifndef PI
 #define PI 3.14159265354f
 #endif
+
+/*===| 向下转型: 由成员地址反推外层结构体地址 |===*/
+#define container_of(ptr, type, member) ((type *)((char *)(ptr) - offsetof(type, member)))
 
 #define VAL_LIMIT(val, min, max) \
     do                           \

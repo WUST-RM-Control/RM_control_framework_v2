@@ -20,15 +20,39 @@
 #define T_MIN   (-16384)
 #define T_MAX   16384
 
-void Motor_DM_CMD_MIT(Motor_HandleTypeDef *hmotor, float _pos, float _vel, float _KP, float _KD, float _torq);
-void Motor_DM_CMD_Position(Motor_HandleTypeDef *hmotor, float Position, float Speed);
+typedef struct
+{
+        Motor_Base_HandleTypeDef hmotor_base;
 
-__STATIC_INLINE void Motor_DM_Send_Torque(Motor_HandleTypeDef *hmotor, float torque) { Motor_DM_CMD_MIT(hmotor, 0, 0, 0, 0, torque); }
-__STATIC_INLINE void Motor_DM_Send_Pos(Motor_HandleTypeDef *hmotor, float Position) { Motor_DM_CMD_Position(hmotor, Position, 1); }//待测试
+        Feedforward_t FFC_Angle_Struct;
+        PID_t         PID_Angle_Struct;
+        Feedforward_t FFC_Speed_Struct;
+        PID_t         PID_Speed_Struct;
+} Motor_DM_HandleTypeDef;
+
+typedef struct
+{
+        Motor_Enum_TypeDef Motor_Enum;
+
+        Err_HandleTypeDef herr;
+
+        uint32_t CAN_Feedback_ID_Mask; //反馈ID掩码
+
+        Motor_VTable *vptr;
+
+        uint8_t Error_Code; //反馈错误码(1=正常, 0=失能, 3~E=故障; DJI不更新恒为1)
+
+        Motor_Status_TypeDef Status_Enum;
+} Motor_DM_Config_StructTypeDef;
+
+void Motor_DM_CMD_MIT(Motor_Base_HandleTypeDef *hmotor_base, float _pos, float _vel, float _KP, float _KD, float _torq);
+
+void Motor_DM_CMD_Position(Motor_Base_HandleTypeDef *hmotor_base, float Position, float Speed);
+
+__STATIC_INLINE void Motor_DM_Send_Torque(Motor_Base_HandleTypeDef *hmotor, float torque) { Motor_DM_CMD_MIT(hmotor, 0, 0, 0, 0, torque); }
+__STATIC_INLINE void Motor_DM_Send_Pos(Motor_Base_HandleTypeDef *hmotor, float Position) { Motor_DM_CMD_Position(hmotor, Position, 1); } //待测试
 
 extern Motor_VTable Motor_DM_VTable_Default;
-extern Motor_Config_StructTypeDef Motor_DM_Config_Default;
-
 
 
 #endif //G4MINI_V3_DRV_MOTOR_DM_H

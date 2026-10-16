@@ -8,15 +8,15 @@
 
 QueueHandle_t CAN_TxQueue;
 
-/*===| CAN总线错误处理 |===*/
-//总线错误码快照: [0]=CAN1, [1]=CAN2 (仅记录, 供水印/调试观察)
-volatile uint32_t CAN_Error_Code[2] = {0, 0};
-
-//CAN错误回调: ABOM=ENABLE 时总线关闭由硬件自动恢复, 这里只留痕
-void HAL_CAN_ErrorCallback(CAN_HandleTypeDef *hcan)
-{
-        CAN_Error_Code[hcan->Instance == CAN2] = hcan->ErrorCode;
-}
+// /*===| CAN总线错误处理 |===*/
+// //总线错误码快照: [0]=CAN1, [1]=CAN2 (仅记录, 供水印/调试观察)
+// volatile uint32_t CAN_Error_Code[2] = {0, 0};
+//
+// //CAN错误回调: ABOM=ENABLE 时总线关闭由硬件自动恢复, 这里只留痕
+// void HAL_CAN_ErrorCallback(CAN_HandleTypeDef *hcan)
+// {
+//         CAN_Error_Code[hcan->Instance == CAN2] = hcan->ErrorCode;
+// }
 
 //CAN总线重启: 停止→去初始化→重新初始化→启动→重配过滤器/中断 (手动恢复总线错误/总线关闭用)
 HAL_StatusTypeDef CAN_Restart(CAN_HandleTypeDef *hcan)

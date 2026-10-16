@@ -25,15 +25,25 @@
 #include "Emm_V5.h"
 #include "srv_ins.h"
 #include "srv_led_key.h"
+uint8_t ZDT_RxBuff[32] = {};
+
+void ZDT_RxEvent_CallBack(struct __UART_HandleTypeDef *huart, uint16_t Pos)
+{
+        HAL_UARTEx_ReceiveToIdle_DMA(huart, ZDT_RxBuff, sizeof(ZDT_RxBuff));
+        __HAL_DMA_DISABLE_IT(huart->hdmarx, DMA_IT_HT);
+}
 
 //开发时偷懒做点小事在这()
 void Debug_Task(void *pvParameters)
 {
-        // uint8_t TX[] = "abc\r\n";
         LED_Set(&hled1, 255, 255, 255);
+
+        HAL_UART_RegisterRxEventCallback(&huart1, ZDT_RxEvent_CallBack);
+        HAL_UARTEx_ReceiveToIdle_DMA(&huart1, ZDT_RxBuff, sizeof(ZDT_RxBuff));
+        __HAL_DMA_DISABLE_IT(huart1.hdmarx, DMA_IT_HT);
+
         for (;;)
         {
-
                 Emm_V5_Pos_Control(1, 0, 1000, 0, 32000, 1, 0);
 
                 // Motor_Send_Angle(&hmotor1, 1000);

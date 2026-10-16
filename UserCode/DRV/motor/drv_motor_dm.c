@@ -8,35 +8,35 @@
 #include "utils.h"
 
 //电机-达妙-指令-使能（CAN，电机MasterID）
-void Motor_DM_CMD_Enable(Motor_HandleTypeDef *hmotor)
+void Motor_DM_CMD_Enable(Motor_Base_HandleTypeDef *hmotor_base)
 {
         uint8_t DM_Enable_Data[8] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFC};
-        CAN_Send_Data_STD(&hmotor->Node, DM_Enable_Data);
+        CAN_Send_Data_STD(&hmotor_base->Node, DM_Enable_Data);
 }
 
 //电机-达妙-指令-失能（CAN，电机MasterID）
-void Motor_DM_CMD_Disable(Motor_HandleTypeDef *hmotor)
+void Motor_DM_CMD_Disable(Motor_Base_HandleTypeDef *hmotor_base)
 {
         uint8_t DM_Disable_Data[8] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFD};
-        CAN_Send_Data_STD(&hmotor->Node, DM_Disable_Data);
+        CAN_Send_Data_STD(&hmotor_base->Node, DM_Disable_Data);
 }
 
 //电机-达妙-指令-设置零点（CAN，电机Master_ID）
-void Motor_DM_CMD_SetZero(Motor_HandleTypeDef *hmotor)
+void Motor_DM_CMD_SetZero(Motor_Base_HandleTypeDef *hmotor_base)
 {
         uint8_t DM_SetZero_Data[8] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE};
-        CAN_Send_Data_STD(&hmotor->Node, DM_SetZero_Data);
+        CAN_Send_Data_STD(&hmotor_base->Node, DM_SetZero_Data);
 }
 
 //电机-达妙-指令-清除错误（CAN，电机Master_ID）
-void Motor_DM_CMD_ClearErr(Motor_HandleTypeDef *hmotor)
+void Motor_DM_CMD_ClearErr(Motor_Base_HandleTypeDef *hmotor_base)
 {
         uint8_t DM_ClearErr_Data[8] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFB};
-        CAN_Send_Data_STD(&hmotor->Node, DM_ClearErr_Data);
+        CAN_Send_Data_STD(&hmotor_base->Node, DM_ClearErr_Data);
 }
 
 //电机-达妙-指令-MID控制（CAN，电机Master_ID，位置，速度，Kp，Kd，力矩）
-void Motor_DM_CMD_MIT(Motor_HandleTypeDef *hmotor, float _pos, float _vel, float _KP, float _KD, float _torq)
+void Motor_DM_CMD_MIT(Motor_Base_HandleTypeDef *hmotor_base, float _pos, float _vel, float _KP, float _KD, float _torq)
 {
         uint16_t pos_tmp = float_to_uint(_pos, P_MIN, P_MAX, 16);
         uint16_t vel_tmp = float_to_uint(_vel, V_MIN, V_MAX, 12);
@@ -55,27 +55,27 @@ void Motor_DM_CMD_MIT(Motor_HandleTypeDef *hmotor, float _pos, float _vel, float
         DM_Send_Data[6] = ((kd_tmp & 0xF) << 4) | (tor_tmp >> 8);
         DM_Send_Data[7] = tor_tmp;
 
-        CAN_Send_Data_STD(&hmotor->Node, DM_Send_Data);
+        CAN_Send_Data_STD(&hmotor_base->Node, DM_Send_Data);
 }
 
 //电机-达妙-指令-位置控制（CAN，电机Master_ID，位置，速度）
-void Motor_DM_CMD_Position(Motor_HandleTypeDef *hmotor, float Position, float Speed)
+void Motor_DM_CMD_Position(Motor_Base_HandleTypeDef *hmotor_base, float Position, float Speed)
 {
         float Position_Speed_Buf[2] = {Position, Speed};
 
-        CAN_Send_Data_STD(&hmotor->Node, (uint8_t *) Position_Speed_Buf);
+        CAN_Send_Data_STD(&hmotor_base->Node, (uint8_t *) Position_Speed_Buf);
 }
 
 //电机-达妙-指令-速度控制（CAN，电机Master_ID，速度）
-void Motor_DM_CMD_Speed(Motor_HandleTypeDef *hmotor, float Speed)
+void Motor_DM_CMD_Speed(Motor_Base_HandleTypeDef *hmotor_base, float Speed)
 {
         float Speed_Buf[2] = {Speed, 0}; //CAN_Send_Data_STD 按8字节整帧发送, 补足8字节避免越界读
 
-        CAN_Send_Data_STD(&hmotor->Node, (uint8_t *) Speed_Buf);
+        CAN_Send_Data_STD(&hmotor_base->Node, (uint8_t *) Speed_Buf);
 }
 
 //电机-达妙-存储反馈数据（CAN收到的反馈数组地址，电机数据结构体）
-void Motor_DM_Storage_Data(Motor_HandleTypeDef *hmotor, const uint8_t *Data)
+void Motor_DM_Storage_Data(Motor_Base_HandleTypeDef *hmotor_base, const uint8_t *Data)
 {
         /*===| 协议解包 |===*/
         uint8_t Error_ID    = Data[0] >> 4;
@@ -84,37 +84,41 @@ void Motor_DM_Storage_Data(Motor_HandleTypeDef *hmotor, const uint8_t *Data)
         int     t_int       = ((Data[4] & 0xF) << 8) | Data[5];
         int     temperature = Data[7];
 
-        hmotor->Motor_Config_Struct.Error_Code = Error_ID; //1=正常, 0=失能, 3~E=故障
+        hmotor_base->Error_Code = Error_ID; //1=正常, 0=失能, 3~E=故障
 
         /*===| 转移数据 |===*/
-        hmotor->Angle       = uint_to_float(p_int, P_MIN, P_MAX, 16) / 2.0f / PI * 360.0f; // (-12.5,12.5)
-        hmotor->Speed       = uint_to_float(v_int, V_MIN, V_MAX, 12) / 2.0f / PI * 360.0f; // (-45.0,45.0)
-        hmotor->Torque      = uint_to_float(t_int, T_MIN, T_MAX, 12);                      //(-18.0,18.0)
-        hmotor->Temperature = (int8_t)temperature;
+        hmotor_base->Angle       = uint_to_float(p_int, P_MIN, P_MAX, 16) / 2.0f / PI * 360.0f; // (-12.5,12.5)
+        hmotor_base->Speed       = uint_to_float(v_int, V_MIN, V_MAX, 12) / 2.0f / PI * 360.0f; // (-45.0,45.0)
+        hmotor_base->Torque      = uint_to_float(t_int, T_MIN, T_MAX, 12);                      //(-18.0,18.0)
+        hmotor_base->Temperature = (int8_t)temperature;
 
         /*===| 得到总角度值 |===*/
-        if (hmotor->Angle - hmotor->Angle_Last > 180) hmotor->Round--;
-        else if (hmotor->Angle - hmotor->Angle_Last < -180) hmotor->Round++;
-        hmotor->Total_Angle = 360.0f * (float)hmotor->Round + hmotor->Angle - hmotor->Total_Angle_Offset;
+        if (hmotor_base->Angle - hmotor_base->Angle_Last > 180) hmotor_base->Round--;
+        else if (hmotor_base->Angle - hmotor_base->Angle_Last < -180) hmotor_base->Round++;
+        hmotor_base->Total_Angle = 360.0f * (float)hmotor_base->Round + hmotor_base->Angle - hmotor_base->Total_Angle_Offset;
 
         /*===| 记录编码器值 |===*/
-        hmotor->Angle_Last = hmotor->Angle;
+        hmotor_base->Angle_Last = hmotor_base->Angle;
 
         if (Error_ID == 1)
         {
-                hmotor->Node.herr.tick      = 0;
-                hmotor->Node.herr.count     = 0;
-                hmotor->Node.herr.If_Err    = 0;
+                hmotor_base->Node.herr.tick      = 0;
+                hmotor_base->Node.herr.count     = 0;
+                hmotor_base->Node.herr.If_Err    = 0;
         }
 }
 
 //注意会引入2ms延迟，慎用
-void Motor_DM_Enable(Motor_HandleTypeDef *hmotor)
+void Motor_DM_Enable(Motor_Base_HandleTypeDef *hmotor_base)
 {
-        Motor_DM_CMD_ClearErr(hmotor);
+        Motor_DM_HandleTypeDef *hmotor_dm = container_of(hmotor_base, Motor_DM_HandleTypeDef, hmotor_base);
+        Motor_DM_CMD_ClearErr(hmotor_base);
         vTaskDelay(1);
-        Motor_DM_CMD_Enable(hmotor);
+        Motor_DM_CMD_Enable(hmotor_base);
         vTaskDelay(1);
+
+        PID_Reset(&hmotor_dm->PID_Angle_Struct);
+        PID_Reset(&hmotor_dm->PID_Speed_Struct);
 }
 
 
@@ -131,12 +135,11 @@ Motor_VTable Motor_DM_VTable_Default = {
         .storage_data = Motor_DM_Storage_Data
 };
 
-Motor_Config_StructTypeDef Motor_DM_Config_Default = {
+Motor_DM_Config_StructTypeDef Motor_DM_Config_Default = {
         .Motor_Enum  = MOTOR_DM,
         .vptr        = &Motor_DM_VTable_Default,
         .Status_Enum = MOTOR_TORQUE,
         .CAN_Feedback_ID_Mask = CAN_FEEDBACK_ID_MASK_NONE,
-        .Is_Feedback_Control = true,  //DM电机的自闭环的PID调起来比较麻烦，这里可选
         .Error_Code = 1,
 
         .herr = {
