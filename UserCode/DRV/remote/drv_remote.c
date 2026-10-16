@@ -10,7 +10,7 @@
 #include "drv_remote_dt7.h"
 #include "drv_remote_vt03.h"
 #include "FreeRTOS.h"
-#include "queue.h"
+#include "stream_buffer.h"
 #include "task.h"
 
 Remote_HandleTypeDef hremote_dt7; //DT7  遥控器
@@ -20,21 +20,34 @@ Remote_HandleTypeDef hremote_dt7; //DT7  遥控器
 //uart1接收缓冲与回调(模块私有)
 static uint8_t Remote_RxBuff[64] = {};
 
-#define REMOTE_RX_FRAME_LEN 18    //DT7 一帧长度
-#define REMOTE_RX_QUEUE_LEN  4    //队列深度(帧率~100Hz, 4深足以缓冲)
+#define REMOTE_RX_FRAME_LEN   18    //DT7 一帧长度
+#define REMOTE_RX_STREAM_SIZE (REMOTE_RX_FRAME_LEN * 4)
 
-static QueueHandle_t Remote_RxQueue;
+static StreamBufferHandle_t Remote_RxStream;
 
 static void Remote_RxTask(void *argument)
 {
         Remote_HandleTypeDef *hremote = (Remote_HandleTypeDef *)argument;
-        uint8_t frame[REMOTE_RX_FRAME_LEN];
+
+        uint8_t  accum[REMOTE_RX_FRAME_LEN * 2];
+        uint16_t length = 0;
 
         for (;;)
         {
-                if (xQueueReceive(Remote_RxQueue, frame, portMAX_DELAY) == pdPASS)
+                if (length == sizeof(accum)) length = 0;
+
+                size_t received = xStreamBufferReceive(Remote_RxStream, accum + length, sizeof(accum) - length, portMAX_DELAY);
+                if (received == 0) continue;
+
+                length += (uint16_t) received;
+
+                //DT7 定长帧: 按 18 字节切片
+                while (length >= REMOTE_RX_FRAME_LEN)
                 {
-                        Remote_Rx_Handle(hremote, frame); //协议解包
+                        Remote_Rx_Handle(hremote, accum);
+
+                        length -= REMOTE_RX_FRAME_LEN;
+                        if (length > 0) memmove(accum, accum + REMOTE_RX_FRAME_LEN, length);
                 }
         }
 }
@@ -43,10 +56,8 @@ static void Remote_RxEvent_CallBack(UART_HandleTypeDef *huart, uint16_t Pos)
 {
         BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
-        // if (Pos == REMOTE_RX_FRAME_LEN) //收到完整一帧
-        {
-                xQueueSendFromISR(Remote_RxQueue, Remote_RxBuff, &xHigherPriorityTaskWoken);
-        }
+        if (Pos > 0 && Remote_RxStream != NULL)
+                xStreamBufferSendFromISR(Remote_RxStream, Remote_RxBuff, Pos, &xHigherPriorityTaskWoken);
 
         HAL_UARTEx_ReceiveToIdle_DMA(huart, Remote_RxBuff, sizeof(Remote_RxBuff));
         __HAL_DMA_DISABLE_IT(huart->hdmarx, DMA_IT_HT);
@@ -103,10 +114,10 @@ void Remote_Ctor(Remote_HandleTypeDef *hremote, UART_HandleTypeDef *huart, Remot
  * 对象(实例 ↔ 串口句柄/协议vtable 的绑定)由 ENT 调用 Remote_Ctor 完成 |===*/
 void Remote_Init(Remote_HandleTypeDef *hremote)
 {
-        if (Remote_RxQueue != NULL) return; //已启动过, 避免重复创建队列/任务
+        if (Remote_RxStream != NULL) return; //已启动过, 避免重复创建缓冲/任务
 
-        Remote_RxQueue = xQueueCreate(REMOTE_RX_QUEUE_LEN, REMOTE_RX_FRAME_LEN);
-        if (Remote_RxQueue != NULL)
+        Remote_RxStream = xStreamBufferCreate(REMOTE_RX_STREAM_SIZE, 1);
+        if (Remote_RxStream != NULL)
         {
                 xTaskCreate(Remote_RxTask, "RemoteRx", 512, hremote, 7, NULL);
         }

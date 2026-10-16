@@ -7,28 +7,24 @@
 #include <string.h>
 
 #include "FreeRTOS.h"
-#include "queue.h"
+#include "stream_buffer.h"
 #include "task.h"
 
-#define UART_BUS_MAX       2
-#define UART_RX_QUEUE_LEN  8
-#define UART_TX_QUEUE_LEN  16
-#define UART_FRAME_MIN_LEN 4
-#define UART_TX_TIMEOUT    100
-
-typedef struct
-{
-        UART_HandleTypeDef *huart;
-        uint8_t             data[UART_NODE_RX_MAX];
-        uint16_t            length;
-} UART_Frame_StructTypeDef;
+#define UART_BUS_MAX        2
+#define UART_RX_STREAM_SIZE 128
+#define UART_TX_STREAM_SIZE 128
+#define UART_RX_ACCUM_MAX   (UART_NODE_RX_MAX * 2)
+#define UART_FRAME_MIN_LEN  4
+#define UART_TX_TIMEOUT     100
 
 typedef struct
 {
         UART_HandleTypeDef *huart;
 
-        QueueHandle_t TxQueue;
-        QueueHandle_t RxQueue;
+        StreamBufferHandle_t TxStream; //待发字节流
+        StreamBufferHandle_t RxStream; //已收字节流
+
+        UART_FrameParser FrameParser;
 
         uint8_t rxBuff[UART_NODE_RX_MAX];
 } UART_Bus_StructTypeDef;
@@ -56,19 +52,17 @@ static void UART_Restart_Receive(UART_Bus_StructTypeDef *bus)
         __HAL_DMA_DISABLE_IT(bus->huart->hdmarx, DMA_IT_HT);
 }
 
+//只做字节入环, 分帧交给任务(处理粘包/半包)
 static void UART_RxEvent_Callback(UART_HandleTypeDef *huart, uint16_t Pos)
 {
         UART_Bus_StructTypeDef *bus = UART_Bus_Find(huart);
         if (bus == NULL) return;
 
-        UART_Frame_StructTypeDef frame = {};
-
-        frame.huart  = huart;
-        frame.length = (Pos > UART_NODE_RX_MAX) ? UART_NODE_RX_MAX : Pos;
-        memcpy(frame.data, bus->rxBuff, frame.length);
+        uint16_t pos = (Pos > sizeof(bus->rxBuff)) ? sizeof(bus->rxBuff) : Pos;
 
         BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-        xQueueSendFromISR(bus->RxQueue, &frame, &xHigherPriorityTaskWoken);
+
+        if (pos > 0) xStreamBufferSendFromISR(bus->RxStream, bus->rxBuff, pos, &xHigherPriorityTaskWoken);
 
         UART_Restart_Receive(bus);
 
@@ -84,29 +78,64 @@ static void UART_Error_Callback(UART_HandleTypeDef *huart)
 }
 
 //按帧首地址分发到节点
+static void UART_Dispatch(UART_Bus_StructTypeDef *bus, const uint8_t *data, uint16_t length)
+{
+        for (uint8_t i = 0; i < UART_Node_Count; i++)
+        {
+                UART_Node_HandleTypeDef *node = UART_Node_Table[i];
+                if (node == NULL || node->Base.handler == NULL) continue;
+                if (node->huart != bus->huart) continue;
+                if (data[0] != (uint8_t) node->Base.Device_ID) continue;
+
+                uint16_t len = (length > UART_NODE_RX_MAX) ? UART_NODE_RX_MAX : length;
+
+                node->rxLength       = len;
+                node->Base.Rx_Length = len;
+                memcpy(node->rxData, data, len);
+
+                node->Base.handler(&node->Base);
+                return;
+        }
+}
+
+static uint16_t UART_Frame_Parse(UART_Bus_StructTypeDef *bus, const uint8_t *data, uint16_t length)
+{
+        if (length < UART_FRAME_MIN_LEN) return 0;
+        if (bus->FrameParser == NULL) return length; //未挂接解析器: 整段视为一帧
+
+        return bus->FrameParser(data, length);
+}
+
 static void UART_RxTask(void *argument)
 {
         UART_Bus_StructTypeDef *bus = (UART_Bus_StructTypeDef *) argument;
-        UART_Frame_StructTypeDef frame;
+
+        uint8_t  accum[UART_RX_ACCUM_MAX];
+        uint16_t length = 0;
 
         for (;;)
         {
-                if (xQueueReceive(bus->RxQueue, &frame, portMAX_DELAY) != pdPASS) continue;
-                if (frame.length < UART_FRAME_MIN_LEN) continue;
+                if (length == sizeof(accum)) length = 0;
 
-                for (uint8_t i = 0; i < UART_Node_Count; i++)
+                size_t received = xStreamBufferReceive(bus->RxStream, accum + length, sizeof(accum) - length, portMAX_DELAY);
+                if (received == 0) continue;
+
+                length += (uint16_t) received;
+
+                uint16_t offset = 0;
+                while (offset < length)
                 {
-                        UART_Node_HandleTypeDef *node = UART_Node_Table[i];
-                        if (node == NULL || node->Base.handler == NULL) continue;
-                        if (node->huart != frame.huart) continue;
-                        if (frame.data[0] != (uint8_t) node->Base.Device_ID) continue;
+                        uint16_t frame_len = UART_Frame_Parse(bus, accum + offset, length - offset);
+                        if (frame_len == 0 || frame_len > length - offset) break;
 
-                        node->rxLength       = frame.length;
-                        node->Base.Rx_Length = frame.length;
-                        memcpy(node->rxData, frame.data, frame.length);
+                        UART_Dispatch(bus, accum + offset, frame_len);
+                        offset += frame_len;
+                }
 
-                        node->Base.handler(&node->Base);
-                        break;
+                if (offset > 0)
+                {
+                        length -= offset;
+                        if (length > 0) memmove(accum, accum + offset, length);
                 }
         }
 }
@@ -114,14 +143,14 @@ static void UART_RxTask(void *argument)
 static void UART_TxTask(void *argument)
 {
         UART_Bus_StructTypeDef *bus = (UART_Bus_StructTypeDef *) argument;
-        UART_Frame_StructTypeDef frame;
+        uint8_t                 frame[UART_NODE_RX_MAX];
 
         for (;;)
         {
-                if (xQueueReceive(bus->TxQueue, &frame, portMAX_DELAY) == pdPASS)
-                {
-                        HAL_UART_Transmit(frame.huart, frame.data, frame.length, UART_TX_TIMEOUT);
-                }
+                size_t length = xStreamBufferReceive(bus->TxStream, frame, sizeof(frame), portMAX_DELAY);
+                if (length == 0) continue;
+
+                HAL_UART_Transmit(bus->huart, frame, (uint16_t) length, UART_TX_TIMEOUT);
         }
 }
 
@@ -156,7 +185,7 @@ void UART_Node_Ctor(UART_Node_HandleTypeDef *uart_node, UART_HandleTypeDef *huar
 {
         Bus_Node_Ctor(&uart_node->Base, BUS_TYPE_UART, Addr, handler, err_tick_timeout, err_count_maximum, err_handler);
 
-        uart_node->huart = huart;
+        uart_node->huart    = huart;
         uart_node->rxLength = 0;
 
         uart_node->Base.Rx_Data   = uart_node->rxData;
@@ -173,15 +202,17 @@ HAL_StatusTypeDef UART_Node_Transmit(UART_Node_HandleTypeDef *uart_node, const u
 void UART_Node_Transmit_Queue(UART_Node_HandleTypeDef *uart_node, const uint8_t *TX_Data, uint16_t Length)
 {
         UART_Bus_StructTypeDef *bus = UART_Bus_Find(uart_node->huart);
-        if (bus == NULL || Length > UART_NODE_RX_MAX) return;
+        if (bus == NULL) return;
 
-        UART_Frame_StructTypeDef frame = {};
+        xStreamBufferSend(bus->TxStream, TX_Data, Length, 0);
+}
 
-        frame.huart  = uart_node->huart;
-        frame.length = Length;
-        memcpy(frame.data, TX_Data, Length);
+void UART_Bus_SetFrameParser(UART_HandleTypeDef *huart, UART_FrameParser parser)
+{
+        UART_Bus_StructTypeDef *bus = UART_Bus_Find(huart);
+        if (bus == NULL) return;
 
-        xQueueSend(bus->TxQueue, &frame, 0);
+        bus->FrameParser = parser;
 }
 
 void UART_Bus_Init(UART_HandleTypeDef *huart)
@@ -191,9 +222,10 @@ void UART_Bus_Init(UART_HandleTypeDef *huart)
 
         UART_Bus_StructTypeDef *bus = &UART_Bus_Table[UART_Bus_Count++];
 
-        bus->huart   = huart;
-        bus->TxQueue = xQueueCreate(UART_TX_QUEUE_LEN, sizeof(UART_Frame_StructTypeDef));
-        bus->RxQueue = xQueueCreate(UART_RX_QUEUE_LEN, sizeof(UART_Frame_StructTypeDef));
+        bus->huart       = huart;
+        bus->FrameParser = NULL;
+        bus->TxStream    = xStreamBufferCreate(UART_TX_STREAM_SIZE, 1);
+        bus->RxStream    = xStreamBufferCreate(UART_RX_STREAM_SIZE, 1);
 
         xTaskCreate(UART_TxTask, "UART_Tx", 256, bus, 10, NULL);
         xTaskCreate(UART_RxTask, "UART_Rx", 256, bus, 7, NULL);

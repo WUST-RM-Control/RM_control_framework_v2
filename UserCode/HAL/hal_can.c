@@ -6,7 +6,12 @@
 
 #include <string.h>
 
-QueueHandle_t CAN_TxQueue;
+#include "message_buffer.h"
+
+#define CAN_TX_DEPTH       32
+#define CAN_TX_BUFFER_SIZE (CAN_TX_DEPTH * (sizeof(CAN_Send_Frame_StructTypeDef) + 4))
+
+static MessageBufferHandle_t CAN_TxBuffer;
 
 // /*===| CAN总线错误处理 |===*/
 // //总线错误码快照: [0]=CAN1, [1]=CAN2 (仅记录, 供水印/调试观察)
@@ -103,6 +108,14 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
         }
 }
 
+//入队待发(内部走消息缓冲: 定长帧带边界, 不丢帧)
+void CAN_Send_Data_Queue(CAN_Send_Frame_StructTypeDef *CAN_Send_Packet_Struct)
+{
+        if (CAN_TxBuffer == NULL) return;
+
+        xMessageBufferSend(CAN_TxBuffer, CAN_Send_Packet_Struct, sizeof(CAN_Send_Frame_StructTypeDef), 0);
+}
+
 //CAN-发送标准帧(不依赖节点)
 void CAN_Send_STD(CAN_HandleTypeDef *hcan, uint32_t Send_ID, const uint8_t *TX_Data)
 {
@@ -155,7 +168,9 @@ static void CAN_TxTask(void *argument)
 
         for (;;)
         {
-                if (xQueueReceive(CAN_TxQueue, &CAN_Send_Frame_Struct, portMAX_DELAY) == pdPASS)
+                size_t received = xMessageBufferReceive(CAN_TxBuffer, &CAN_Send_Frame_Struct, sizeof(CAN_Send_Frame_Struct), portMAX_DELAY);
+
+                if (received == sizeof(CAN_Send_Frame_Struct))
                 {
                         //3个邮箱全满则让出CPU等待(不丢帧)
                         while (HAL_CAN_GetTxMailboxesFreeLevel(CAN_Send_Frame_Struct.hcan) == 0) vTaskDelay(1);
@@ -170,7 +185,7 @@ static void CAN_TxTask(void *argument)
 void CAN_Init()
 {
         //软件缓冲队列
-        CAN_TxQueue = xQueueCreate(32, sizeof(CAN_Send_Frame_StructTypeDef));
+        CAN_TxBuffer = xMessageBufferCreate(CAN_TX_BUFFER_SIZE);
 
         xTaskCreate(CAN_TxTask, "CAN_Tx", 256, NULL, 10, NULL);
 

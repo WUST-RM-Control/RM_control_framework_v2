@@ -30,6 +30,24 @@ static void Motor_ZDT_Tx(const uint8_t *cmd, uint16_t len)
         UART_Node_Transmit_Queue(node, cmd, len);
 }
 
+//帧长按功能码判定: 0x6B 虽为帧尾但数据段可能含 0x6B, 故不能靠扫帧尾
+static uint16_t Motor_ZDT_FrameParser(const uint8_t *data, uint16_t length)
+{
+        //首字节必须是已注册的电机地址, 否则丢1字节重新同步
+        if (data[0] == 0 || data[0] >= ZDT_ADDR_MAX || ZDT_Node_Table[data[0]] == NULL) return 1;
+
+        switch (data[1])
+        {
+        case 0x00: return 4; //错误应答: 地址 + 0x00 + 错误码 + 校验
+        case 0x3A: return 4; //状态标志
+        case 0x35: return 6; //实时转速
+        case 0x36: return 8; //实时位置
+        case 0x32: return 8; //输入脉冲数
+        case 0x33: return 8; //目标位置
+        default:   return 1; //未知功能码
+        }
+}
+
 void Motor_ZDT_Ctor(Motor_ZDT_HandleTypeDef *hmotor_zdt, UART_HandleTypeDef *huart, uint8_t Addr)
 {
         memset(hmotor_zdt, 0, sizeof(Motor_ZDT_HandleTypeDef));
@@ -41,6 +59,8 @@ void Motor_ZDT_Ctor(Motor_ZDT_HandleTypeDef *hmotor_zdt, UART_HandleTypeDef *hua
 
         ZDT_Node_Table[Addr] = &hmotor_zdt->hmotor_base.Link.UART;
         Emm_V5_Tx            = Motor_ZDT_Tx;
+
+        UART_Bus_SetFrameParser(huart, Motor_ZDT_FrameParser);
 }
 
 /*===| 使能 / 失能 / 置零 |===*/

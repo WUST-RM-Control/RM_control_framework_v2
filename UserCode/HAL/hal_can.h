@@ -21,8 +21,6 @@
 
 //两条总线(hcan1/hcan2 由 can.h 声明); STM32F407 双bxCAN共享28个过滤bank, CAN1用0~13, CAN2用14~27
 
-extern QueueHandle_t CAN_TxQueue;
-
 typedef struct CAN_Node_HandleTypeDef CAN_Node_HandleTypeDef;
 
 /*===| CAN节点: 继承 Bus_Node(第一成员) |===*/
@@ -88,10 +86,8 @@ void CAN_Send_Data_EXD(CAN_Node_HandleTypeDef *hcan_node, uint8_t *TX_Data, uint
 //底层发送: 不依赖节点(供一拖四组帧等临时发送用)
 void CAN_Send_STD(CAN_HandleTypeDef *hcan, uint32_t Send_ID, const uint8_t *TX_Data);
 
-__STATIC_INLINE void CAN_Send_Data_Queue(CAN_Send_Frame_StructTypeDef *CAN_Send_Packet_Struct)
-{
-        xQueueSend(CAN_TxQueue, CAN_Send_Packet_Struct, 0);
-}
+//入队待发(内部走消息缓冲)
+void CAN_Send_Data_Queue(CAN_Send_Frame_StructTypeDef *CAN_Send_Packet_Struct);
 
 //CAN过滤器初始化: CAN1→bank0, CAN2→bank14(FMR.CAN2SB=14), 全通过→FIFO0
 void CAN_Filter_Init(CAN_HandleTypeDef *hcan);
