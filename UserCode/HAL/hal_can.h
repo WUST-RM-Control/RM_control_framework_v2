@@ -12,6 +12,7 @@
 #include "utils.h"
 #include "FreeRTOS.h"
 #include "queue.h"
+#include "message_buffer.h"
 
 /*===| CAN总线资源分配(各设备使用的总线与ID, 使用前需包含fdcan.h) |===*/
 //底盘电机
@@ -58,8 +59,8 @@
 
 // //张大头Emm_V5步进电机(CAN)
 // #define EMM_V5_CAN                          hfdcan1
-//不用
-extern QueueHandle_t CAN_TxQueue;
+//发送侧丢帧计数: 总线缓冲满 或 该总线 FIFO 等待超时
+extern volatile uint32_t CAN_Tx_Drop_Count;
 
 typedef struct CAN_Node_HandleTypeDef CAN_Node_HandleTypeDef;
 
@@ -123,10 +124,8 @@ void CAN_Send_Data_STD(CAN_Node_HandleTypeDef *hcan_node, const uint8_t *TX_Data
 
 void CAN_Send_Data_EXD(CAN_Node_HandleTypeDef *hcan_node, uint8_t *TX_Data, uint8_t Length);
 
-__STATIC_INLINE void CAN_Send_Data_Queue(CAN_Send_Frame_StructTypeDef *CAN_Send_Packet_Struct)
-{
-        xQueueSend(CAN_TxQueue, CAN_Send_Packet_Struct, 0);
-}
+//入队待发(按帧内 hfdcan 选对应总线缓冲; 不阻塞, 满则丢帧并计数)
+void CAN_Send_Data_Buffer(CAN_Send_Frame_StructTypeDef *CAN_Send_Packet_Struct);
 
 void CAN_Filter_Init(FDCAN_HandleTypeDef *hfdcan);
 

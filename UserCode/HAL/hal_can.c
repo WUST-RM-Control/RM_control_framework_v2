@@ -6,7 +6,35 @@
 
 #include <string.h>
 
-QueueHandle_t CAN_TxQueue;
+#include "task.h"
+
+#define CAN_BUS_MAX       3
+#define CAN_TX_DEPTH      32
+#define CAN_TX_TIMEOUT_MS 10
+#define CAN_TX_TASK_PRIO  10
+
+//每条总线一套发送缓冲+任务: 一条总线堵塞不影响其他总线
+typedef struct
+{
+        FDCAN_HandleTypeDef *hfdcan;
+        MessageBufferHandle_t TxBuffer;
+        TaskHandle_t          TxTask;
+} CAN_Bus_StructTypeDef;
+
+static CAN_Bus_StructTypeDef CAN_Bus_Table[CAN_BUS_MAX];
+static uint8_t               CAN_Bus_Count = 0;
+
+volatile uint32_t CAN_Tx_Drop_Count = 0;
+
+static CAN_Bus_StructTypeDef *CAN_Bus_Find(FDCAN_HandleTypeDef *hfdcan)
+{
+        for (uint8_t i = 0; i < CAN_Bus_Count; i++)
+        {
+                if (CAN_Bus_Table[i].hfdcan == hfdcan) return &CAN_Bus_Table[i];
+        }
+
+        return NULL;
+}
 
 // void HAL_FDCAN_ErrorCallback(FDCAN_HandleTypeDef *hfdcan)
 // {
@@ -126,7 +154,7 @@ void CAN_Send_Data_STD(CAN_Node_HandleTypeDef *hcan_node, const uint8_t *TX_Data
 
         memcpy(CAN_Send_Frame_Struct.txData, TX_Data, sizeof(CAN_Send_Frame_Struct.txData));
 
-        CAN_Send_Data_Queue(&CAN_Send_Frame_Struct);
+        CAN_Send_Data_Buffer(&CAN_Send_Frame_Struct);
 
 }
 
@@ -149,21 +177,59 @@ void CAN_Send_Data_EXD(CAN_Node_HandleTypeDef *hcan_node, uint8_t *TX_Data, uint
 
         memcpy(CAN_Send_Frame_Struct.txData, TX_Data, sizeof(CAN_Send_Frame_Struct.txData));
 
-        CAN_Send_Data_Queue(&CAN_Send_Frame_Struct);
+        CAN_Send_Data_Buffer(&CAN_Send_Frame_Struct);
 
 }
 
 
+//入队待发: 按帧内 hfdcan 选对应总线缓冲; 不阻塞, 满则丢帧(避免反压控制任务)
+void CAN_Send_Data_Buffer(CAN_Send_Frame_StructTypeDef *CAN_Send_Packet_Struct)
+{
+        CAN_Bus_StructTypeDef *bus = CAN_Bus_Find(CAN_Send_Packet_Struct->hfdcan);
+        if (bus == NULL || bus->TxBuffer == NULL) return;
+
+        if (xMessageBufferSend(bus->TxBuffer, CAN_Send_Packet_Struct, sizeof(CAN_Send_Frame_StructTypeDef), 0) == pdFAIL)
+        {
+                CAN_Tx_Drop_Count++;
+        }
+}
+
+//TX FIFO 空: 唤醒本总线发送任务
+void HAL_FDCAN_TxFifoEmptyCallback(FDCAN_HandleTypeDef *hfdcan)
+{
+        CAN_Bus_StructTypeDef *bus = CAN_Bus_Find(hfdcan);
+        if (bus == NULL || bus->TxTask == NULL) return;
+
+        BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+        vTaskNotifyGiveFromISR(bus->TxTask, &xHigherPriorityTaskWoken);
+        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+}
+
+//单总线发送任务: FIFO 满时只阻塞本总线, 且带超时兜底
 static void CAN_TxTask(void *argument)
 {
-        CAN_Send_Frame_StructTypeDef CAN_Send_Frame_Struct = {};
+        CAN_Bus_StructTypeDef       *bus   = (CAN_Bus_StructTypeDef *) argument;
+        CAN_Send_Frame_StructTypeDef frame = {};
+
         for (;;)
         {
-                if (xQueueReceive(CAN_TxQueue, &CAN_Send_Frame_Struct, portMAX_DELAY) == pdPASS)
+                if (xMessageBufferReceive(bus->TxBuffer, &frame, sizeof(frame), portMAX_DELAY) != sizeof(frame)) continue;
+
+                //FIFO满: 等本总线空位, 超时说明该总线异常, 不再死等
+                if (HAL_FDCAN_GetTxFifoFreeLevel(bus->hfdcan) == 0)
                 {
-                        //当队列取出数据，且有空闲邮箱才发
-                        while (HAL_FDCAN_GetTxFifoFreeLevel(CAN_Send_Frame_Struct.hfdcan) == 0) vTaskDelay(pdMS_TO_TICKS(1));
-                        HAL_FDCAN_AddMessageToTxFifoQ(CAN_Send_Frame_Struct.hfdcan, &CAN_Send_Frame_Struct.CAN_TxMsg, CAN_Send_Frame_Struct.txData);
+                        ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(CAN_TX_TIMEOUT_MS));
+                }
+
+                if (HAL_FDCAN_GetTxFifoFreeLevel(bus->hfdcan) == 0)
+                {
+                        CAN_Tx_Drop_Count++; //该总线卡住, 丢弃本帧
+                        continue;
+                }
+
+                if (HAL_FDCAN_AddMessageToTxFifoQ(bus->hfdcan, &frame.CAN_TxMsg, frame.txData) != HAL_OK)
+                {
+                        CAN_Tx_Drop_Count++;
                 }
         }
 }
@@ -171,11 +237,6 @@ static void CAN_TxTask(void *argument)
 //初始化
 void CAN_Init()
 {
-        //软件缓冲队列
-        CAN_TxQueue = xQueueCreate(32, sizeof(CAN_Send_Frame_StructTypeDef));
-
-        xTaskCreate(CAN_TxTask, "CAN_Tx", 256, NULL, 10, NULL);
-
         CAN_Bus_Init(&hfdcan1);         //CAN总线启动 + 过滤器/接收中断
         CAN_Bus_Init(&hfdcan2);
         CAN_Bus_Init(&hfdcan3);
@@ -183,6 +244,20 @@ void CAN_Init()
 
 void CAN_Bus_Init(FDCAN_HandleTypeDef *hfdcan)
 {
+        if (CAN_Bus_Count >= CAN_BUS_MAX) return;
+        if (CAN_Bus_Find(hfdcan) != NULL) return;
+
+        static const char *const CAN_Tx_TaskName[CAN_BUS_MAX] = {"CAN1_Tx", "CAN2_Tx", "CAN3_Tx"};
+
+        CAN_Bus_StructTypeDef *bus = &CAN_Bus_Table[CAN_Bus_Count];
+
+        bus->hfdcan   = hfdcan;
+        bus->TxBuffer = xMessageBufferCreate(CAN_TX_DEPTH * sizeof(CAN_Send_Frame_StructTypeDef));
+
+        xTaskCreate(CAN_TxTask, CAN_Tx_TaskName[CAN_Bus_Count], 256, bus, CAN_TX_TASK_PRIO, &bus->TxTask);
+
+        CAN_Bus_Count++;
+
         HAL_FDCAN_Start(hfdcan);
         CAN_Filter_Init(hfdcan);
 }
@@ -204,6 +279,7 @@ void CAN_Filter_Init(FDCAN_HandleTypeDef *hfdcan)
         //激活接收 + 错误中断(错误警告/被动错误/总线关闭)
         HAL_FDCAN_ActivateNotification(hfdcan,
                                        FDCAN_IT_RX_FIFO0_NEW_MESSAGE |
+                                       FDCAN_IT_TX_FIFO_EMPTY |
                                        FDCAN_IT_ERROR_WARNING |
                                        FDCAN_IT_ERROR_PASSIVE |
                                        FDCAN_IT_BUS_OFF,
