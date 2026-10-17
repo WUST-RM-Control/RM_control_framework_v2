@@ -28,11 +28,13 @@
 //开发时偷懒做点小事在这()
 void Debug_Task(void *pvParameters)
 {
+        TickType_t last_wake = xTaskGetTickCount();
+
         LED_Set(&hled1, 255, 255, 255);
 
         for (;;)
         {
-                vTaskDelay(1000);
+                vTaskDelayUntil(&last_wake, pdMS_TO_TICKS(1000));
         }
 }
 
@@ -73,13 +75,13 @@ void main_init()
         Motor_Init();
 
         /*===| 任务创建 |===*/
-        xTaskCreate(LED_Key_Task, "LED_Key", 256, NULL, 4, NULL);
-        // xTaskCreate(Buzzer_Task, "Buzzer", 256, &hbuzzer1, 4, NULL);
-        xTaskCreate(Motor_Control_Task, "Motor", 512, NULL, 6, NULL);
-        xTaskCreate(INS_Task, "INS", 1024, NULL, 10, NULL);
-        // xTaskCreate(Error_Monitor_Task, "ErrorMon", 512, NULL, 5, NULL);
+        xTaskCreate(LED_Key_Task, "LED_Key", 256, NULL, 2, NULL);
+        // xTaskCreate(Buzzer_Task, "Buzzer", 256, &hbuzzer1, 2, NULL);
+        xTaskCreate(Motor_Control_Task, "Motor", 512, NULL, 4, NULL);
+        xTaskCreate(INS_Task, "INS", 1024, NULL, 6, NULL);
+        // xTaskCreate(Error_Monitor_Task, "ErrorMon", 512, NULL, 3, NULL);
 
-        xTaskCreate(Debug_Task, "Debug", 1024, NULL, 6, NULL);
+        xTaskCreate(Debug_Task, "Debug", 1024, NULL, 2, NULL);
         Buzzer_Set_SoundEffect(&hbuzzer1, Buzzer_SoundEffect_SystemStart);
 }
 

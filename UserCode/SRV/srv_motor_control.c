@@ -13,6 +13,8 @@
 /*===| 电机对象实例 |===*/
 #define MOTOR_COUNT 2
 
+#define MOTOR_CTRL_PERIOD_MS 1
+
 Motor_DJI_HandleTypeDef hmotor1     = {};
 Motor_ZDT_HandleTypeDef hmotor_zdt1 = {};
 
@@ -36,6 +38,8 @@ void Motor_Init()
 /*===| 电机控制任务: "计算 → 发送" |===*/
 void Motor_Control_Task(void *pvParameters)
 {
+        TickType_t last_wake = xTaskGetTickCount();
+
         for (;;)
         {
                 for (int i = 0; i < Motor_Count; i++)
@@ -54,6 +58,6 @@ void Motor_Control_Task(void *pvParameters)
                         Motor_Send(hmotor);
                 }
 
-                vTaskDelay(1);
+                vTaskDelayUntil(&last_wake, pdMS_TO_TICKS(MOTOR_CTRL_PERIOD_MS));
         }
 }

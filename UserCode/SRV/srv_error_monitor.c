@@ -18,6 +18,8 @@ uint8_t Is_Fault = 0;
 
 void Error_Monitor_Task(void *pvParameters)
 {
+        TickType_t last_wake = xTaskGetTickCount();
+
         for (;;)
         {
                 //遍历注册表: 推进计时 + 聚合故障(机制由 Common/err 提供)
@@ -31,7 +33,7 @@ void Error_Monitor_Task(void *pvParameters)
                 }
 
                 if (Is_Fault != 0) Buzzer_Set_SoundEffect(&hbuzzer1, Buzzer_SoundEffect_Error); //只哔哔不处理
-                vTaskDelay(MONITOR_PERIOD_MS);
+                vTaskDelayUntil(&last_wake, pdMS_TO_TICKS(MONITOR_PERIOD_MS));
         }
 }
 

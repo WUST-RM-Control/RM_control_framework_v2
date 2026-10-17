@@ -49,6 +49,8 @@ void INS_Task(void *pvParameters)
         static uint32_t count      = 0;
         const float     gravity[3] = {0, 0, 9.81f};
 
+        TickType_t last_wake = xTaskGetTickCount();
+
         for (;;)
         {
                 dt = DWT_GetDeltaT(&INS_DWT_Count); // 每周期更新dt
@@ -113,7 +115,7 @@ void INS_Task(void *pvParameters)
 
                 count++;
 
-                vTaskDelay(INS_TASK_PERIOD); // 1ms周期, 让出CPU给低优先级任务
+                vTaskDelayUntil(&last_wake, pdMS_TO_TICKS(INS_TASK_PERIOD));
         }
 }
 

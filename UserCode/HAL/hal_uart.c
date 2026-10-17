@@ -10,12 +10,16 @@
 #include "stream_buffer.h"
 #include "task.h"
 
-#define UART_BUS_MAX        2
-#define UART_RX_STREAM_SIZE 128
-#define UART_TX_STREAM_SIZE 128
-#define UART_RX_ACCUM_MAX   (UART_NODE_RX_MAX * 2)
-#define UART_FRAME_MIN_LEN  4
-#define UART_TX_TIMEOUT     100
+#define UART_BUS_MAX         2
+#define UART_RX_STREAM_SIZE  128
+#define UART_TX_STREAM_SIZE  128
+#define UART_RX_ACCUM_MAX    (UART_NODE_RX_MAX * 2)
+#define UART_FRAME_MIN_LEN   4
+#define UART_TX_TIMEOUT_MS   10
+#define UART_RX_POLL_MS      10
+
+#define UART_TX_TASK_PRIO 5
+#define UART_RX_TASK_PRIO 5
 
 typedef struct
 {
@@ -25,6 +29,10 @@ typedef struct
         StreamBufferHandle_t RxStream; //已收字节流
 
         UART_FrameParser FrameParser;
+
+        TaskHandle_t TxTask; //DMA发完由中断通知
+
+        volatile uint8_t RxPending; //重启接收失败(huart锁被发送占用), 待补
 
         uint8_t rxBuff[UART_NODE_RX_MAX];
 } UART_Bus_StructTypeDef;
@@ -46,10 +54,13 @@ static UART_Bus_StructTypeDef *UART_Bus_Find(UART_HandleTypeDef *huart)
 }
 
 //DMA接收下任何错误(ORE/FE/NE)都会中止接收, 不重启就永久失联
-static void UART_Restart_Receive(UART_Bus_StructTypeDef *bus)
+static HAL_StatusTypeDef UART_Restart_Receive(UART_Bus_StructTypeDef *bus)
 {
-        HAL_UARTEx_ReceiveToIdle_DMA(bus->huart, bus->rxBuff, sizeof(bus->rxBuff));
-        __HAL_DMA_DISABLE_IT(bus->huart->hdmarx, DMA_IT_HT);
+        HAL_StatusTypeDef status = HAL_UARTEx_ReceiveToIdle_DMA(bus->huart, bus->rxBuff, sizeof(bus->rxBuff));
+
+        if (status == HAL_OK) __HAL_DMA_DISABLE_IT(bus->huart->hdmarx, DMA_IT_HT);
+
+        return status;
 }
 
 //只做字节入环, 分帧交给任务(处理粘包/半包)
@@ -64,7 +75,8 @@ static void UART_RxEvent_Callback(UART_HandleTypeDef *huart, uint16_t Pos)
 
         if (pos > 0) xStreamBufferSendFromISR(bus->RxStream, bus->rxBuff, pos, &xHigherPriorityTaskWoken);
 
-        UART_Restart_Receive(bus);
+        //huart锁可能正被DMA发送占用, 失败则标记待补偿(RxTask每10ms重试)
+        if (UART_Restart_Receive(bus) != HAL_OK) bus->RxPending = 1;
 
         portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
@@ -74,7 +86,7 @@ static void UART_Error_Callback(UART_HandleTypeDef *huart)
         UART_Bus_StructTypeDef *bus = UART_Bus_Find(huart);
         if (bus == NULL) return;
 
-        UART_Restart_Receive(bus);
+        if (UART_Restart_Receive(bus) != HAL_OK) bus->RxPending = 1;
 }
 
 //按帧首地址分发到节点
@@ -117,8 +129,13 @@ static void UART_RxTask(void *argument)
         {
                 if (length == sizeof(accum)) length = 0;
 
-                size_t received = xStreamBufferReceive(bus->RxStream, accum + length, sizeof(accum) - length, portMAX_DELAY);
-                if (received == 0) continue;
+                size_t received = xStreamBufferReceive(bus->RxStream, accum + length, sizeof(accum) - length, pdMS_TO_TICKS(UART_RX_POLL_MS));
+                if (received == 0)
+                {
+                        //无数据时兜底: 补一次被发送占锁打断的接收重启
+                        if (bus->RxPending && UART_Restart_Receive(bus) == HAL_OK) bus->RxPending = 0;
+                        continue;
+                }
 
                 length += (uint16_t) received;
 
@@ -140,6 +157,7 @@ static void UART_RxTask(void *argument)
         }
 }
 
+//DMA发送: 发起后阻塞等完成通知, 不忙等CPU
 static void UART_TxTask(void *argument)
 {
         UART_Bus_StructTypeDef *bus = (UART_Bus_StructTypeDef *) argument;
@@ -150,8 +168,32 @@ static void UART_TxTask(void *argument)
                 size_t length = xStreamBufferReceive(bus->TxStream, frame, sizeof(frame), portMAX_DELAY);
                 if (length == 0) continue;
 
-                HAL_UART_Transmit(bus->huart, frame, (uint16_t) length, UART_TX_TIMEOUT);
+                if (HAL_UART_Transmit_DMA(bus->huart, frame, (uint16_t) length) == HAL_OK)
+                {
+                        //超时则中止, 防完成回调丢失导致永久阻塞
+                        if (ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(UART_TX_TIMEOUT_MS)) == 0)
+                        {
+                                HAL_UART_AbortTransmit(bus->huart);
+                        }
+                }
+                else
+                {
+                        HAL_UART_AbortTransmit(bus->huart); //状态异常, 复位后继续下一帧
+                }
+
+                if (bus->RxPending && UART_Restart_Receive(bus) == HAL_OK) bus->RxPending = 0;
         }
+}
+
+//DMA发送完成: 通知TxTask继续下一帧
+static void UART_TxCplt_Callback(UART_HandleTypeDef *huart)
+{
+        UART_Bus_StructTypeDef *bus = UART_Bus_Find(huart);
+        if (bus == NULL || bus->TxTask == NULL) return;
+
+        BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+        vTaskNotifyGiveFromISR(bus->TxTask, &xHigherPriorityTaskWoken);
+        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
 void UART_Node_Register(UART_Node_HandleTypeDef *uart_node)
@@ -196,7 +238,7 @@ void UART_Node_Ctor(UART_Node_HandleTypeDef *uart_node, UART_HandleTypeDef *huar
 
 HAL_StatusTypeDef UART_Node_Transmit(UART_Node_HandleTypeDef *uart_node, const uint8_t *TX_Data, uint16_t Length)
 {
-        return HAL_UART_Transmit(uart_node->huart, (uint8_t *) TX_Data, Length, UART_TX_TIMEOUT);
+        return HAL_UART_Transmit(uart_node->huart, (uint8_t *) TX_Data, Length, UART_TX_TIMEOUT_MS);
 }
 
 void UART_Node_Transmit_Queue(UART_Node_HandleTypeDef *uart_node, const uint8_t *TX_Data, uint16_t Length)
@@ -227,11 +269,12 @@ void UART_Bus_Init(UART_HandleTypeDef *huart)
         bus->TxStream    = xStreamBufferCreate(UART_TX_STREAM_SIZE, 1);
         bus->RxStream    = xStreamBufferCreate(UART_RX_STREAM_SIZE, 1);
 
-        xTaskCreate(UART_TxTask, "UART_Tx", 256, bus, 10, NULL);
-        xTaskCreate(UART_RxTask, "UART_Rx", 256, bus, 7, NULL);
+        xTaskCreate(UART_TxTask, "UART_Tx", 256, bus, UART_TX_TASK_PRIO, &bus->TxTask);
+        xTaskCreate(UART_RxTask, "UART_Rx", 256, bus, UART_RX_TASK_PRIO, NULL);
 
         HAL_UART_RegisterRxEventCallback(huart, UART_RxEvent_Callback);
         HAL_UART_RegisterCallback(huart, HAL_UART_ERROR_CB_ID, UART_Error_Callback);
+        HAL_UART_RegisterCallback(huart, HAL_UART_TX_COMPLETE_CB_ID, UART_TxCplt_Callback);
 
         UART_Restart_Receive(bus);
 }

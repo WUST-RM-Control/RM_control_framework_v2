@@ -187,7 +187,7 @@ void CAN_Init()
         //软件缓冲队列
         CAN_TxBuffer = xMessageBufferCreate(CAN_TX_BUFFER_SIZE);
 
-        xTaskCreate(CAN_TxTask, "CAN_Tx", 256, NULL, 10, NULL);
+        xTaskCreate(CAN_TxTask, "CAN_Tx", 256, NULL, 6, NULL);
 
         CAN_Bus_Init(&hcan1); //CAN总线启动 + 过滤器/接收中断
         CAN_Bus_Init(&hcan2);

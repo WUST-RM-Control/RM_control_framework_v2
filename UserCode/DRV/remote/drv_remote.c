@@ -119,7 +119,7 @@ void Remote_Init(Remote_HandleTypeDef *hremote)
         Remote_RxStream = xStreamBufferCreate(REMOTE_RX_STREAM_SIZE, 1);
         if (Remote_RxStream != NULL)
         {
-                xTaskCreate(Remote_RxTask, "RemoteRx", 512, hremote, 7, NULL);
+                xTaskCreate(Remote_RxTask, "RemoteRx", 512, hremote, 2, NULL);
         }
 
         //注册UART空闲中断回调
