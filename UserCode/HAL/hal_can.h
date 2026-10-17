@@ -73,6 +73,9 @@ void CAN_Node_UnRegister(CAN_Node_HandleTypeDef *hcan_node);
 //总线错误码快照[0]=CAN1, [1]=CAN2 (HAL_CAN_ErrorCallback 更新, 供调试观察)
 extern volatile uint32_t CAN_Error_Code[2];
 
+//入队后等邮箱空位超时(总线异常)而丢弃的帧数, 供调试观察
+extern volatile uint32_t CAN_Tx_Drop_Count;
+
 //总线离线判定阈值(监控周期10ms时为100ms)
 #define CAN_OFFLINE_TICK 10
 

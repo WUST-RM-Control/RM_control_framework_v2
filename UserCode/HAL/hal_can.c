@@ -7,11 +7,17 @@
 #include <string.h>
 
 #include "message_buffer.h"
+#include "task.h"
 
 #define CAN_TX_DEPTH       32
 #define CAN_TX_BUFFER_SIZE (CAN_TX_DEPTH * (sizeof(CAN_Send_Frame_StructTypeDef) + 4))
+#define CAN_TX_TIMEOUT_MS  10
 
 static MessageBufferHandle_t CAN_TxBuffer;
+static TaskHandle_t          CAN_TxTaskHandle;
+
+//入队后等待邮箱空位超时(总线异常)而丢弃的帧数
+volatile uint32_t CAN_Tx_Drop_Count = 0;
 
 // /*===| CAN总线错误处理 |===*/
 // //总线错误码快照: [0]=CAN1, [1]=CAN2 (仅记录, 供水印/调试观察)
@@ -161,6 +167,24 @@ void CAN_Send_Data_EXD(CAN_Node_HandleTypeDef *hcan_node, uint8_t *TX_Data, uint
         CAN_Send_Data_Queue(&CAN_Send_Frame_Struct);
 }
 
+//邮箱发送完成: 通知TxTask继续(多个邮箱事件合并为一次通知即可)
+static void CAN_Tx_Notify(CAN_HandleTypeDef *hcan)
+{
+        (void) hcan; //单个TxTask服务两条总线, 无需区分来源
+
+        if (CAN_TxTaskHandle == NULL) return;
+
+        BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+        vTaskNotifyGiveFromISR(CAN_TxTaskHandle, &xHigherPriorityTaskWoken);
+        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+}
+
+void HAL_CAN_TxMailbox0CompleteCallback(CAN_HandleTypeDef *hcan) { CAN_Tx_Notify(hcan); }
+
+void HAL_CAN_TxMailbox1CompleteCallback(CAN_HandleTypeDef *hcan) { CAN_Tx_Notify(hcan); }
+
+void HAL_CAN_TxMailbox2CompleteCallback(CAN_HandleTypeDef *hcan) { CAN_Tx_Notify(hcan); }
+
 static void CAN_TxTask(void *argument)
 {
         CAN_Send_Frame_StructTypeDef CAN_Send_Frame_Struct = {};
@@ -170,13 +194,18 @@ static void CAN_TxTask(void *argument)
         {
                 size_t received = xMessageBufferReceive(CAN_TxBuffer, &CAN_Send_Frame_Struct, sizeof(CAN_Send_Frame_Struct), portMAX_DELAY);
 
-                if (received == sizeof(CAN_Send_Frame_Struct))
-                {
-                        //3个邮箱全满则让出CPU等待(不丢帧)
-                        while (HAL_CAN_GetTxMailboxesFreeLevel(CAN_Send_Frame_Struct.hcan) == 0) vTaskDelay(1);
+                if (received != sizeof(CAN_Send_Frame_Struct)) continue;
 
-                        HAL_CAN_AddTxMessage(CAN_Send_Frame_Struct.hcan, &CAN_Send_Frame_Struct.CAN_TxMsg,
-                                             CAN_Send_Frame_Struct.txData, &mailbox);
+                //3个邮箱全满则阻塞等邮箱完成中断(不轮询); 超时说明总线异常, 不再死等
+                while (HAL_CAN_GetTxMailboxesFreeLevel(CAN_Send_Frame_Struct.hcan) == 0)
+                {
+                        if (ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(CAN_TX_TIMEOUT_MS)) == 0) break;
+                }
+
+                if (HAL_CAN_AddTxMessage(CAN_Send_Frame_Struct.hcan, &CAN_Send_Frame_Struct.CAN_TxMsg,
+                                         CAN_Send_Frame_Struct.txData, &mailbox) != HAL_OK)
+                {
+                        CAN_Tx_Drop_Count++;
                 }
         }
 }
@@ -187,7 +216,7 @@ void CAN_Init()
         //软件缓冲队列
         CAN_TxBuffer = xMessageBufferCreate(CAN_TX_BUFFER_SIZE);
 
-        xTaskCreate(CAN_TxTask, "CAN_Tx", 256, NULL, 6, NULL);
+        xTaskCreate(CAN_TxTask, "CAN_Tx", 256, NULL, 6, &CAN_TxTaskHandle);
 
         CAN_Bus_Init(&hcan1); //CAN总线启动 + 过滤器/接收中断
         CAN_Bus_Init(&hcan2);
