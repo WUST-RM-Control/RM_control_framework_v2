@@ -249,6 +249,9 @@ void Motor_Init()
 /*===| 电机控制任务: "计算 → 发送" 两阶段 |===*/
 void Motor_Control_Task(void *pvParameters)
 {
+        TickType_t xLastWakeTime;
+
+        xLastWakeTime = xTaskGetTickCount();
         for (;;)
         {
                 //计算
@@ -302,6 +305,6 @@ void Motor_Control_Task(void *pvParameters)
                 }
 
                 //ps：g4的每个can控制器都只有3个邮箱，所以不可以一次塞入3个以上个包
-                vTaskDelay(1);
+                vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(1));
         }
 }

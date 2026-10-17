@@ -51,14 +51,15 @@ typedef struct
         /*===| 当前待播放音效（对象状态，替代全局变量） |===*/
         Buzzer_SoundEffect_EnumTypedef sound_effect;
 
-        //蜂鸣器音效任务间隔，10ms。建议不要高于30。
-        TickType_t buzzer_task_tick;
+        //音效任务周期间隔[ms]
+        uint32_t buzzer_task_period_ms;
 } Buzzer_HandleTypeDef;
 
 extern Buzzer_HandleTypeDef hbuzzer1;
 
 //蜂鸣器构造: 绑定定时器与通道(实例 ↔ 外设绑定, 由 ENT 调用)
-void Buzzer_Ctor(Buzzer_HandleTypeDef *hbuzzer, TIM_HandleTypeDef *htim, uint8_t Buzzer_TIM_Channel, TickType_t buzzer_task_control_time);
+//buzzer_task_period_ms: 音效任务周期间隔[ms], 建议不超过 30
+void Buzzer_Ctor(Buzzer_HandleTypeDef *hbuzzer, TIM_HandleTypeDef *htim, uint8_t Buzzer_TIM_Channel, uint32_t buzzer_task_period_ms);
 
 void Buzzer_Init(Buzzer_HandleTypeDef *hbuzzer);
 
@@ -72,9 +73,9 @@ void Buzzer_Stop(Buzzer_HandleTypeDef *hbuzzer);
 
 void Buzzer_Task(void *argument);
 
-__STATIC_INLINE TickType_t Buzzer_Get_Task_Tick(Buzzer_HandleTypeDef *hbuzzer)
+__STATIC_INLINE uint32_t Buzzer_Get_Task_Period_ms(Buzzer_HandleTypeDef *hbuzzer)
 {
-        return hbuzzer->buzzer_task_tick;
+        return hbuzzer->buzzer_task_period_ms;
 }
 
 #endif //G4MINI_V3_BUZZER_H

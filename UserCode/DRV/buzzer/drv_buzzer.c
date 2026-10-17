@@ -6,12 +6,12 @@
 
 Buzzer_HandleTypeDef hbuzzer1 = {};
 
-void Buzzer_Ctor(Buzzer_HandleTypeDef *hbuzzer, TIM_HandleTypeDef *htim, uint8_t Buzzer_TIM_Channel, TickType_t buzzer_task_control_time)
+void Buzzer_Ctor(Buzzer_HandleTypeDef *hbuzzer, TIM_HandleTypeDef *htim, uint8_t Buzzer_TIM_Channel, uint32_t buzzer_task_period_ms)
 {
         hbuzzer->htim = htim;
         hbuzzer->channel = Buzzer_TIM_Channel;
 
-        hbuzzer->buzzer_task_tick = buzzer_task_control_time;
+        hbuzzer->buzzer_task_period_ms = buzzer_task_period_ms;
 }
 
 void Buzzer_Init(Buzzer_HandleTypeDef *hbuzzer)
@@ -52,35 +52,35 @@ void Buzzer_Task(void *argument)
                 {
                         Buzzer_Start(hbuzzer);
                         Buzzer_Set_Tone(hbuzzer, M1);
-                        vTaskDelay(200);
+                        vTaskDelay(pdMS_TO_TICKS(200));
                         Buzzer_Set_Tone(hbuzzer, P);
-                        vTaskDelay(50);
+                        vTaskDelay(pdMS_TO_TICKS(50));
                         Buzzer_Set_Tone(hbuzzer, M2);
-                        vTaskDelay(200);
+                        vTaskDelay(pdMS_TO_TICKS(200));
                         Buzzer_Set_Tone(hbuzzer, P);
-                        vTaskDelay(50);
+                        vTaskDelay(pdMS_TO_TICKS(50));
                         Buzzer_Set_Tone(hbuzzer, M3);
-                        vTaskDelay(200);
+                        vTaskDelay(pdMS_TO_TICKS(200));
                         Buzzer_Set_Tone(hbuzzer, P);
-                        vTaskDelay(50);
+                        vTaskDelay(pdMS_TO_TICKS(50));
                         Buzzer_Set_Tone(hbuzzer, M2);
-                        vTaskDelay(200);
+                        vTaskDelay(pdMS_TO_TICKS(200));
                         Buzzer_Set_Tone(hbuzzer, P);
-                        vTaskDelay(50);
+                        vTaskDelay(pdMS_TO_TICKS(50));
                         Buzzer_Set_Tone(hbuzzer, M5);
-                        vTaskDelay(200);
+                        vTaskDelay(pdMS_TO_TICKS(200));
                         Buzzer_Set_Tone(hbuzzer, P);
-                        vTaskDelay(50);
+                        vTaskDelay(pdMS_TO_TICKS(50));
                         Buzzer_Set_Tone(hbuzzer, M7);
-                        vTaskDelay(200);
+                        vTaskDelay(pdMS_TO_TICKS(200));
                         Buzzer_Set_Tone(hbuzzer, P);
-                        vTaskDelay(50);
+                        vTaskDelay(pdMS_TO_TICKS(50));
                         Buzzer_Set_Tone(hbuzzer, M6);
-                        vTaskDelay(500);
+                        vTaskDelay(pdMS_TO_TICKS(500));
                         Buzzer_Set_Tone(hbuzzer, M5);
-                        vTaskDelay(250);
+                        vTaskDelay(pdMS_TO_TICKS(250));
                         Buzzer_Set_Tone(hbuzzer, M6);
-                        vTaskDelay(750);
+                        vTaskDelay(pdMS_TO_TICKS(750));
                         hbuzzer->sound_effect = Buzzer_SoundEffect_OFF;
                         break;
                 }
@@ -90,9 +90,9 @@ void Buzzer_Task(void *argument)
                         for (uint8_t i = 0; i < 3; i++)
                         {
                                 Buzzer_Set_Tone(hbuzzer, M7);
-                                vTaskDelay(100);
+                                vTaskDelay(pdMS_TO_TICKS(100));
                                 Buzzer_Set_Tone(hbuzzer, P);
-                                vTaskDelay(100);
+                                vTaskDelay(pdMS_TO_TICKS(100));
                         }
                         hbuzzer->sound_effect = Buzzer_SoundEffect_OFF;
                         break;
@@ -101,11 +101,11 @@ void Buzzer_Task(void *argument)
                 {
                         Buzzer_Start(hbuzzer);
                         Buzzer_Set_Tone(hbuzzer, M1);
-                        vTaskDelay(200);
+                        vTaskDelay(pdMS_TO_TICKS(200));
                         Buzzer_Set_Tone(hbuzzer, M3);
-                        vTaskDelay(200);
+                        vTaskDelay(pdMS_TO_TICKS(200));
                         Buzzer_Set_Tone(hbuzzer, M5);
-                        vTaskDelay(200);
+                        vTaskDelay(pdMS_TO_TICKS(200));
                         hbuzzer->sound_effect = Buzzer_SoundEffect_OFF;
                         break;
                 }
@@ -113,11 +113,11 @@ void Buzzer_Task(void *argument)
                 {
                         Buzzer_Start(hbuzzer);
                         Buzzer_Set_Tone(hbuzzer, M5);
-                        vTaskDelay(200);
+                        vTaskDelay(pdMS_TO_TICKS(200));
                         Buzzer_Set_Tone(hbuzzer, M3);
-                        vTaskDelay(200);
+                        vTaskDelay(pdMS_TO_TICKS(200));
                         Buzzer_Set_Tone(hbuzzer, M1);
-                        vTaskDelay(200);
+                        vTaskDelay(pdMS_TO_TICKS(200));
                         hbuzzer->sound_effect = Buzzer_SoundEffect_OFF;
                         break;
                 }
@@ -125,17 +125,17 @@ void Buzzer_Task(void *argument)
                 {
                         Buzzer_Start(hbuzzer);
                         Buzzer_Set_Tone(hbuzzer, M7);
-                        vTaskDelay(50);
+                        vTaskDelay(pdMS_TO_TICKS(50));
                         Buzzer_Set_Tone(hbuzzer, P);
-                        vTaskDelay(150);
+                        vTaskDelay(pdMS_TO_TICKS(150));
                         Buzzer_Set_Tone(hbuzzer, M7);
-                        vTaskDelay(50);
+                        vTaskDelay(pdMS_TO_TICKS(50));
                         Buzzer_Set_Tone(hbuzzer, P);
-                        vTaskDelay(150);
+                        vTaskDelay(pdMS_TO_TICKS(150));
                         Buzzer_Set_Tone(hbuzzer, M7);
-                        vTaskDelay(50);
+                        vTaskDelay(pdMS_TO_TICKS(50));
                         Buzzer_Set_Tone(hbuzzer, P);
-                        vTaskDelay(150);
+                        vTaskDelay(pdMS_TO_TICKS(150));
                         hbuzzer->sound_effect = Buzzer_SoundEffect_OFF;
                         break;
                 }
@@ -143,11 +143,11 @@ void Buzzer_Task(void *argument)
                 {
                         Buzzer_Start(hbuzzer);
                         Buzzer_Set_Tone(hbuzzer, M7);
-                        vTaskDelay(200);
+                        vTaskDelay(pdMS_TO_TICKS(200));
                         Buzzer_Set_Tone(hbuzzer, M5);
-                        vTaskDelay(200);
+                        vTaskDelay(pdMS_TO_TICKS(200));
                         Buzzer_Set_Tone(hbuzzer, M3);
-                        vTaskDelay(200);
+                        vTaskDelay(pdMS_TO_TICKS(200));
                         hbuzzer->sound_effect = Buzzer_SoundEffect_OFF;
                         break;
                 }
@@ -157,9 +157,9 @@ void Buzzer_Task(void *argument)
                         for (uint8_t i = 0; i < 1; i++)
                         {
                                 Buzzer_Set_Tone(hbuzzer, M5);
-                                vTaskDelay(100);
+                                vTaskDelay(pdMS_TO_TICKS(100));
                                 Buzzer_Set_Tone(hbuzzer, P);
-                                vTaskDelay(100);
+                                vTaskDelay(pdMS_TO_TICKS(100));
                         }
                         hbuzzer->sound_effect = Buzzer_SoundEffect_OFF;
                         break;
@@ -170,9 +170,9 @@ void Buzzer_Task(void *argument)
                         for (uint8_t i = 0; i < 2; i++)
                         {
                                 Buzzer_Set_Tone(hbuzzer, M5);
-                                vTaskDelay(100);
+                                vTaskDelay(pdMS_TO_TICKS(100));
                                 Buzzer_Set_Tone(hbuzzer, P);
-                                vTaskDelay(100);
+                                vTaskDelay(pdMS_TO_TICKS(100));
                         }
                         hbuzzer->sound_effect = Buzzer_SoundEffect_OFF;
                         break;
@@ -183,9 +183,9 @@ void Buzzer_Task(void *argument)
                         for (uint8_t i = 0; i < 3; i++)
                         {
                                 Buzzer_Set_Tone(hbuzzer, M5);
-                                vTaskDelay(100);
+                                vTaskDelay(pdMS_TO_TICKS(100));
                                 Buzzer_Set_Tone(hbuzzer, P);
-                                vTaskDelay(100);
+                                vTaskDelay(pdMS_TO_TICKS(100));
                         }
                         hbuzzer->sound_effect = Buzzer_SoundEffect_OFF;
                         break;
@@ -196,9 +196,9 @@ void Buzzer_Task(void *argument)
                         for (uint8_t i = 0; i < 4; i++)
                         {
                                 Buzzer_Set_Tone(hbuzzer, M5);
-                                vTaskDelay(100);
+                                vTaskDelay(pdMS_TO_TICKS(100));
                                 Buzzer_Set_Tone(hbuzzer, P);
-                                vTaskDelay(100);
+                                vTaskDelay(pdMS_TO_TICKS(100));
                         }
                         hbuzzer->sound_effect = Buzzer_SoundEffect_OFF;
                         break;
@@ -209,9 +209,9 @@ void Buzzer_Task(void *argument)
                         for (uint8_t i = 0; i < 5; i++)
                         {
                                 Buzzer_Set_Tone(hbuzzer, M5);
-                                vTaskDelay(100);
+                                vTaskDelay(pdMS_TO_TICKS(100));
                                 Buzzer_Set_Tone(hbuzzer, P);
-                                vTaskDelay(100);
+                                vTaskDelay(pdMS_TO_TICKS(100));
                         }
                         hbuzzer->sound_effect = Buzzer_SoundEffect_OFF;
                         break;
@@ -222,9 +222,9 @@ void Buzzer_Task(void *argument)
                         for (uint8_t i = 0; i < 6; i++)
                         {
                                 Buzzer_Set_Tone(hbuzzer, M5);
-                                vTaskDelay(100);
+                                vTaskDelay(pdMS_TO_TICKS(100));
                                 Buzzer_Set_Tone(hbuzzer, P);
-                                vTaskDelay(100);
+                                vTaskDelay(pdMS_TO_TICKS(100));
                         }
                         hbuzzer->sound_effect = Buzzer_SoundEffect_OFF;
                         break;
@@ -235,9 +235,9 @@ void Buzzer_Task(void *argument)
                         for (uint8_t i = 0; i < 7; i++)
                         {
                                 Buzzer_Set_Tone(hbuzzer, M5);
-                                vTaskDelay(100);
+                                vTaskDelay(pdMS_TO_TICKS(100));
                                 Buzzer_Set_Tone(hbuzzer, P);
-                                vTaskDelay(100);
+                                vTaskDelay(pdMS_TO_TICKS(100));
                         }
                         hbuzzer->sound_effect = Buzzer_SoundEffect_OFF;
                         break;
@@ -248,16 +248,16 @@ void Buzzer_Task(void *argument)
                         for (uint8_t i = 0; i < 8; i++)
                         {
                                 Buzzer_Set_Tone(hbuzzer, M5);
-                                vTaskDelay(100);
+                                vTaskDelay(pdMS_TO_TICKS(100));
                                 Buzzer_Set_Tone(hbuzzer, P);
-                                vTaskDelay(100);
+                                vTaskDelay(pdMS_TO_TICKS(100));
                         }
                         hbuzzer->sound_effect = Buzzer_SoundEffect_OFF;
                         break;
                 }
                 }
 
-                vTaskDelay(Buzzer_Get_Task_Tick(hbuzzer));
+                vTaskDelay(pdMS_TO_TICKS(Buzzer_Get_Task_Period_ms(hbuzzer)));
         }
 }
 

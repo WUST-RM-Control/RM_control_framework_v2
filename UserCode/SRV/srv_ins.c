@@ -24,9 +24,8 @@ const float xb[3] = {1, 0, 0};
 const float yb[3] = {0, 1, 0};
 const float zb[3] = {0, 0, 1};
 
-static uint32_t INS_DWT_Count  = 0;
-static float    dt             = 0, t = 0;
-static uint8_t  ins_debug_mode = 0;
+static uint32_t INS_DWT_Count = 0;
+static float    dt            = 0, t = 0;
 
 static void IMU_Param_Correction(IMU_Param_t *param, float gyro[3], float accel[3]);
 
@@ -114,7 +113,7 @@ void INS_Task(void *pvParameters)
 
                 count++;
 
-                vTaskDelay(INS_TASK_PERIOD); // 1ms周期, 让出CPU给低优先级任务
+                vTaskDelay(pdMS_TO_TICKS(INS_TASK_PERIOD)); // 1ms周期, 让出CPU给低优先级任务
         }
 }
 

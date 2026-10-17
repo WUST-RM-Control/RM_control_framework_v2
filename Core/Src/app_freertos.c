@@ -125,7 +125,7 @@ void StartDefaultTask(void *argument)
         for (;;)
         {
 
-                osDelay(1);
+                osDelay(pdMS_TO_TICKS(1));
         }
   /* USER CODE END StartDefaultTask */
 }

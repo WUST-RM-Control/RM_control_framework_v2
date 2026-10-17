@@ -16,6 +16,6 @@ void Vehicle_Control_Task(void *pvParameters)
                 Vehicle_Set_Vx(&hvehicle1, Remote_Get_Left_X(&hremote_dt7));
                 Vehicle_Set_Vy(&hvehicle1, Remote_Get_Left_Y(&hremote_dt7));
 
-                vTaskDelay(1);
+                vTaskDelay(pdMS_TO_TICKS(1));
         }
 }

@@ -162,7 +162,7 @@ static void CAN_TxTask(void *argument)
                 if (xQueueReceive(CAN_TxQueue, &CAN_Send_Frame_Struct, portMAX_DELAY) == pdPASS)
                 {
                         //当队列取出数据，且有空闲邮箱才发
-                        while (HAL_FDCAN_GetTxFifoFreeLevel(CAN_Send_Frame_Struct.hfdcan) == 0) vTaskDelay(1);
+                        while (HAL_FDCAN_GetTxFifoFreeLevel(CAN_Send_Frame_Struct.hfdcan) == 0) vTaskDelay(pdMS_TO_TICKS(1));
                         HAL_FDCAN_AddMessageToTxFifoQ(CAN_Send_Frame_Struct.hfdcan, &CAN_Send_Frame_Struct.CAN_TxMsg, CAN_Send_Frame_Struct.txData);
                 }
         }

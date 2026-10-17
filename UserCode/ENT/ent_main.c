@@ -35,7 +35,7 @@ void Debug_Task(void *pvParameters)
 
 
 
-                vTaskDelay(40);
+                vTaskDelay(pdMS_TO_TICKS(40));
         }
 }
 

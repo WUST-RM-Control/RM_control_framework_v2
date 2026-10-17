@@ -112,9 +112,9 @@ void Motor_DM_Storage_Data(Motor_HandleTypeDef *hmotor, const uint8_t *Data)
 void Motor_DM_Enable(Motor_HandleTypeDef *hmotor)
 {
         Motor_DM_CMD_ClearErr(hmotor);
-        vTaskDelay(1);
+        vTaskDelay(pdMS_TO_TICKS(1));
         Motor_DM_CMD_Enable(hmotor);
-        vTaskDelay(1);
+        vTaskDelay(pdMS_TO_TICKS(1));
 }
 
 
