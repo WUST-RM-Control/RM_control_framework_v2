@@ -11,7 +11,6 @@
 #include "fdcan.h"
 #include "utils.h"
 #include "FreeRTOS.h"
-#include "queue.h"
 #include "message_buffer.h"
 
 /*===| CAN总线资源分配(各设备使用的总线与ID, 使用前需包含fdcan.h) |===*/

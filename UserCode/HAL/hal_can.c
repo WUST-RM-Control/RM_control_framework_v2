@@ -36,10 +36,6 @@ static CAN_Bus_StructTypeDef *CAN_Bus_Find(FDCAN_HandleTypeDef *hfdcan)
         return NULL;
 }
 
-// void HAL_FDCAN_ErrorCallback(FDCAN_HandleTypeDef *hfdcan)
-// {
-//
-// }
 
 
 //CAN总线重启: 停止→去初始化→重新初始化→启动→重配过滤器/中断, 并清零硬件错误计数
