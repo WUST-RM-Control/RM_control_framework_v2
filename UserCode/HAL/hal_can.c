@@ -190,7 +190,7 @@ void CAN_Send_Data_Buffer(CAN_Send_Frame_StructTypeDef *CAN_Send_Packet_Struct)
         }
 }
 
-//TX FIFO 空: 唤醒本总线发送任务
+//TX FIFO 空回调
 void HAL_FDCAN_TxFifoEmptyCallback(FDCAN_HandleTypeDef *hfdcan)
 {
         CAN_Bus_StructTypeDef *bus = CAN_Bus_Find(hfdcan);
