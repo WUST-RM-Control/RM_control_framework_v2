@@ -1966,7 +1966,7 @@ void can_SendCmd(Motor_HandleTypeDef *hmotor, __IO uint8_t *cmd, uint8_t len)
                         CAN_Send_Frame_Struct.CAN_TxMsg.DataLength = FDCAN_DLC_BYTES_8;
                 }
 
-                CAN_Send_Data_Queue(&CAN_Send_Frame_Struct);
+                CAN_Send_Data_Buffer(&CAN_Send_Frame_Struct);
 
                 // // 发送数据(等待Tx FIFO有空位)
                 // while(HAL_FDCAN_GetTxFifoFreeLevel(&EMM_V5_CAN) == 0);
