@@ -49,8 +49,8 @@ void Motor_Ctor(Motor_HandleTypeDef *hmotor,FDCAN_HandleTypeDef *hfdcan, uint16_
 {
         memset(hmotor, 0, sizeof(Motor_HandleTypeDef));
 
-        CAN_Node_Ctor(&hmotor->Node, hfdcan, CAN_Send_ID, CAN_Feedback_ID, Motor_CAN_Node_Handler, Motor_Config_Struct.herr.tick_timeout, Motor_Config_Struct.herr.count_maximum, Motor_Config_Struct.herr.handler);
         hmotor->Motor_Config_Struct = Motor_Config_Struct;
+        CAN_Node_Ctor(&hmotor->Node, hfdcan, CAN_Send_ID, CAN_Feedback_ID, Motor_CAN_Node_Handler, Motor_Config_Struct.herr.tick_timeout, Motor_Config_Struct.herr.count_maximum, Motor_Config_Struct.herr.handler);
 
         Motor_Count++;
 }

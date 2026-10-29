@@ -20,7 +20,7 @@ uint64_t        CYCCNT64;
 
 static void DWT_CNT_Update(void);
 
-void DWT_Init(uint32_t CPU_Freq_mHz)
+void DWT_Init(const uint32_t CPU_Freq_mHz)
 {
         /* 使能DWT外设 */
         CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;

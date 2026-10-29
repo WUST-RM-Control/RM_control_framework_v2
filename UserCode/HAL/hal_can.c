@@ -131,6 +131,18 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
         }
 }
 
+//入队待发: 按帧内 hfdcan 选对应总线缓冲; 不阻塞, 满则丢帧(避免反压控制任务)
+static void CAN_Send_Data_Buffer(CAN_Send_Frame_StructTypeDef *CAN_Send_Packet_Struct)
+{
+        CAN_Bus_StructTypeDef *bus = CAN_Bus_Find(CAN_Send_Packet_Struct->hfdcan);
+        if (bus == NULL || bus->TxBuffer == NULL) return;
+
+        if (xMessageBufferSend(bus->TxBuffer, CAN_Send_Packet_Struct, sizeof(CAN_Send_Frame_StructTypeDef), 0) == pdFAIL)
+        {
+                CAN_Tx_Drop_Count++;
+        }
+}
+
 //CAN-发送标准帧
 void CAN_Send_Data_STD(CAN_Node_HandleTypeDef *hcan_node, const uint8_t *TX_Data)
 {
@@ -177,25 +189,13 @@ void CAN_Send_Data_EXD(CAN_Node_HandleTypeDef *hcan_node, uint8_t *TX_Data, uint
 
 }
 
-
-//入队待发: 按帧内 hfdcan 选对应总线缓冲; 不阻塞, 满则丢帧(避免反压控制任务)
-void CAN_Send_Data_Buffer(CAN_Send_Frame_StructTypeDef *CAN_Send_Packet_Struct)
-{
-        CAN_Bus_StructTypeDef *bus = CAN_Bus_Find(CAN_Send_Packet_Struct->hfdcan);
-        if (bus == NULL || bus->TxBuffer == NULL) return;
-
-        if (xMessageBufferSend(bus->TxBuffer, CAN_Send_Packet_Struct, sizeof(CAN_Send_Frame_StructTypeDef), 0) == pdFAIL)
-        {
-                CAN_Tx_Drop_Count++;
-        }
-}
-
-//TX FIFO 空回调
+//TX FIFO 空 回调
 void HAL_FDCAN_TxFifoEmptyCallback(FDCAN_HandleTypeDef *hfdcan)
 {
         CAN_Bus_StructTypeDef *bus = CAN_Bus_Find(hfdcan);
         if (bus == NULL || bus->TxTask == NULL) return;
 
+        //直接任务通知唤醒CAN_TxTask发送
         BaseType_t xHigherPriorityTaskWoken = pdFALSE;
         vTaskNotifyGiveFromISR(bus->TxTask, &xHigherPriorityTaskWoken);
         portYIELD_FROM_ISR(xHigherPriorityTaskWoken);

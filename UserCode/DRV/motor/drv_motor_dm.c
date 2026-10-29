@@ -126,8 +126,6 @@ Motor_VTable Motor_DM_VTable_Default = {
         .disable = Motor_DM_CMD_Disable,
         .set_zero = Motor_DM_CMD_SetZero,
         .send_torque = Motor_DM_Send_Torque,
-        .send_speed = Motor_DM_CMD_Speed,
-        .send_angle = Motor_DM_Send_Pos,
         .storage_data = Motor_DM_Storage_Data
 };
 

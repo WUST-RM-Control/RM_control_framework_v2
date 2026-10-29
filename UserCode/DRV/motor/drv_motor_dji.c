@@ -6,7 +6,6 @@
 #include "hal_can.h"
 #include "utils.h"
 
-
 //电机-大疆-发送电流控制帧（FDCAN，控制帧ID，电机1电流，电机2电流，电机3电流，电机4电流）
 void Motor_DJI_SendCurrent(FDCAN_HandleTypeDef *hfdcan, uint16_t CAN_ID, int16_t ID1_Currnet, int16_t ID2_Currnet, int16_t ID3_Currnet, int16_t ID4_Currnet)
 {
@@ -97,8 +96,6 @@ Motor_VTable Motor_DJI_VTable_Default = {
         .disable      = (void(*)(Motor_HandleTypeDef *hmotor)) null_function,
         .set_zero     = Motor_DJI_Set_Zero,
         .send_torque  = Motor_DJI_Send_Torque, //DJI一拖四: 由组长组帧(Motor_DJI_Send_Torque 内部收集组内目标)
-        .send_speed   = (void(*)(Motor_HandleTypeDef *, float)) null_function,
-        .send_angle   = (void(*)(Motor_HandleTypeDef *, float)) null_function,
         .storage_data = Motor_DJI_Storage_Data
 };
 

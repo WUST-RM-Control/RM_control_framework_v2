@@ -62,10 +62,6 @@ struct Motor_VTable
 
         void (*send_torque)(Motor_HandleTypeDef *hmotor, float torque);
 
-        void (*send_speed)(Motor_HandleTypeDef *hmotor, float speed);
-
-        void (*send_angle)(Motor_HandleTypeDef *hmotor, float angle);
-
         void (*storage_data)(Motor_HandleTypeDef *hmotor, const uint8_t *Data);
 };
 
@@ -183,7 +179,5 @@ __STATIC_INLINE float Motor_Get_Total_Angle(Motor_HandleTypeDef *hmotor) { retur
 
 /*===| 统一发送接口(通过vtable分发到各型号电机驱动) |===*/
 __STATIC_INLINE void Motor_Send_Torque(Motor_HandleTypeDef *hmotor, float torque) { hmotor->Motor_Config_Struct.vptr->send_torque(hmotor, torque); }
-__STATIC_INLINE void Motor_Send_Speed(Motor_HandleTypeDef *hmotor, float speed) { hmotor->Motor_Config_Struct.vptr->send_speed(hmotor, speed); }
-__STATIC_INLINE void Motor_Send_Angle(Motor_HandleTypeDef *hmotor, float angle) { hmotor->Motor_Config_Struct.vptr->send_angle(hmotor, angle); }
 
 #endif //G4MINI_V3_DRV_MOTOR_H

@@ -123,9 +123,6 @@ void CAN_Send_Data_STD(CAN_Node_HandleTypeDef *hcan_node, const uint8_t *TX_Data
 
 void CAN_Send_Data_EXD(CAN_Node_HandleTypeDef *hcan_node, uint8_t *TX_Data, uint8_t Length);
 
-//入队待发(按帧内 hfdcan 选对应总线缓冲; 不阻塞, 满则丢帧并计数)
-void CAN_Send_Data_Buffer(CAN_Send_Frame_StructTypeDef *CAN_Send_Packet_Struct);
-
 void CAN_Filter_Init(FDCAN_HandleTypeDef *hfdcan);
 
 void CAN_Init();
